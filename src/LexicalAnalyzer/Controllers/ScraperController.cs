@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using HtmlAgilityPack;
 
-
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LexicalAnalyzer.Controllers
@@ -17,24 +16,16 @@ namespace LexicalAnalyzer.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            
             var testDoc = new HtmlDocument();
-          //    HtmlWeb web = new HtmlWeb();
-            testDoc.LoadHtml("http://stackoverflow.com/");
-            //testDoc.Load()
-            var root = testDoc.DocumentNode;
-            var nodes = root.Descendants();
-            var totalNodes = nodes.Count();
-            string totes = totalNodes.ToString();
+            //   HtmlWeb web = new HtmlWeb();
+            testDoc.LoadHtml("http://www.stackoverflow.com");
             string urls = "";
-           // root.
-
-            //foreach (HtmlNode link in testDoc. .DocumentNode.SelectNodes("//a[@href]"))
+            //foreach (HtmlNode link in testDoc.DocumentNode.SelectNodes("//a[@href]"))
             //{
             //    urls += link.GetAttributeValue("href", string.Empty) + "\n";
             //}
 
-            return new string[] { totes };
+            return new string[] { "value1", "value2" };
         }
 
         // GET api/scraper/5
