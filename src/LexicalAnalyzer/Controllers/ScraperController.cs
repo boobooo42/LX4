@@ -4,11 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using HtmlAgilityPack;
+using System.Net.Http;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LexicalAnalyzer.Controllers
 {
+
+
     [Route("api/[controller]")]
     public class ScraperController : Controller
     {
@@ -16,16 +19,13 @@ namespace LexicalAnalyzer.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            var testDoc = new HtmlDocument();
-            //   HtmlWeb web = new HtmlWeb();
-            testDoc.LoadHtml("http://www.stackoverflow.com");
-            string urls = "";
-            //foreach (HtmlNode link in testDoc.DocumentNode.SelectNodes("//a[@href]"))
-            //{
-            //    urls += link.GetAttributeValue("href", string.Empty) + "\n";
-            //}
 
-            return new string[] { "value1", "value2" };
+
+            DownloadPageAsync();
+
+
+
+            return new string[] { stringG };
         }
 
         // GET api/scraper/5
@@ -34,6 +34,48 @@ namespace LexicalAnalyzer.Controllers
         {
             return "value";
         }
+
+        static string stringG;
+
+        /// <summary>
+        /// asynchronous call to an html doc
+        /// </summary>
+        async void DownloadPageAsync()
+        {
+
+            HtmlDocument testDoc = new HtmlDocument();
+            HttpClient client = new HttpClient();
+
+            //response gets the async response of the website AND the content
+            var response = new HttpResponseMessage();
+            response = await client.GetAsync("http://en.wikipedia.org/");
+
+            var content = response.Content;
+            string result = await content.ReadAsStringAsync();
+
+
+            testDoc.LoadHtml(result);
+
+
+            string urls = "";
+
+            //this is just doing a node count for the document
+            var root = testDoc.DocumentNode;
+            var nodes = root.Descendants();
+            var totalNodes = nodes.Count();
+
+            foreach (HtmlNode link in testDoc.DocumentNode.SelectNodes("//a[@href]"))
+            {
+                urls += link.GetAttributeValue("href", string.Empty) + "\n";
+            }
+
+
+            stringG = urls;
+
+        }
+
+        //   return test;
+
 
         // POST api/scraper
         [HttpPost]
