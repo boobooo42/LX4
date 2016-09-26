@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using HtmlAgilityPack;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,20 +14,42 @@ namespace LexicalAnalyzer.Controllers
     [Route("api/[controller]")]
     public class ScraperController : Controller
     {
+        static async Task<string> RunAsync()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("https://sourceforge.net");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
+
+                // HTTP GET
+                HttpResponseMessage response = await client.GetAsync("/");
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("We did it, reddit!\n");
+                    return await response.Content.ReadAsStringAsync();
+                }
+                return "it failed";
+            }
+        }
+
         // GET: api/scraper
         [HttpGet]
-        public IEnumerable<string> Get()
+        public string Get()
         {
             var testDoc = new HtmlDocument();
             //   HtmlWeb web = new HtmlWeb();
-            testDoc.LoadHtml("http://www.stackoverflow.com");
-            string urls = "";
+            //            testDoc.LoadHtml("http://www.stackoverflow.com");
+            //            string urls = "";
             //foreach (HtmlNode link in testDoc.DocumentNode.SelectNodes("//a[@href]"))
             //{
             //    urls += link.GetAttributeValue("href", string.Empty) + "\n";
             //}
 
-            return new string[] { "value1", "value2" };
+            Task<string> task = RunAsync();
+            task.Wait();
+
+            return task.Result;
         }
 
         // GET api/scraper/5
