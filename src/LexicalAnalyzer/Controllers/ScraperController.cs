@@ -14,11 +14,51 @@ namespace LexicalAnalyzer.Controllers
     [Route("api/[controller]")]
     public class ScraperController : Controller
     {
+        static string getChildNodes(HtmlDocument doc)
+        {
+            string pureText = "";
+            foreach (HtmlNode node in doc.DocumentNode.ChildNodes)
+            {
+                pureText += node.InnerText;
+            }
+
+            return pureText.ToString();
+        }
+
+        static string getLinks(HtmlDocument doc)
+        {
+            string urls = "";
+            foreach (HtmlNode link in doc.DocumentNode.SelectNodes("//a[@href]"))
+            {
+                urls += link.GetAttributeValue("href", string.Empty) + "\n";
+            }
+            return urls;
+        }
+        static string getFiles(HtmlDocument doc)
+        {
+            string urls = "";
+            string fileType = "img";
+            HtmlNodeCollection files = new HtmlNodeCollection(doc.DocumentNode.ParentNode);
+            files = doc.DocumentNode.SelectNodes("//" + fileType);
+
+            if (files != null)
+            {
+                foreach (HtmlNode file in files)
+                {
+                    HtmlAttribute src = file.Attributes[@"src"];
+                    urls += src.Value + "\n";
+                }
+                return urls;
+            }
+            else
+                return "No " + fileType + " files found";
+        }
+
         static async Task<string> RunAsync()
         {
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://sourceforge.net");
+                client.BaseAddress = new Uri("https://sourceforge.net/projects/pidgin/?source=directory");
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
 
@@ -37,19 +77,16 @@ namespace LexicalAnalyzer.Controllers
         [HttpGet]
         public string Get()
         {
-            var testDoc = new HtmlDocument();
-            //   HtmlWeb web = new HtmlWeb();
-            //            testDoc.LoadHtml("http://www.stackoverflow.com");
-            //            string urls = "";
-            //foreach (HtmlNode link in testDoc.DocumentNode.SelectNodes("//a[@href]"))
-            //{
-            //    urls += link.GetAttributeValue("href", string.Empty) + "\n";
-            //}
-
             Task<string> task = RunAsync();
             task.Wait();
 
-            return task.Result;
+            var testDoc = new HtmlDocument();
+            testDoc.LoadHtml(task.Result);
+            string result = "";
+            //result = getChildNodes(testDoc);
+            //result = getLinks(testDoc);
+            result += getFiles(testDoc);
+            return result;
         }
 
         // GET api/scraper/5
