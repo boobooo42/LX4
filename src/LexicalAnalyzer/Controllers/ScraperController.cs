@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using HtmlAgilityPack;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Runtime.Serialization;
+using System.IO;
+using LexicalAnalyzer.Resources;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,26 +18,55 @@ namespace LexicalAnalyzer.Controllers
     [Route("api/[controller]")]
     public class ScraperController : Controller
     {
-        static string getChildNodes(HtmlDocument doc)
-        {
-            string pureText = "";
-            foreach (HtmlNode node in doc.DocumentNode.ChildNodes)
-            {
-                pureText += node.InnerText;
-            }
 
-            return pureText.ToString();
+        static string getHash(HtmlDocument doc)
+        {
+            string docAsString = doc.DocumentNode.OuterHtml;
+            byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(docAsString);
+            MD5 docHash = MD5.Create();
+            return Convert.ToBase64String(docHash.ComputeHash(inputBytes));
         }
 
-        static string getLinks(HtmlDocument doc)
+        static List<string> getLinks(HtmlDocument doc)
         {
-            string urls = "";
+            List<string> urls = new List<string>();
             foreach (HtmlNode link in doc.DocumentNode.SelectNodes("//a[@href]"))
             {
-                urls += link.GetAttributeValue("href", string.Empty) + "\n";
+                urls.Add(link.GetAttributeValue("href", string.Empty));
             }
             return urls;
         }
+        static List<string> getInnerLinks(HtmlDocument doc, string domain)
+        {
+            List<string> urls = getLinks(doc);
+            List<string> innerLinks = new List<string>();
+            foreach (string url in urls)
+                if (url.Contains(domain))
+                    innerLinks.Add(url);
+            return innerLinks;
+        }
+        static HtmlDocumentTree createHtmlDocTree(HtmlDocumentTree tree, List<string> hashedDocs)
+        {
+            List<string> innerUrls = getInnerLinks(tree.Node, "osuosl.org");
+            foreach (string url in innerUrls)
+            {
+                if (url != tree.Url)
+                {
+                    Task<string> task = urlToTaskAsync(url);
+                    task.Wait();
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(task.Result);
+                    string docHash = getHash(doc);
+                    if (!hashedDocs.Contains(docHash))
+                    {
+                        hashedDocs.Add(docHash);
+                        tree.ChildDocuments.Add(new HtmlDocumentTree(doc, url));
+                    }
+                }
+            }
+            return tree;
+        }
+        #region old
         static string getFiles(HtmlDocument doc)
         {
             string urls = "";
@@ -53,39 +86,76 @@ namespace LexicalAnalyzer.Controllers
             else
                 return "No " + fileType + " files found";
         }
+        #endregion
 
-        static async Task<string> RunAsync()
-        {
+        static async Task<string> urlToTaskAsync(string url)
+        {                     
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://sourceforge.net/projects/pidgin/?source=directory");
+                client.BaseAddress = new Uri(new Uri(url).AbsoluteUri);
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
-
+                
                 // HTTP GET
                 HttpResponseMessage response = await client.GetAsync("/");
                 if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("We did it, reddit!\n");
                     return await response.Content.ReadAsStringAsync();
                 }
                 return "it failed";
             }
         }
+        #region Display
+        static string displayAllUrls(HtmlDocument doc)
+        {
+            string result = "";
+            List<string> allUrls = getLinks(doc);
+            foreach (string url in allUrls)
+                result += url;
+            return result;
+        }
+        static string displayInnerUrls(HtmlDocument doc)
+        {
+            string result = "";
+            List<string> innerUrls = getInnerLinks(doc, "osuosl.org");
+            foreach (string url in innerUrls)
+                result += url + "\n";
+            return result;
+        }
+        static string displayHtmlDocumentTree(HtmlDocumentTree tree)
+        {
+            return displayHtmlDocumentTreeSubroutine(tree, "", 0);
+        }
+        static string displayHtmlDocumentTreeSubroutine(HtmlDocumentTree tree, string result, int level)
+        {
+            result += "Level " + level.ToString() + ": " + tree.Url + "\n";
+            for(int i = 0; i < tree.ChildDocuments.Count; i++)
+            {
+                result += displayHtmlDocumentTreeSubroutine(tree.ChildDocuments[i], result, level + 1) + "\n";
+            }
+            return result;
+        }
+        #endregion
 
         // GET: api/scraper
         [HttpGet]
         public string Get()
         {
-            Task<string> task = RunAsync();
+            string baseUrl = "http://debian.osuosl.org/debian/pool/main/c/";
+            Task<string> task = urlToTaskAsync(baseUrl);
             task.Wait();
 
             var testDoc = new HtmlDocument();
             testDoc.LoadHtml(task.Result);
+            List<string> htmlDocumentHashes = new List<string>();
+            htmlDocumentHashes.Add(getHash(testDoc));
+            HtmlDocumentTree tree = createHtmlDocTree(new HtmlDocumentTree(testDoc, baseUrl), htmlDocumentHashes);
             string result = "";
-            //result = getChildNodes(testDoc);
-            //result = getLinks(testDoc);
-            result += getFiles(testDoc);
+            result += tree.ChildDocuments.Count.ToString() + "\n";
+            result += displayHtmlDocumentTree(tree);
+            //result = displayAllUrls(testDoc);
+            //result += displayInnerUrls(testDoc);
+            //result += getFiles(testDoc);
             return result;
         }
 
