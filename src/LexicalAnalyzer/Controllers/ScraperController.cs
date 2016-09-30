@@ -25,12 +25,14 @@ namespace LexicalAnalyzer.Controllers
         string DownloadPath = "//a[contains(@href,'.deb')]";
        static string LinkPath = "//a[@href]";
        static string exeLinks;
+        static List<string> urlList;
         static HtmlDocumentTree htmlDocumentTree;
         List<HtmlNode> DownLinkList;
         HtmlNodeCollection DownCollection;
         #endregion
 
-        static string getHash(HtmlDocument doc)
+        #region DocTree
+        string getHash(HtmlDocument doc)
         {
             string docAsString = doc.DocumentNode.OuterHtml;
             byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(docAsString);
@@ -38,7 +40,7 @@ namespace LexicalAnalyzer.Controllers
             return Convert.ToBase64String(docHash.ComputeHash(inputBytes));
         }
 
-        static List<string> getLinks(HtmlDocument doc)
+         List<string> getLinks(HtmlDocument doc)
         {
             List<string> urls = new List<string>();
             if (doc.DocumentNode.SelectNodes(LinkPath) != null)
@@ -51,7 +53,7 @@ namespace LexicalAnalyzer.Controllers
 
             return urls;
         }
-        static List<string> getInnerLinks(HtmlDocument doc, string domain)
+        List<string> getInnerLinks(HtmlDocument doc, string domain)
         {
             List<string> links = getLinks(doc);
             List<string> innerLinks = new List<string>();
@@ -67,7 +69,7 @@ namespace LexicalAnalyzer.Controllers
             }
             return innerLinks;
         }
-        static void createHtmlDocTree(HtmlDocument root, string url)
+        void createHtmlDocTree(HtmlDocument root, string url)
         {
             htmlDocumentTree = new HtmlDocumentTree(root, url);
             List<string> htmlDocumentHashes = new List<string>();
@@ -75,7 +77,7 @@ namespace LexicalAnalyzer.Controllers
             createHtmlDocTreeSubroutine(htmlDocumentTree, htmlDocumentHashes);
         }
 
-        static void createHtmlDocTreeSubroutine(HtmlDocumentTree tree, List<string> hashedDocs)
+        void createHtmlDocTreeSubroutine(HtmlDocumentTree tree, List<string> hashedDocs)
         {
             List<string> innerLink = getInnerLinks(tree.Node, tree.Url);
             List<HtmlDocumentTree> childrenToAdd = new List<HtmlDocumentTree>();
@@ -133,6 +135,7 @@ namespace LexicalAnalyzer.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/xml"));
 
 
                 // HTTP GET
@@ -154,9 +157,13 @@ namespace LexicalAnalyzer.Controllers
 
 
         }
-  
+
+        #endregion
+
         #region Display
-        static string displayAllUrls(HtmlDocument doc)
+
+
+        string displayAllUrls(HtmlDocument doc)
         {
             string result = "";
             List<string> allUrls = getLinks(doc);
@@ -164,7 +171,7 @@ namespace LexicalAnalyzer.Controllers
                 result += url + "\n";
             return result;
         }
-        static string displayInnerUrls(HtmlDocument doc)
+        string displayInnerUrls(HtmlDocument doc)
         {
             string result = "";
             List<string> innerUrls = getInnerLinks(doc, "osuosl.org");
@@ -172,13 +179,14 @@ namespace LexicalAnalyzer.Controllers
                 result += url + "\n";
             return result;
         }
-        static string displayHtmlDocumentTree(HtmlDocumentTree tree)
+         string displayHtmlDocumentTree(HtmlDocumentTree tree)
         {
             string result = "";
             foreach(HtmlDocumentTree child in tree.ChildDocuments)
             {
                 result += child.Url + "\n";
             }
+            urlList = new List<string>();
             exeLinks = "";
 
             displayHtmlDocumentTreeSubroutine(tree, "", 0);
@@ -186,32 +194,71 @@ namespace LexicalAnalyzer.Controllers
         }
 
 
-        static void displayHtmlDocumentTreeSubroutine(HtmlDocumentTree tree, string result, int level)
+         void displayHtmlDocumentTreeSubroutine(HtmlDocumentTree tree, string result, int level)
         {
-            
-            if(tree.ChildDocuments == null || tree.ChildDocuments.Count == 0)
+            urlList.Add(tree.Url);
+
+            if (tree.ChildDocuments == null || tree.ChildDocuments.Count == 0)
             {
+
                 exeLinks += result + "\n";
+                urlList.Add(tree.Url);
+
                 return;
             }
 
             foreach (var child in tree.ChildDocuments)
             {
-                displayHtmlDocumentTreeSubroutine(child, result + child.Url, level + 1);
+                displayHtmlDocumentTreeSubroutine(child, child.Url, level + 1);
             }
 
-            //for (int i = 0; i < tree.ChildDocuments.Count; i++)
-            //{
-            //    result += displayHtmlDocumentTreeSubroutine(tree.ChildDocuments[i], result, level + 1) + "\n";
-            //}
+
 
         }
 
+        /// <summary>
+        /// new method to clean up get method in controller
+        /// </summary>
+        /// <returns></returns>
+        public string RunDisplay()
+        {
+            //   string baseUrl = "http://debian.osuosl.org/debian/pool/main/c/";
+            Task<string> task = AsyncUrlToTask(myURL);
+            task.Wait();
 
+            var testDoc = new HtmlDocument();
+            testDoc.LoadHtml(task.Result);
+            createHtmlDocTree(testDoc, myURL);
+            //List<string> htmlDocumentHashes = new List<string>();
+            //htmlDocumentHashes.Add(getHash(testDoc));
+            //HtmlDocumentTree tree = createHtmlDocTree(new HtmlDocumentTree(testDoc, myURL), htmlDocumentHashes);
+            string result = "";
+            //result += tree.ChildDocuments.Count.ToString() + "\n";
+            result += displayHtmlDocumentTree(htmlDocumentTree);
+            // result = displayAllUrls(testDoc);
+            //result += displayInnerUrls(testDoc);
+            //result += getFiles(testDoc);
+
+            result = "";
+
+            //this just lists all the parent node urls and the end of the
+            foreach (var x in urlList)
+            {
+                result += x + "\n";
+            }
+
+            return result;
+        }
 
         #endregion
 
         #region Binary Code
+
+        /// <summary>
+        /// method to retrive binaries from base webpage
+        /// </summary>
+        /// <param name="URL"></param>
+        /// <returns></returns>
         public string GetBinaries(string URL)
         {
             var testDoc = new HtmlDocument();
@@ -224,7 +271,6 @@ namespace LexicalAnalyzer.Controllers
             testDoc.LoadHtml(task.Result);
             string binaries = "";
 
-       //     DownCollection = new HtmlNodeCollection(testDoc.DocumentNode);
 
             foreach (HtmlNode link in testDoc.DocumentNode.SelectNodes(DownloadPath))
             {
@@ -244,6 +290,23 @@ namespace LexicalAnalyzer.Controllers
 
         }
 
+        /// <summary>
+        /// Method for retrieving binary files, overloaded
+        /// </summary>
+        /// <returns></returns>
+        public string GetBinaries()
+        {
+            string result = "";
+            foreach (string link in urlList)
+            {
+                if (link.EndsWith(".deb") || link.EndsWith(".gz")
+                    || link.EndsWith(".xz")){
+                    result += link + "\n";
+                }
+            }
+            return result;
+        }
+
         #endregion
 
         #region Controllers
@@ -251,22 +314,8 @@ namespace LexicalAnalyzer.Controllers
         [HttpGet]
         public string Get()
         {
-         //   string baseUrl = "http://debian.osuosl.org/debian/pool/main/c/";
-            Task<string> task = AsyncUrlToTask(myURL);
-            task.Wait();
+            string result = RunDisplay();
 
-            var testDoc = new HtmlDocument();
-            testDoc.LoadHtml(task.Result);
-            createHtmlDocTree(testDoc, myURL);
-            //List<string> htmlDocumentHashes = new List<string>();
-            //htmlDocumentHashes.Add(getHash(testDoc));
-            //HtmlDocumentTree tree = createHtmlDocTree(new HtmlDocumentTree(testDoc, myURL), htmlDocumentHashes);
-            string result = "";
-            //result += tree.ChildDocuments.Count.ToString() + "\n";
-            result += displayHtmlDocumentTree(htmlDocumentTree);
-           // result = displayAllUrls(testDoc);
-            //result += displayInnerUrls(testDoc);
-            //result += getFiles(testDoc);
             return result;
         }
 
@@ -276,7 +325,8 @@ namespace LexicalAnalyzer.Controllers
         [HttpGet("{id}")]
         public string Get(int id)
         {
-            string debs = GetBinaries(myURL);
+            //  string debs = GetBinaries(myURL);
+            string debs = GetBinaries();
 
             return debs;
         }
