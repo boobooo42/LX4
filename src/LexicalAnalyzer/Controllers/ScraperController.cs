@@ -11,6 +11,7 @@ using System.Runtime.Serialization;
 using System.IO;
 using LexicalAnalyzer.Resources;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,7 +22,8 @@ namespace LexicalAnalyzer.Controllers
     {
 
         #region Global Variables
-        static string myURL = "http://debian.osuosl.org/debian/pool/main/liby/";//"http://debian.osuosl.org/debian/pool/main/liby/";
+        static string myURL = "http://debian.osuosl.org/debian/pool/main/liby/libyaml-appconfig-perl/";
+        //static string myURL = "http://debian.osuosl.org/debian/pool/main/liby/";
         string DownloadPath = "//a[contains(@href,'.deb')]";
         static string LinkPath = "//a[@href]";
         static string exeLinks;
@@ -29,6 +31,18 @@ namespace LexicalAnalyzer.Controllers
         static HtmlDocumentTree htmlDocumentTree;
         List<HtmlNode> DownLinkList;
         HtmlNodeCollection DownCollection;
+        struct splitUrl
+        {
+            public string baseUrl;
+            public string file;
+
+            public splitUrl(string _baseUrl, string _file)
+            {
+                baseUrl = _baseUrl;
+                file = _file;
+            }
+        }
+
         #endregion
 
         #region DocTree
@@ -45,7 +59,7 @@ namespace LexicalAnalyzer.Controllers
             return Convert.ToBase64String(docHash.ComputeHash(inputBytes));
         }
 
-         List<string> getLinks(HtmlDocument doc)
+        List<string> getLinks(HtmlDocument doc)
         {
             List<string> urls = new List<string>();
             if (doc.DocumentNode.SelectNodes(LinkPath) != null)
@@ -306,6 +320,68 @@ namespace LexicalAnalyzer.Controllers
 
         #endregion
 
+        #region Download
+        void downloadFiles(List<string> urlsToDownload)
+        {
+            List<splitUrl> splitUrls = new List<splitUrl>();
+            foreach (string url in urlsToDownload)
+            {
+                splitUrls.Add(new splitUrl(url.Substring(0, url.LastIndexOf('/') + 1), url.Substring(url.LastIndexOf('/') + 1)));
+            }
+
+            HttpClient client = new HttpClient();
+
+            foreach (splitUrl su in splitUrls)
+            {
+                client.GetAsync(su.baseUrl).ContinueWith(
+                   (requestTask) =>
+                   {
+                   // Get HTTP response from completed task.
+                   HttpResponseMessage response = requestTask.Result;
+                       try
+                       {
+                           // Check that response was successful or throw exception
+                           response.EnsureSuccessStatusCode();
+
+                           // Read response asynchronously and save to file
+                           ReadAsFileAsync(response.Content, su.file, true);
+                       }
+                       catch { }
+                   });
+            }
+        }
+
+        static Task ReadAsFileAsync(HttpContent content, string filename, bool overwrite) // code from https://blogs.msdn.microsoft.com/henrikn/2012/02/17/httpclient-downloading-to-a-local-file/
+        {
+            string directory = "J:\\Desktop\\Output\\"; // you can change this
+            string pathname = directory + filename; 
+            //string pathname = Path.GetFullPath(filename); //will put in default directory
+            FileStream fileStream = null;
+            try
+            {
+                fileStream = new FileStream(pathname, FileMode.Create, FileAccess.Write, FileShare.None);
+                return content.CopyToAsync(fileStream).ContinueWith(
+                    (copyTask) =>
+                    {
+                        fileStream.Dispose();
+                    });
+            }
+            catch
+            {
+                if (fileStream != null)
+                {
+                    fileStream.Dispose();
+                }
+
+                throw;
+            }
+        }
+
+
+
+
+        #endregion
+
         #region Controllers
         // GET: api/scraper
         [HttpGet]
@@ -329,9 +405,10 @@ namespace LexicalAnalyzer.Controllers
             downLoadTypes.Add(".tar.gz");
             string debs = "";
             
-            downLoadTypes = GetDownloads(downLoadTypes,urlList);
-
-            foreach (string s in downLoadTypes)
+            List<string> urlsToDownload = GetDownloads(downLoadTypes,urlList);
+            urlsToDownload = urlsToDownload.Distinct().ToList(); //remove any duplicates           
+            downloadFiles(urlsToDownload);
+            foreach (string s in urlsToDownload)
             {
                 debs += s + "\n";
             }
