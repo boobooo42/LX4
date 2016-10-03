@@ -23,8 +23,8 @@ namespace LexicalAnalyzer.Controllers
         #region Global Variables
         static string myURL = "http://debian.osuosl.org/debian/pool/main/liby/";//"http://debian.osuosl.org/debian/pool/main/liby/";
         string DownloadPath = "//a[contains(@href,'.deb')]";
-       static string LinkPath = "//a[@href]";
-       static string exeLinks;
+        static string LinkPath = "//a[@href]";
+        static string exeLinks;
         static List<string> urlList;
         static HtmlDocumentTree htmlDocumentTree;
         List<HtmlNode> DownLinkList;
@@ -40,7 +40,7 @@ namespace LexicalAnalyzer.Controllers
             return Convert.ToBase64String(docHash.ComputeHash(inputBytes));
         }
 
-         List<string> getLinks(HtmlDocument doc)
+        List<string> getLinks(HtmlDocument doc)
         {
             List<string> urls = new List<string>();
             if (doc.DocumentNode.SelectNodes(LinkPath) != null)
@@ -94,7 +94,7 @@ namespace LexicalAnalyzer.Controllers
                     childrenToAdd.Add(new HtmlDocumentTree(doc, link));
                 }
             }
-            foreach(HtmlDocumentTree child in childrenToAdd)
+            foreach (HtmlDocumentTree child in childrenToAdd)
             {
                 tree.ChildDocuments.Add(child);
             }
@@ -179,10 +179,10 @@ namespace LexicalAnalyzer.Controllers
                 result += url + "\n";
             return result;
         }
-         string displayHtmlDocumentTree(HtmlDocumentTree tree)
+        string displayHtmlDocumentTree(HtmlDocumentTree tree)
         {
             string result = "";
-            foreach(HtmlDocumentTree child in tree.ChildDocuments)
+            foreach (HtmlDocumentTree child in tree.ChildDocuments)
             {
                 result += child.Url + "\n";
             }
@@ -194,7 +194,7 @@ namespace LexicalAnalyzer.Controllers
         }
 
 
-         void displayHtmlDocumentTreeSubroutine(HtmlDocumentTree tree, string result, int level)
+        void displayHtmlDocumentTreeSubroutine(HtmlDocumentTree tree, string result, int level)
         {
             urlList.Add(tree.Url);
 
@@ -241,7 +241,7 @@ namespace LexicalAnalyzer.Controllers
 
             result = "";
 
-            //this just lists all the parent node urls and the end of the
+            //this just lists all the urls
             foreach (var x in urlList)
             {
                 result += x + "\n";
@@ -294,17 +294,26 @@ namespace LexicalAnalyzer.Controllers
         /// Method for retrieving binary files, overloaded
         /// </summary>
         /// <returns></returns>
-        public string GetBinaries()
+        public List<string> GetDownloads(List<string> docTypes, List<string> linkList)
         {
-            string result = "";
-            foreach (string link in urlList)
+            List<string> downloadList = new List<string>();
+            //foreach (string link in urlList)
+            //{
+            //    if (link.EndsWith(".deb") || link.EndsWith(".gz")
+            //        || link.EndsWith(".xz"))
+            //    {
+            //        result += link + "\n";
+            //    }
+            //}
+
+            foreach (string link in linkList)
             {
-                if (link.EndsWith(".deb") || link.EndsWith(".gz")
-                    || link.EndsWith(".xz")){
-                    result += link + "\n";
+                foreach (string docType in docTypes)
+                {
+                    if (link.EndsWith(docType)) downloadList.Add(link);
                 }
             }
-            return result;
+            return downloadList;
         }
 
         #endregion
@@ -326,7 +335,18 @@ namespace LexicalAnalyzer.Controllers
         public string Get(int id)
         {
             //  string debs = GetBinaries(myURL);
-            string debs = GetBinaries();
+
+            List<string> downLoadTypes = new List<string>();
+            downLoadTypes.Add(".deb");
+            downLoadTypes.Add(".tar.gz");
+            string debs = "";
+            
+            downLoadTypes = GetDownloads(downLoadTypes,urlList);
+
+            foreach (string s in downLoadTypes)
+            {
+                debs += s + "\n";
+            }
 
             return debs;
         }
