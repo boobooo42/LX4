@@ -32,6 +32,11 @@ namespace LexicalAnalyzer.Controllers
         #endregion
 
         #region DocTree
+        /// <summary>
+        /// Gets a MD5 hash of a HtmlDocument
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <returns></returns>
         string getHash(HtmlDocument doc)
         {
             string docAsString = doc.DocumentNode.OuterHtml;
@@ -40,7 +45,7 @@ namespace LexicalAnalyzer.Controllers
             return Convert.ToBase64String(docHash.ComputeHash(inputBytes));
         }
 
-        List<string> getLinks(HtmlDocument doc)
+         List<string> getLinks(HtmlDocument doc)
         {
             List<string> urls = new List<string>();
             if (doc.DocumentNode.SelectNodes(LinkPath) != null)
@@ -53,6 +58,13 @@ namespace LexicalAnalyzer.Controllers
 
             return urls;
         }
+
+        /// <summary>
+        /// Returns a restricted list of the urls in the HtmlDocument that are within the given domain
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="domain"></param>
+        /// <returns></returns>
         List<string> getInnerLinks(HtmlDocument doc, string domain)
         {
             List<string> links = getLinks(doc);
@@ -69,6 +81,12 @@ namespace LexicalAnalyzer.Controllers
             }
             return innerLinks;
         }
+
+        /// <summary>
+        /// Wrapper function for creating the HtmlDocument tree
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="url"></param>
         void createHtmlDocTree(HtmlDocument root, string url)
         {
             htmlDocumentTree = new HtmlDocumentTree(root, url);
@@ -77,6 +95,11 @@ namespace LexicalAnalyzer.Controllers
             createHtmlDocTreeSubroutine(htmlDocumentTree, htmlDocumentHashes);
         }
 
+        /// <summary>
+        /// Recursively builds the HtmlDocument tree
+        /// </summary>
+        /// <param name="tree"></param>
+        /// <param name="hashedDocs"></param>
         void createHtmlDocTreeSubroutine(HtmlDocumentTree tree, List<string> hashedDocs)
         {
             List<string> innerLink = getInnerLinks(tree.Node, tree.Url);
@@ -104,39 +127,20 @@ namespace LexicalAnalyzer.Controllers
             }
         }
 
-        //static HtmlDocumentTree createHtmlDocTree(HtmlDocumentTree tree, List<string> hashedDocs)
-        //{
-        //    List<string> innerLink = getInnerLinks(tree.Node, myURL);
-        //    List<HtmlDocumentTree> childrenToAdd = new List<HtmlDocumentTree>();
-        //    foreach (string link in innerLink)
-        //    {
-        //        Task<string> task = AsyncUrlToTask(link);
-        //        task.Wait();
-        //        var doc = new HtmlDocument();
-        //        doc.LoadHtml(task.Result);
-        //        string docHash = getHash(doc);
-        //        if (!hashedDocs.Contains(docHash))
-        //        {
-        //            hashedDocs.Add(docHash);
-        //            tree.ChildDocuments.Add(new HtmlDocumentTree(doc, link));
-        //        }
-        //    }
-        //    return tree;
-        //}
-
+        /// <summary>
+        /// Gets a task from a url async
+        /// </summary>
+        /// <param name="URL"></param>
+        /// <returns></returns>
         static async Task<string> AsyncUrlToTask(string URL)
         {
-
-
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(URL);
-                //  client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/xml"));
-
 
                 // HTTP GET
 
@@ -148,21 +152,12 @@ namespace LexicalAnalyzer.Controllers
                     Console.WriteLine("We did it, reddit!\n");
                     return await response.Content.ReadAsStringAsync();
                 }
-
-
                 return "it failed";
-
-
             }
-
-
         }
-
         #endregion
 
         #region Display
-
-
         string displayAllUrls(HtmlDocument doc)
         {
             string result = "";
@@ -275,14 +270,7 @@ namespace LexicalAnalyzer.Controllers
             foreach (HtmlNode link in testDoc.DocumentNode.SelectNodes(DownloadPath))
             {
                 binaries += link.GetAttributeValue("href", string.Empty) + "\n";
-
             }
-
-            //foreach (char s in task.Result)
-            //{
-            //    urls += s;
-            //}
-
 
             string urlCount = DownCollection.Count().ToString();
 
@@ -370,9 +358,6 @@ namespace LexicalAnalyzer.Controllers
         }
 
         #endregion
-
-
-
 
     }
 }
