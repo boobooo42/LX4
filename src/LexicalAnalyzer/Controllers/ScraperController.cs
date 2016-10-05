@@ -45,6 +45,11 @@ namespace LexicalAnalyzer.Controllers
             return Convert.ToBase64String(docHash.ComputeHash(inputBytes));
         }
 
+        /// <summary>
+        /// Returns all the urls in the HtmlDocument
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <returns></returns>
          List<string> getLinks(HtmlDocument doc)
         {
             List<string> urls = new List<string>();
@@ -137,6 +142,8 @@ namespace LexicalAnalyzer.Controllers
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(URL);
+
+                //none of this filters it at all
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -327,8 +334,10 @@ namespace LexicalAnalyzer.Controllers
             List<string> downLoadTypes = new List<string>();
             downLoadTypes.Add(".deb");
             downLoadTypes.Add(".tar.gz");
+
             string debs = "";
             
+            //work being done here
             downLoadTypes = GetDownloads(downLoadTypes,urlList);
 
             foreach (string s in downLoadTypes)
