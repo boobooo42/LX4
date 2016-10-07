@@ -22,8 +22,8 @@ namespace LexicalAnalyzer.Controllers
     {
 
         #region Global Variables
-        static string myURL = "http://debian.osuosl.org/debian/pool/main/liby/libyaml-appconfig-perl/";
-        //static string myURL = "http://debian.osuosl.org/debian/pool/main/liby/";
+        //static string myURL = "http://debian.osuosl.org/debian/pool/main/liby/libyaml-appconfig-perl/";
+        static string myURL = "http://debian.osuosl.org/debian/pool/main/c/";
         string DownloadPath = "//a[contains(@href,'.deb')]";
         static string LinkPath = "//a[@href]";
         static string exeLinks;
