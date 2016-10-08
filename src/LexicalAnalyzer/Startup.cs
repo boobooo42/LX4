@@ -54,6 +54,11 @@ namespace LexicalAnalyzer
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+                routes.MapRoute(
+                    name: "Web API",
+                    template: "api/{controller}/{action}/{id?}",
+                    defaults: new { action = "get" }
+                    );
             });
         }
     }

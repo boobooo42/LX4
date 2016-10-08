@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using HtmlAgilityPack;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Cryptography;
-using System.Runtime.Serialization;
-using System.IO;
+﻿using HtmlAgilityPack;
 using LexicalAnalyzer.Resources;
-using System.Text.RegularExpressions;
+using LexicalAnalyzer.Services;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Net.Http;
+using System.Runtime.Serialization;
+using System.Security.Cryptography;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -390,16 +392,16 @@ namespace LexicalAnalyzer.Controllers
         #endregion
 
         #region Controllers
+        /*
         // GET: api/scraper
         [HttpGet]
         public string Get()
         {
-            string result = RunDisplay();
-
-            return result;
+            return JsonConvert.SerializeObject(ScraperFactory.ScraperNames);
         }
+        */
 
-
+        /*
 
         // GET api/scraper/5
         [HttpGet("{id}")]
@@ -422,6 +424,22 @@ namespace LexicalAnalyzer.Controllers
             }
 
             return debs;
+        }
+        */
+
+        // GET api/scraper/start
+        [HttpGet("start")]
+        public string Start()
+        {
+            return "We're starting something!";
+        }
+
+        // GET api/scraper/types
+        [HttpGet("types")]
+        public List<string> Types()
+        {
+            //return new List<string>(new string[] {"hello", "test"});
+            return ScraperFactory.ScraperNames;
         }
 
         // POST api/scraper

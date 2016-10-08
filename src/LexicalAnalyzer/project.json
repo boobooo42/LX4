@@ -25,7 +25,9 @@
     "BundlerMinifier.Core": "2.1.258",
     "HtmlAgilityPack.NetCore": "1.4.9.2",
     "System.Runtime.Serialization.Xml": "4.1.1",
-    "System.Private.DataContractSerialization": "4.1.1"
+    "System.Private.DataContractSerialization": "4.1.1",
+    "Newtonsoft.Json": "9.0.1",
+    "System.Reflection.TypeExtensions": "4.1.0"
   },
 
   "tools": {
