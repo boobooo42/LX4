@@ -17,8 +17,17 @@ namespace LexicalAnalyzer.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
+            string testString = "";
             SHA256 mySha = SHA256.Create();
-            string testString = "Hi i'm just a test bro";
+            IFileRepository FileRepository = new FileRepository();
+            List<File> files = FileRepository.GetAll();
+            foreach (File f in files)
+            {
+                testString = f.FileName.ToString();
+            }
+            
+            /*
+            //string testString = "Hi i'm just a test bro";
             //// Converts the string to bytes
             byte[] byteData = Encoding.UTF8.GetBytes(testString);
             //// hash data computed by SHA256
@@ -54,8 +63,8 @@ namespace LexicalAnalyzer.Controllers
             {
                 totalResults = totalResults + hashList[count];
             }
-
-            return new string[] { "This is the test string: " + testString + "     Here is the results: " + results + "     Total :" + totalResults, " Duplicates found " + dupCount };
+            */
+            return new string[] {testString};
         }
 
         // GET api/values/5
