@@ -19,6 +19,8 @@ namespace LexicalAnalyzer
                 .Build();
 
             host.Run();
+
+           
         }
     }
 }

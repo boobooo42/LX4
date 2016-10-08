@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography;
 using System.Text;
+using System.Security.Cryptography;
+
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LexicalAnalyzer.Controllers
@@ -12,12 +13,21 @@ namespace LexicalAnalyzer.Controllers
     [Route("api/[controller]")]
     public class ShaController : Controller
     {
-        // GET: api/sha/
+        // GET: api/values
         [HttpGet]
         public IEnumerable<string> Get()
         {
+            string testString = "";
             SHA256 mySha = SHA256.Create();
-            string testString = "Hi i'm just a test bro";
+            IFileRepository FileRepository = new FileRepository();
+            List<File> files = FileRepository.GetAll();
+            foreach (File f in files)
+            {
+                testString = f.FileName.ToString();
+            }
+            
+            /*
+            //string testString = "Hi i'm just a test bro";
             //// Converts the string to bytes
             byte[] byteData = Encoding.UTF8.GetBytes(testString);
             //// hash data computed by SHA256
@@ -26,25 +36,35 @@ namespace LexicalAnalyzer.Controllers
             List<string> hashList = new List<string>();
             string totalResults = " ";
             string results = " ";
-            //// Converts the SHA256 to a readble format string of 2 pad 0
+            int dupCount = 0;
+            //// loop to test
             int loopCount = 0;
-            //// Loop to test list
-            while(loopCount!=2)
+            //// Converts the SHA256 to a readable format string of 2 pad 0
+            while (loopCount != 3)
             {
                 results = " ";
                 foreach (byte v in hashData)
                 {
                     results = results + String.Format("{0:x2}", v);
                 }
-                hashList.Add(results);
+                // checks dups
+                if (hashList.Contains(results) != true)
+                {
+                    hashList.Add(results);
+                }
+                else
+                {
+                    dupCount++;
+                }
                 loopCount++;
             }
             /// Display list
-            for (int count =0;count<hashList.Count;count++)
+            for (int count = 0; count < hashList.Count; count++)
             {
                 totalResults = totalResults + hashList[count];
             }
-            return new string[] {"This is the test string: " +testString + "       Here is the results: "+ results+ "      Total :" +totalResults};
+            */
+            return new string[] {testString};
         }
 
         // GET api/values/5
