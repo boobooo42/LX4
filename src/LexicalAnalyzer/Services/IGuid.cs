@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 
 namespace LexicalAnalyzer.Services
 {
-    interface IWorker
+    public interface IGuid
     {
-        /* */
+        Guid Guid {
+            get;
+        }
     }
 }

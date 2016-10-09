@@ -29,6 +29,7 @@ namespace LexicalAnalyzer
         {
             // Add framework services.
             services.AddMvc();
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,10 +57,12 @@ namespace LexicalAnalyzer
                     template: "{controller=Home}/{action=Index}/{id?}");
                 routes.MapRoute(
                     name: "Web API",
-                    template: "api/{controller}/{action}/{id?}",
-                    defaults: new { action = "get" }
+                    template: "api/{controller=Scraper}/{action=Get}"
                     );
             });
+
+            app.UseSwagger();
+            app.UseSwaggerUi();
         }
     }
 }

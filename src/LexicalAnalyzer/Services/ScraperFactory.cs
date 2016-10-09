@@ -34,7 +34,7 @@ namespace LexicalAnalyzer.Services
             }
         }
 
-        private List<string> m_ScraperNames {
+        private List<string> m_ScraperTypes {
             get {
                 List<string> result = new List<string>();
 
@@ -45,21 +45,24 @@ namespace LexicalAnalyzer.Services
                 return result;
             }
         }
-        public static List<string> ScraperNames {
+        public static List<string> ScraperTypes {
             get {
-                return Instance.m_ScraperNames;
+                return Instance.m_ScraperTypes;
             }
         }
 
-        private IScraper m_BuildScraper(string name) {
-            Type t = m_scraperTypes.Find(elem => { return elem.Name == name; });
-            if (t.IsAssignableFrom(typeof(IScraper))) {
+        private IScraper m_BuildScraper(string type) {
+            Type t = m_scraperTypes.Find(elem => { return elem.FullName == type; });
+            if (t == null) {
+                return null;
+            }
+            if (t.GetInterfaces().Contains(typeof(IScraper))) {
                 return (IScraper)Activator.CreateInstance(t);
             }
             return null;
         }
-        public static IScraper BuildScraper(string name) {
-            return Instance.m_BuildScraper(name);
+        public static IScraper BuildScraper(string type) {
+            return Instance.m_BuildScraper(type);
         }
     }
 }

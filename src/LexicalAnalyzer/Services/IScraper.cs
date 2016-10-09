@@ -5,7 +5,16 @@ using System.Threading.Tasks;
 
 namespace LexicalAnalyzer.Services
 {
-    public interface IScraper : ITask
+    public interface IScraper : ITask, IGuid
     {
+        string DisplayName {
+            get;
+        }
+        string Description {
+            get;
+        }
+        string ContentType {
+            get;
+        }
     }
 }
