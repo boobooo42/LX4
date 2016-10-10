@@ -65,6 +65,12 @@ namespace LexicalAnalyzer.Services
             }
         }
 
+        public string Status {
+            get {
+                return "paused";
+            }
+        }
+
         public void Run() {
             /* TODO: Perform scraping here */
             /* TODO: We do not have a model for corpus content yet, so there is

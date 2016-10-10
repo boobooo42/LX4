@@ -48,7 +48,9 @@
 
   "buildOptions": {
     "emitEntryPoint": true,
-    "preserveCompilationContext": true
+    "preserveCompilationContext": true,
+    "xmlDoc": true,
+    "define": [ "DEBUG" ]
   },
 
   "runtimeOptions": {

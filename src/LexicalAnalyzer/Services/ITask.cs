@@ -7,6 +7,11 @@ namespace LexicalAnalyzer.Services
 {
     public interface ITask
     {
+      string Status
+      {
+        get;
+      }
+
       /// <summary>
       /// This returns the progress of this task. The progress ranges from 0.0f
       /// to 1.0f.
