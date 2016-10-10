@@ -36,5 +36,20 @@ namespace LexicalAnalyzer.Controllers
         {
             return View();
         }
+
+        public IActionResult Documentation()
+        {
+            return View();
+        }
+
+        public IActionResult NeuralNet()
+        {
+            return View();
+        }
+
+        public IActionResult Corpus()
+        {
+            return View();
+        }
     }
 }
