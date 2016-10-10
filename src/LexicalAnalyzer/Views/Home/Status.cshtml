@@ -1,0 +1,320 @@
+﻿<style>
+#vm{
+    padding:20px;
+    font-family: "Courier New", Courier, monospace;
+}
+
+#vm .back {
+    float: right;
+}
+
+#vm .back:hover {
+    color: orange;
+    cursor: default;
+}
+
+.tree {
+    font-family: "Courier New", Courier, monospace;
+	width: 450px;
+    min-height:20px;
+    margin-bottom:20px;
+    border:1px solid #999;
+    -webkit-border-radius:4px;
+    -moz-border-radius:4px;
+    border-radius:4px;
+    -webkit-box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    -moz-box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.tooltip{
+    width: 300px;
+}
+
+.empty{
+    border-color: red;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.tree .merkleTree {
+	text-align: center;
+	-moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border:0px solid #999;
+    border-radius:5px;
+    padding:3px 8px;
+}
+
+.tree .hash {
+    border-style: none;
+    font-size: 10.5px;
+}
+
+.tree input[type=text] {
+    font-family: "Courier New", Courier, monospace;
+    outline: none;
+    border: none !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
+    border:1px solid #999;
+
+	padding-left:15px;
+    background-color: #FFF;
+  	width: 60%;
+  	border-radius: 5em; 
+  	border-bottom-left-radius: 5em;
+  	border-top-left-radius: 5em;
+  	height: 16px;
+}
+
+.tree input[type=submit] {
+    outline: none;
+    border: none !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
+
+
+    border-style: solid;
+    border-color: white;
+    border-top-right-radius: 5em;
+    border-bottom-right-radius: 5em;
+  	height: 24px;
+  	width: 25%;
+    margin-bottom: 10px;
+}
+
+.tree .wall ul {
+	list-style: none;
+}
+
+.tree li {
+    list-style-type:none;
+    margin:0;
+    padding:10px 5px 0 5px;
+    position:relative
+}
+.tree li::before, .tree li::after {
+    content:'';
+    left:-20px;
+    position:absolute;
+    right:auto
+}
+.tree li::before {
+    border-left:1px solid #999;
+    border-width: 5px;
+    border-spacing: 20px;
+    bottom:50px;
+    height:100%;
+    top:0;
+    width:1px
+}
+.tree li::after {
+    border-top:1px solid #999;
+    border-width: 5px;
+    height:20px;
+    top:25px;
+    width:25px;
+
+}
+.tree li span {
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border:1px solid #999;
+    border-radius:5px;
+    display:inline-block;
+    padding:3px 8px;
+    text-decoration:none;
+}
+.tree li.parent_li>span {
+    cursor:pointer
+}
+.tree>ul>li::before, .tree>ul>li::after {
+    border:0
+}
+.tree li:last-child::before {
+    height:30px
+}
+.tree li.parent_li>span:hover, .tree li.parent_li>span:hover+ul li span {
+    background:#eee;
+    border:1px solid #94a0b4;
+    color:#000
+}
+
+</style>
+
+<div class="container">
+    <div class="row row-margin">
+        <span><h3>Status</h3></span><hr />
+    </div>
+
+    <div class="row row-margin">
+
+        <div class="col-md-5">
+            <div class="tree well" style="float: left;">
+                <div class="merkleTree">
+                    <h4>Merkle Tree</h4><hr>
+                    <input id="search" class="searchTree" type="text" placeholder='Search for Hash'>
+                </div>
+                <ul id="mainMerkleTree" style="list-style:none;">
+                    <!-- Merkle Tree Will be set here -->
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+                <div id="vm">
+                    <div><h4>Tree Graph</h4><hr></div>
+                    <div id="back" class="back"><h5>Go Back</h5></div>
+
+                    <div id="d3merkleTree">
+                        Please search corpus to display tree.
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var merkleList = [{
+        "name": "C# Code",
+        "parent": "null",
+        "hash": "GX6378HNXYD372",
+        "data": "ABC , 123",
+        "filename": "EXAMPLE",
+        "children": [{
+            "name": "Calculator.exe",
+            "children": [],
+            "parent": "C# Code",
+            "data": "ABC , 123",
+            "filename": "EXAMPLE",
+            "hash": "GX6378HNXYD372"
+        }, {
+            "name": "Weather.exe",
+            "children": [],
+            "parent": "C# Code",
+            "data": "ABC , 123",
+            "filename": "EXAMPLE",
+            "hash": "GX6378HNXYD372"
+        }
+        ]
+    }];
+
+    window.onload = function () {
+        //BuildMerkleTree(merkleList, false);
+        //CreateVisualTree(merkleList);
+        //BuildMerkleTree(merkleList, false);
+
+        $.getJSON("http://bn-i.net/dir.php", { format: "json" })
+            .done(function (data) { console.log("done"); })
+            .fail(function (data) { console.log("error"); BuildMerkleTree(null, false); })
+            .always(function (data) { console.log("complete"); BuildMerkleTree(data, false); }
+            );
+    }
+
+    //JSON.parse('[{"filename":"fn","children":[{"filename":"fnn","children":[]}]},{"filename":"fn2","children":[{"filename":"fnn2","children":[]}]}]')
+    var collection = "";
+    var cachedList;
+    var filteredList = [];
+    var searchList = [];
+    var searching = false;
+    var htmlList;
+    var renderTree = true;
+    var visualMerkleTree;
+
+    function BuildMerkleTree(jsonList, filter) {
+        visualMerkleTree = jsonList;
+        collection = "";
+
+        //Cached list to search from when filtering
+        if (filter == false) {
+            cachedList = jsonList.slice(0);
+        }
+
+        //CreateVisualTree(jsonList);
+
+        var drawer = $("drawer");
+        if (jsonList != null) {
+
+            for (var key = 0; key < jsonList.length; key++) {
+                CreateTreeBranch(jsonList[key], 0);
+            }
+        }
+
+        if (searching == false) {
+            htmlList = collection;
+        }
+
+        if (collection.length < 1) {
+            collection = "<h4>No Results Found.</h4>";
+            AppendList(collection, false);
+        }
+        else {
+            AppendList(collection, true);
+        }
+    };
+
+    function CreateTreeBranch(jso, level) {
+
+        if (!searching) {
+            searchList.push(jso);
+        }
+
+        if (jso.children.length != 0) {
+            var string = "<li><span><i class='icon-folder-open'></i> ";
+        } else {
+            var string = "<li><span class='empty'><i class='icon-folder-open'></i> ";
+        }
+
+        var title = "title='Last Modified: " + new Date();
+        string += jso.filename + "</span> <a href='#' data-toggle='tooltip' data-placement='right'" + title + "'><span class='hash'>GX6378HNXYD372</span></a>";
+
+        collection += string;
+        if (jso.children.length != 0) {
+            collection += '<ul>';
+            for (var key in jso.children) {
+                CreateTreeBranch(jso.children[key], level + 1);
+            }
+            collection += "</ul>";
+        }
+
+        collection += "</li>";
+    }
+
+    function FilterMerkleTree(list, word) {
+        for (var node = 0; node < list.length; node++) {
+            if (list[node].filename.indexOf(word) !== -1) {
+                filteredList.push(list[node]);
+            }
+        }
+    }
+
+    function AppendList(string, init) {
+        $(string).appendTo("#mainMerkleTree");
+        if (init)
+            InitDrawer();
+    }
+
+    function InitDrawer() {
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+
+        $('.tree li:has(ul)').addClass('parent_li').find(' > span').attr('title', 'Collapse this branch');
+        $('.tree li.parent_li > span').on('click', function (e) {
+            var children = $(this).parent('li.parent_li').find(' > ul > li');
+            if (children.is(":visible")) {
+                children.hide('fast');
+                $(this).attr('title', 'Collapse this branch').find(' > i').addClass('icon-folder-close').removeClass('icon-folder-open');
+
+            } else {
+                children.show('fast');
+                $(this).attr('title', 'Expand this branch').find(' > i').addClass('icon-folder-open').removeClass('icon-folder-close');
+            }
+            e.stopPropagation();
+        });
+    }
+
+</script>

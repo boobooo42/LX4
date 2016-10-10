@@ -1,0 +1,81 @@
+﻿<script src="~/js/angular.min.js"></script>
+<script src="~/js/angular-route.min.js"></script>
+<script src="~/js/workflowApp.js"></script>
+<link rel="stylesheet" href="~/css/workflow.css" asp-append-version="true" />
+
+<div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div ng-app="workflowApp">
+                    <div class="row row-margin">
+                        <span><h1> Select a Workflow </h1></span>
+                        <div style="padding:50px;">
+                            <div class="col-sm-5 col-sm-offset-1">
+                                <a href="#srapper" class="square" style="text-decoration:none;">
+                                    <span>Scrape The Web</span> <i class="glyphicon glyphicon glyphicon-save-file"></i>
+                                    <span class="information">Select or Configure you're own scrapper to search the web for some interesting content.</span>
+                                </a>
+                            </div>
+                            <div class="col-sm-5">
+                                <a href="#train" class="square" style="text-decoration:none;">
+                                    <span>Train Neural Network</span> <i class="glyphicon glyphicon glyphicon-tasks"></i>
+                                    <span class="information">Select or Configure an existing Neural Network and train it based on results of a scrapper.</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-view></div>
+                    <script type="text/ng-template" id="srapper.htm">
+                        <div class="row row-margin">
+                                <div class="col-sm-6">
+                                    <span><h3>Scrape The Web</h3></span>
+                                    <hr />
+                                    <form>
+                                        <div class="form-group">
+                                            <label for="email">Name</label>
+                                            <input type="email" class="form-control" id="email">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="">Select Websites</label>
+                                            <select class="form-control" id="exampleSelect1">
+                                                <option>Github</option>
+                                                <option>Twitter</option>
+                                                <option>Facebook</option>
+                                                <option>Site 4</option>
+                                                <option>Site 5</option>
+                                                <option>Site 6</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-default">Run</button>
+                                    </form>
+                                </div>
+                            <div class="col-sm-6" style="right:0">
+                                <span><h3>Steps</h3></span>
+                                <hr />
+                                <div class="workflow-container-outer">
+                                    <div class="workflow-container-inner">
+                                        <a href="#" class="circle-outer"></a>
+                                        <a href="#" class="circle-inner"></a>
+                                        <ul class="workflow-list">
+                                            <li class=""><span><i class="icon-ok"></i>Gather Content</span></li>
+                                            <hr>
+                                            <li class=""><span><i class="icon-plus"></i>Review Content</span></li>
+                                            <hr>
+                                            <li class=""><span><i class="icon-plus"></i>Commit Content</span></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </script>
+                    <script type="text/ng-template" id="train.htm">
+                        <div class="row row-margin">
+                            <span><h3>Train Neural Net</h3></span>
+                            <hr />
+                        </div>
+                    </script>
+                </div>
+                <br />
+            </div>
+        </div>
+    </div>

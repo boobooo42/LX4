@@ -8,36 +8,36 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LexicalAnalyzer.Controllers
 {
-    [Route("api/[controller]")]
     public class MerkleController : Controller
     {
-        // GET: api/values
+        public ActionResult Index(){
+            return View();
+        }
+
         [HttpGet]
-        public IEnumerable<string> Get()
+        public JsonResult Get()
         {
-            return new string[] { "value1", "value2" };
+            var result = "Request: Get()";
+            return Json(result);
         }
 
-        // GET api/values/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public JsonResult Get(int id)
         {
-            return "value";
+            var result = "Request: Get(int id)";
+            return Json(result);
         }
 
-        // POST api/values
         [HttpPost]
         public void Post([FromBody]string value)
         {
         }
 
-        // PUT api/values/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody]string value)
         {
         }
 
-        // DELETE api/values/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
