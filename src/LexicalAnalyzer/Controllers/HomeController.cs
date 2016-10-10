@@ -31,5 +31,10 @@ namespace LexicalAnalyzer.Controllers
         {
             return View();
         }
+
+        public IActionResult Status()
+        {
+            return View();
+        }
     }
 }

@@ -26,7 +26,8 @@
     "HtmlAgilityPack.NetCore": "1.4.9.2",
     "Dapper": "1.50.2",
     "Microsoft.IdentityModel.Protocols": "2.0.0",
-    "Microsoft.Extensions.Configuration": "1.0.0"
+    "Microsoft.Extensions.Configuration": "1.0.0",
+    "angularjs": "1.5.8"
   },
 
   "tools": {
