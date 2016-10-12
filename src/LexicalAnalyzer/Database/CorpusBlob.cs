@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace LexicalAnalyzer.Database
 {
-    public class BackendLibraryBlob
+    public class CorpusBlob
     {
-
+        public string CorpusHash { get; set; }
+        public List<string> FileBlobList { get; set; }
     }
 }
