@@ -26,6 +26,7 @@ namespace LexicalAnalyzer.Controllers
                 testString = f.FileName.ToString();
             }
             
+            //
             /*
             //string testString = "Hi i'm just a test bro";
             //// Converts the string to bytes
