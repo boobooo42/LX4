@@ -14,9 +14,12 @@ using System;
 
 namespace LexicalAnalyzer.Services
 {
+    /// <summary>
+    /// Scraper for the Debian website
+    /// </summary>
     public class DebianScraper : IScraper
     {
-        /* Structs */
+        #region Structs
         struct splitUrl
         {
             public string baseUrl;
@@ -28,7 +31,9 @@ namespace LexicalAnalyzer.Services
                 file = _file;
             }
         }
+        #endregion
 
+        #region Globals
         /* Constants */
         private const string rootURL = "http://debian.osuosl.org/debian/pool/main/c/";
         private const string DownloadPath = "//a[contains(@href,'.deb')]";
@@ -40,17 +45,31 @@ namespace LexicalAnalyzer.Services
         private HtmlDocumentTree htmlDocumentTree;
         List<HtmlNode> DownLinkList;
         HtmlNodeCollection DownCollection;
+        #endregion
 
-        /* Public Interface */
+        #region  Public Interface
+        /// <summary>
+        /// Gets a new guid
+        /// </summary>
+        /// <returns></returns>
         public Guid Guid {
             get {
                 return System.Guid.NewGuid();
             }
         }
 
+        /// <summary>
+        /// Gets the display name
+        /// </summary>
+        /// <returns></returns>
         public string DisplayName {
             get { return "Debian Scraper"; }
         }
+
+        /// <summary>
+        /// Gets the description
+        /// </summary>
+        /// <returns></returns>
         public string Description {
             get {
                 return
@@ -59,18 +78,45 @@ namespace LexicalAnalyzer.Services
                     architectures, including x86 and x86_64.";
             }
         }
+
+        /// <summary>
+        /// Gets the content type
+        /// </summary>
+        /// <returns></returns>
         public string ContentType {
             get {
                 return "executables";
             }
         }
 
+        /// <summary>
+        /// Gets the status
+        /// </summary>
+        /// <returns></returns>
         public string Status {
             get {
                 return "paused";
             }
         }
 
+        /// <summary>
+        /// Gets the progress
+        /// </summary>
+        /// <returns></returns>
+        public float Progress
+        {
+            get
+            {
+                return 0.0f;
+            }
+        }
+        #endregion
+
+        #region Run
+        /// <summary>
+        /// Runs the scraper
+        /// </summary>
+        /// <returns></returns>
         public void Run() {
             /* TODO: Perform scraping here */
             /* TODO: We do not have a model for corpus content yet, so there is
@@ -85,7 +131,7 @@ namespace LexicalAnalyzer.Services
             string debs = "";
             
             //work being done here
-            downLoadTypes = GetDownloads(downLoadTypes,urlList);
+            //downLoadTypes = GetDownloads(downLoadTypes, urlList);
 
             foreach (string s in downLoadTypes)
             {
@@ -93,11 +139,6 @@ namespace LexicalAnalyzer.Services
             }
         }
 
-        public float Progress {
-            get {
-                return 0.0f;
-            }
-        }
 
         /// <summary>
         /// new method to clean up get method in controller
@@ -132,5 +173,6 @@ namespace LexicalAnalyzer.Services
 
             return result;
         }
+        #endregion
     }
 }
