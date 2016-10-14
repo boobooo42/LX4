@@ -9,6 +9,7 @@ namespace LexicalAnalyzer
     {
         public int FileID { get; set; }
         public string FileHash { get; set; }
+        public string FileContents { get;set;}
         public string FileName { get; set; }
         public string DateDownloaded { get; set; }
         public string URLDownloaded { get; set; }

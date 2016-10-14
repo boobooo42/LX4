@@ -8,7 +8,7 @@ namespace LexicalAnalyzer
 {
     public class FileRepository : IFileRepository
     {
-        private IDbConnection db = new SqlConnection("Data Source=LAPTOP-B7NR0KID;Initial Catalog=master;Integrated Security=SSPI;User Id=Max;MultipleActiveResultSets=True");
+        private IDbConnection db = new SqlConnection("Data Source=MSSQLSERVERAW;Initial Catalog=master;Integrated Security=SSPI;User Id=IceyWill;MultipleActiveResultSets=True");
 
         public List<File> GetAll()
         {
