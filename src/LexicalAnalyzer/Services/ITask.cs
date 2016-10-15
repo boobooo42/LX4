@@ -10,6 +10,7 @@ namespace LexicalAnalyzer.Services
         string Status
         {
             get;
+            set;
         }
 
         /// <summary>

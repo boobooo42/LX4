@@ -16,6 +16,10 @@ namespace LexicalAnalyzer.Services
 {
     public class DebianScraper : IScraper
     {
+        DebianScraper() {
+            m_guid = System.Guid.NewGuid();
+        }
+
         /* Structs */
         struct splitUrl
         {
@@ -42,9 +46,10 @@ namespace LexicalAnalyzer.Services
         HtmlNodeCollection DownCollection;
 
         /* Public Interface */
+        private Guid m_guid;
         public Guid Guid {
             get {
-                return System.Guid.NewGuid();
+                return m_guid;
             }
         }
 
@@ -65,9 +70,13 @@ namespace LexicalAnalyzer.Services
             }
         }
 
+        private string m_status;
         public string Status {
             get {
-                return "paused";
+                return m_status;
+            }
+            set {
+                m_status = value;
             }
         }
 

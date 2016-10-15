@@ -213,7 +213,19 @@ namespace LexicalAnalyzer.Controllers
             return ScraperFactory.ScraperTypes;
         }
 
-        // POST api/scraper/create
+        /// <summary>
+        /// Creates a scraper instance of the given type.
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// This call creates a scraper instance of the given type. The types
+        /// available can be found through the /api/scraper/types call.
+        /// </p>
+        /// <p>
+        /// Created scrapers are initially idle and must be started through a
+        /// call to /api/scraper/{guid}/start.
+        /// </p>
+        /// </remarks>
         [HttpPost("api/scraper")]
         public string Create([FromBody] string type)
         {

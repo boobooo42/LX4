@@ -34,6 +34,7 @@ namespace LexicalAnalyzer.Services
                 m_taskReady = new EventWaitHandle(true, EventResetMode.AutoReset);
 
                 /* TODO: Start the thread and get it ready */
+                m_workerThread = new Thread(this.m_Run);
             }
 
             public Status CurrentStatus {
@@ -43,28 +44,30 @@ namespace LexicalAnalyzer.Services
             }
 
             /* Public methods */
-            void Run(ITask task) {
+            public void Run(ITask task) {
                 /* Set the task to be run */
                 m_taskMutex.WaitOne();
                 Debug.Assert(m_task == null);
                 m_task = task;
                 m_taskMutex.ReleaseMutex();
-
-                /* TODO: Wake up the worker thread */
+                /* Notify the worker thread of its task */
+                m_taskReady.Set();
             }
 
             /* Private methods */
             void m_Run() {
                 while (true) { 
-                    /* TODO: Lock the task mutex early to avoid racing the dispatch
-                     * thread */
-                    m_taskMutex.WaitOne();
-                    /* TODO: Indicate t */
+                    /* Notify the dispatch thread that we are ready */
                     m_pool.AddReadyWorker(this);
-                    /* TODO: Wait for a task to be assigned to this worker */
-                    if ((m_task == null) && !m_join) {
-                        m_taskReady.WaitOne();
+                    /* Wait for our task to be assigned */
+                    m_taskReady.WaitOne();
+                    if (m_join) {
+                        /* Gracefully exit early */
+                        return;
                     }
+                    Debug.Assert(m_task != null);
+                    /* Actually run the task */
+                    m_task.Run();
                 }
             }
         }
