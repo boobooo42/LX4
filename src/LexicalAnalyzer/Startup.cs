@@ -13,9 +13,11 @@ namespace LexicalAnalyzer
 {
     public class Startup
     {
+        
         public Startup(IHostingEnvironment env)
         {
-            var builder = new ConfigurationBuilder()
+            DatabaseTools.CheckDatabase();
+                var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
