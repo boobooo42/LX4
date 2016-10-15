@@ -3,16 +3,16 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using Dapper;
-
+using System;
 namespace LexicalAnalyzer
 {
     public class FileRepository : IFileRepository
     {
-        private IDbConnection db = new SqlConnection("Data Source=MSSQLSERVERAW;Initial Catalog=master;Integrated Security=SSPI;User Id=IceyWill;MultipleActiveResultSets=True");
+        private IDbConnection db = new SqlConnection(@"Data Source=ICEY\MSSQLSERVERAW;Initial Catalog=master;Integrated Security=True");
 
         public List<File> GetAll()
         {
-            return this.db.Query<File>("SELECT * FROM [dbo].[File]").ToList();
+             return db.Query<File>("SELECT * FROM [dbo].[File]").ToList();
         }
     }
 }

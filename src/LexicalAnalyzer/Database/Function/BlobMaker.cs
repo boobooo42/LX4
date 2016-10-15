@@ -31,8 +31,8 @@ namespace LexicalAnalyzer.Database.Function
                 }
                 //// sets the FileHash to the computed sha256 hash
                 f.FileHash = hashResult;
-
             }
+            
         }
 
     }

@@ -23,7 +23,8 @@ namespace LexicalAnalyzer.Controllers
             List<File> files = FileRepository.GetAll();
             foreach (File f in files)
             {
-                testString = f.FileName.ToString();
+                testString = testString = "File content :" + f.FileContents +" File name: "+f.FileName +" File id: "+f.FileID+" File url: "+f.URLDownloaded +
+                    "date downloaded:" + f.DateDownloaded +" hash: "+f.FileHash;
             }
             
             //
