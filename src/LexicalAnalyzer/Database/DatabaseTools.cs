@@ -13,12 +13,6 @@ namespace LexicalAnalyzer.Database
             // If the table doesn't exist, call CreateDatabase()
         }
 
-        public static void CreateDatabase()
-        {
-            // Create a database
-            // Then call ProvisionDatabase() to set up the tables.
-        }
-
         public static void ProvisionDatabase()
         {
             // Create tables.

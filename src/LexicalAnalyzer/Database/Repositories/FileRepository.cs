@@ -9,18 +9,18 @@ namespace LexicalAnalyzer
 {
     public class FileRepository : IFileRepository
     {
-        private IDbConnection db = new SqlConnection("Data Source=LAPTOP-B7NR0KID;Initial Catalog=master;Integrated Security=SSPI;User Id=Max;MultipleActiveResultSets=True");
+        private IDbConnection db = new SqlConnection(@"Data Source=ICEY\MSSQLSERVERAW;Initial Catalog=master;Integrated Security=True");
         
         public List<File> GetAll()
         {
             return this.db.Query<File>("SELECT * FROM [dbo].[File]").ToList();
         }
 
-        public void setHash(byte[] result)
+        public void setHash(File file,string result)
         {
-            string rule = "UPDATE EMPLOYEE SET NAME = @Name WHERE Id = @Id";
-
-            db.Execute( )
+            string query = "UPDATE [dbo].[File] SET FileHash = @hash WHERE FileID = @ID;";    
+            this.db.Execute(query, new { hash = result, ID = file.FileID });
+           
         }
     }
 }
