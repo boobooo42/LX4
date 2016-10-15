@@ -9,14 +9,10 @@ namespace LexicalAnalyzer.Database
     {
         public static void CheckDatabase()
         {
+            InfoRepository info = new InfoRepository();
+            int version = info.GetVersion();
             // Check an info table
-            // If the table doesn't exist, call CreateDatabase()
-        }
-
-        public static void CreateDatabase()
-        {
-            // Create a database
-            // Then call ProvisionDatabase() to set up the tables.
+            // If the table doesn't exist, call ProvisionDatabase().
         }
 
         public static void ProvisionDatabase()
@@ -28,5 +24,7 @@ namespace LexicalAnalyzer.Database
         {
             // Create FileRepository object and insert file.
         }
+
+
     }
 }
