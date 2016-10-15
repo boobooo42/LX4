@@ -14,5 +14,12 @@ namespace LexicalAnalyzer
         {
              return db.Query<File>("SELECT * FROM [dbo].[File]").ToList();
         }
+
+        public void setHash(byte[] result)
+        {
+            string rule = "UPDATE EMPLOYEE SET NAME = @Name WHERE Id = @Id";
+
+            db.Execute( )
+        }
     }
 }

@@ -11,8 +11,8 @@ namespace LexicalAnalyzer
         public string FileHash { get; set; }
         public string FileContents { get;set;}
         public string FileName { get; set; }
-        public string DateDownloaded { get; set; }
-        public string URLDownloaded { get; set; }
+        public string DownloadDate { get; set; }
+        public string DownloadURL { get; set; }
 
         
 

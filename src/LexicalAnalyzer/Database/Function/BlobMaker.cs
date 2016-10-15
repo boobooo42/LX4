@@ -30,6 +30,7 @@ namespace LexicalAnalyzer.Database.Function
                     hashResult = hashResult + String.Format("{0:x2}", v);
                 }
                 //// sets the FileHash to the computed sha256 hash
+
                 f.FileHash = hashResult;
             }
             
