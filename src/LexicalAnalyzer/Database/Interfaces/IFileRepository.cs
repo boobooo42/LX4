@@ -8,5 +8,6 @@ namespace LexicalAnalyzer
     public interface IFileRepository
     {
         List<File> GetAll();
+        void setHash(File file, string result);
     }
 }
