@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using LexicalAnalyzer.Database;
 
 namespace LexicalAnalyzer
 {
@@ -29,6 +30,11 @@ namespace LexicalAnalyzer
         {
             // Add framework services.
             services.AddMvc();
+            services.AddOptions();
+
+            // Configure options
+            services.Configure<DatabaseOptions>(
+                    Configuration.GetSection("Database"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
