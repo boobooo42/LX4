@@ -2,34 +2,169 @@
 using LexicalAnalyzer.Resources;
 using LexicalAnalyzer.Services;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection;
+using System.Linq;
 using System;
 
 namespace LexicalAnalyzer.Controllers
 {
     public class ScraperController : Controller
     {
-        // GET api/scraper/list
-        [HttpGet("api/scraper/list")]
+        /// <summary>
+        /// Returns a list of all of the scrapers currently instantiated.
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// This method returns a list of all of the scrapers currently
+        /// instantiated, as currently known by the ScraperSubsystem.
+        /// </p>
+        /// </remarks>
+        [HttpGet("api/scraper")]
         public string List()
         {
             /* List all of the scrapers currently instantiated */
             return JsonConvert.SerializeObject(ScraperService.Scrapers);
         }
 
-        // GET api/scraper/get
-        [HttpGet("api/scraper/get")]
+        public class SerializeStatusContractResolver : DefaultContractResolver {
+            public new static readonly SerializeStatusContractResolver Instance
+                = new SerializeStatusContractResolver();
+
+            protected override JsonProperty CreateProperty(
+                    MemberInfo member,
+                    MemberSerialization memberSerialization)
+            {
+                JsonProperty property =
+                    base.CreateProperty(
+                            member,
+                            memberSerialization);
+
+                if (property.DeclaringType
+                        .GetInterfaces()
+                        .Contains(typeof(IScraper)))
+                {
+                    if (property.PropertyName == "Progress")
+                    {
+                        property.ShouldSerialize =
+                            instance =>
+                            {
+                                IScraper scraper = (IScraper)instance;
+                                return (scraper.Status == "running")
+                                    || (scraper.Status == "paused");
+                            };
+                    }
+                    else if (property.PropertyName == "Status")
+                    {
+                        property.ShouldSerialize =
+                            instance => { return true; };
+                    }
+                    else if (property.PropertyName == "Guid")
+                    {
+                        property.ShouldSerialize =
+                            instance => { return true; };
+                    }
+                    else
+                    {
+                        property.ShouldSerialize =
+                            instance => { return false; };
+                    }
+                }
+
+                return property;
+            }
+        }
+
+        /// <summary>
+        /// Returns the status and progress of all of the scrapers currently
+        /// instantiated.
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// This method returns a list of all of the scrapers currently
+        /// instantiated, along with each of their status and progress
+        /// attributes. This allows the caller to check on the most recent
+        /// status of all scrapers without needing to download all scraper
+        /// attributes.
+        /// </p>
+        /// </remarks>
+        [HttpGet("api/scraper/status")]
+        public string Status()
+        {
+            return JsonConvert.SerializeObject(
+                    ScraperService.Scrapers,
+                    Formatting.Indented,
+                    new JsonSerializerSettings {
+                    ContractResolver = SerializeStatusContractResolver.Instance
+                    });
+        }
+
+        /// <summary>
+        /// Returns scraper instance with the given GUID
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// This method returns the scraper instance with the given GUID, if
+        /// such a scraper instance exists.
+        /// </p>
+        /// </remarks>
+        [HttpGet("api/scraper/{guid}")]
         public IScraper Get(string guid)
         {
+            if (guid == null) {
+                return null;
+            }
             /* Get a single scraper with the given guid */
             IScraper scraper = ScraperService.GetScraper(guid);
             return scraper;
-//            return JsonConvert.SerializeObject(scraper);
         }
 
-        // GET api/scraper/start
-        [HttpGet("api/scraper/start")]
+        /// <summary>
+        /// Deletes the scraper instance with the given GUID
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// This method removes the scraper instance with the given GUID, if
+        /// such a scraper instance exists. If the scraper task is currently
+        /// running, it is killed immediately.
+        /// </p>
+        /// <p>
+        /// If no scraper instance with the given GUID exists, then this call
+        /// does nothing.
+        /// </p>
+        /// </remarks>
+        [HttpDelete("api/scraper/{guid}")]
+        public void Delete(string guid)
+        {
+            /* Remove the scraper with the given guid */
+            /* TODO: Return success or failure status ? */
+            ScraperService.RemoveScraper(guid);
+        }
+
+        // POST api/scraper/{guid}/start
+        /// <summary>
+        /// Starts the scraper task with the given GUID
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// This method starts the scraper task with the given GUID. If the
+        /// scraper with the given GUID is not yet running, it is added to the
+        /// scraper task queue. Depending on the relative priority of this
+        /// scraper task, it is run as soon as a task worker becomes available.
+        /// </p>
+        /// <p>
+        /// If the scraper task with the given GUID has already been added to
+        /// the scraper task queue, then this method has no effect.
+        /// </p>
+        /// <p>
+        /// If the given GUID does not correspond to any known scraper tasks,
+        /// then this method does nothing.
+        /// </p>
+        /// </remarks>
+        [HttpPost("api/scraper/{guid}/start")]
         public string Start(string guid)
         {
             ScraperService.StartScraper(guid);
@@ -54,9 +189,10 @@ namespace LexicalAnalyzer.Controllers
         /// </remarks>
         /// <param name="guid">GUID of the scraper task to pause</param>
         /// <returns></returns>
-        [HttpGet("api/scraper/pause")]
+        [HttpPost("api/scraper/{guid}/pause")]
         public string Pause(string guid)
         {
+            /* FIXME: Check for null guid values */
             ScraperService.PauseScraper(guid);
             return "We're pausing something!";
         }
@@ -78,11 +214,31 @@ namespace LexicalAnalyzer.Controllers
         }
 
         // POST api/scraper/create
-        [HttpPost("api/scraper/create")]
-        public string Create(string type)
+        [HttpPost("api/scraper")]
+        public string Create([FromBody] string type)
         {
+            /* FIXME: Check for null (or invalid?) type values? */
             IScraper scraper = ScraperService.CreateScraper(type);
+            Debug.WriteLine("scraper type requested: " + type);
             return JsonConvert.SerializeObject(scraper);
+        }
+
+        // PATCH api/scraper/{guid}
+        /// <summary>
+        /// Set some of the parametrs of a scraper
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// Certain parameters of the a scraper can be updated using this call.
+        /// Note that some aspects of the scraper, such as the GUID or display
+        /// name, cannot be modified.
+        /// </p>
+        /// </remarks>
+        [HttpPatch("api/scraper/{guid}")]
+        public string Create()
+        {
+            /* TODO: I have no idea what to do here */
+            return "";
         }
     }
 }

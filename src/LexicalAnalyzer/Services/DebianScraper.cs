@@ -72,6 +72,7 @@ namespace LexicalAnalyzer.Services
         }
 
         public void Run() {
+            Debug.Assert(false);  /* XXX */
             /* TODO: Perform scraping here */
             /* TODO: We do not have a model for corpus content yet, so there is
              * nowhere to put anything we download yet */
@@ -96,6 +97,12 @@ namespace LexicalAnalyzer.Services
         public float Progress {
             get {
                 return 0.0f;
+            }
+        }
+
+        public int Priority {
+            get {
+                return 0;
             }
         }
 

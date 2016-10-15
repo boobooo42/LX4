@@ -28,6 +28,8 @@ namespace LexicalAnalyzer.Services
             /* Fill our array of scraper types */
             m_scraperTypes.Add(typeof(DebianScraper));
 
+            /* TODO: Add scrapers from DLL assemblies */
+
             /* Ensure that each scraper type implements IScraper */
             foreach (Type t in m_scraperTypes) {
                 Debug.Assert(t.GetInterfaces().Contains(typeof(IScraper)));

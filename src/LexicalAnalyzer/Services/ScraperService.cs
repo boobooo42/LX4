@@ -58,6 +58,26 @@ namespace LexicalAnalyzer.Services
             return Instance.m_GetScraper(new System.Guid(guid));
         }
 
+        private bool m_RemoveScraper(Guid guid) {
+            IScraper scraper = m_scrapers.Find(
+                    elem => {
+                        return elem.Guid == guid;
+                    });
+            if (scraper == null) {
+                return false;
+            }
+            /* TODO: Stop the scraping thread, if it exists */
+            m_scrapers.Remove(scraper);
+            Debug.Assert(!m_scrapers.Contains(scraper));
+            return true;
+        }
+        public static bool RemoveScraper(Guid guid) {
+            return Instance.m_RemoveScraper(guid);
+        }
+        public static bool RemoveScraper(string guid) {
+            return Instance.m_RemoveScraper(new System.Guid(guid));
+        }
+
         private List<IScraper> m_Scrapers {
             get {
                 return m_scrapers;
@@ -74,7 +94,6 @@ namespace LexicalAnalyzer.Services
             if (scraper == null)
                 return;
 
-            /* TODO: Make sure the given scraper task is running */
             m_workerPool.StartTask(scraper);
         }
         public static void StartScraper(Guid guid) {
