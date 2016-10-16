@@ -27,6 +27,7 @@ namespace LexicalAnalyzer.Services
 
             /* Fill our array of scraper types */
             m_scraperTypes.Add(typeof(DebianScraper));
+            m_scraperTypes.Add(typeof(TestScraper));
 
             /* TODO: Add scrapers from DLL assemblies */
 

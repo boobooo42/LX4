@@ -31,10 +31,14 @@ namespace LexicalAnalyzer.Services
                 m_pool = pool;
 
                 m_taskMutex = new Mutex();
-                m_taskReady = new EventWaitHandle(true, EventResetMode.AutoReset);
+                m_taskReady = new EventWaitHandle(
+                        false,  /* initialState */
+                        EventResetMode.AutoReset  /* mode */
+                        );
 
                 /* TODO: Start the thread and get it ready */
                 m_workerThread = new Thread(this.m_Run);
+                m_workerThread.Start();
             }
 
             public Status CurrentStatus {

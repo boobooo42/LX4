@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
+using System;
 
 namespace LexicalAnalyzer.Services
 {
@@ -10,10 +11,14 @@ namespace LexicalAnalyzer.Services
         /* Private members */
         private Guid m_guid;
         private string m_status;
+        private float m_progress;
+        private int m_priority;
 
-        TestScraper() {
+        public TestScraper() {
             m_guid = System.Guid.NewGuid();
             m_status = "init";
+            m_progress = 0.0f;
+            m_priority = 0;
         }
 
         /* Public Interface */
@@ -53,19 +58,23 @@ namespace LexicalAnalyzer.Services
 
         public float Progress {
             get {
-                return 0.0f;
+                return m_progress;
             }
         }
 
         public int Priority {
             get {
-                return 0;
+                return m_priority;
             }
         }
 
         public void Run() {
-            /* TODO: Implement a fake scraper that simply waits for a few
-             * minutes and periodically increments the progress */
+            /* Implement a fake scraper that simply waits for a while and
+             * periodically increments the progress */
+            while (m_progress < 1.0f) {
+                Thread.Sleep(5000);
+                m_progress += 0.1f;
+            }
         }
     }
 }

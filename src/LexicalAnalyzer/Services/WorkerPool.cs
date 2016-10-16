@@ -52,6 +52,7 @@ namespace LexicalAnalyzer.Services
 
             /* Start a thread for managing workers as they become ready */
             m_dispatchThread = new Thread(this.m_dispatch);
+            m_dispatchThread.Start();
         }
 
         /// <summary>
@@ -142,7 +143,6 @@ namespace LexicalAnalyzer.Services
         private void AddReadyWorker(Worker worker)
         {
             m_readyWorkersMutex.WaitOne();
-            Debug.Assert(m_workers.Contains(worker));
             Debug.Assert(!m_readyWorkers.Contains(worker));
             m_readyWorkers.Add(worker);
             m_readyWorkersMutex.ReleaseMutex();
