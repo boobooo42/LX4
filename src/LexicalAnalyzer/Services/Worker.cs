@@ -72,6 +72,7 @@ namespace LexicalAnalyzer.Services
                     Debug.Assert(m_task != null);
                     /* Actually run the task */
                     m_task.Run();
+                    m_task = null;
                 }
             }
         }

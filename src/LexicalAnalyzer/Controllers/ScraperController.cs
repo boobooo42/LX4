@@ -144,7 +144,6 @@ namespace LexicalAnalyzer.Controllers
             ScraperService.RemoveScraper(guid);
         }
 
-        // POST api/scraper/{guid}/start
         /// <summary>
         /// Starts the scraper task with the given GUID
         /// </summary>
@@ -169,6 +168,28 @@ namespace LexicalAnalyzer.Controllers
         {
             ScraperService.StartScraper(guid);
             return "We're starting something!";
+        }
+
+        /// <summary>
+        /// Start all scraper tasks.
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// This method starts all scraper tasks that have not yet been
+        /// started. If there are not enough worker threads to start all
+        /// scraper tasks immediately, then the remaining tasks are queued up
+        /// </p>
+        /// <p>
+        /// If all scraper tasks have already been started, then this call has
+        /// no effect.
+        /// </p>
+        /// </remarks>
+        [HttpPost("api/scraper/start")]
+        public void StartAll()
+        {
+            foreach (IScraper scraper in ScraperService.Scrapers) {
+                ScraperService.StartScraper(scraper.Guid);
+            }
         }
 
         // GET api/scraper/pause
