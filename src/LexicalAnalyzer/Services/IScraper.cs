@@ -16,5 +16,15 @@ namespace LexicalAnalyzer.Services
         string ContentType {
             get;
         }
+
+        /*
+        IEnumerable<KeyValueProperty> DefaultProperties {
+            get;
+        }
+        */
+
+        IEnumerable<KeyValueProperty> Properties {
+            get;
+        }
     }
 }

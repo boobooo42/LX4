@@ -13,12 +13,26 @@ namespace LexicalAnalyzer.Services
         private string m_status;
         private float m_progress;
         private int m_priority;
+        private List<KeyValueProperty> m_properties;
 
         public TestScraper() {
             m_guid = System.Guid.NewGuid();
             m_status = "init";
             m_progress = 0.0f;
             m_priority = 0;
+            m_properties = new List<KeyValueProperty>();
+            m_properties.Add(
+                    new KeyValueProperty(
+                        "timeout",  /* key */
+                        "30",  /* defaultValue */
+                        "seconds"  /* type */
+                        ));
+            m_properties.Add(
+                    new KeyValueProperty(
+                        "website",  /* key */
+                        "http://example.com",  /* defaultValue */
+                        "url"  /* type */
+                        ));
         }
 
         /* Public Interface */
@@ -65,6 +79,12 @@ namespace LexicalAnalyzer.Services
         public int Priority {
             get {
                 return m_priority;
+            }
+        }
+
+        public IEnumerable<KeyValueProperty> Properties {
+            get {
+                return m_properties;
             }
         }
 

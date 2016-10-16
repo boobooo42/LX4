@@ -21,6 +21,10 @@ namespace LexicalAnalyzer.Services
     {
         DebianScraper() {
             m_guid = System.Guid.NewGuid();
+            m_status = "init";
+            /* TODO: Add properties that DebianScraper exposes to the web
+             * interface. */
+            m_properties = new List<KeyValueProperty>();
         }
 
         #region Structs
@@ -123,6 +127,13 @@ namespace LexicalAnalyzer.Services
         public int Priority {
             get {
                 return 0;
+            }
+        }
+
+        private List<KeyValueProperty> m_properties;
+        public IEnumerable<KeyValueProperty> Properties {
+            get {
+                return m_properties;
             }
         }
         #endregion
