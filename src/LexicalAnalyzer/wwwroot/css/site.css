@@ -1,4 +1,5 @@
 ﻿body {
+    font-family: "Courier New", Courier, monospace;
     padding-top: 50px;
     padding-bottom: 20px;
 }
@@ -6,6 +7,7 @@
 /* Wrapping element */
 /* Set some basic padding to keep content from hitting the edges */
 .body-content {
+    font-family: "Courier New", Courier, monospace;
     padding-left: 15px;
     padding-right: 15px;
 }

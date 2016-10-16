@@ -244,3 +244,6 @@ ModelManifest.xml
 # VIM files
 .*.swo
 .*.swp
+
+# JavaScript IntelliSense file
+_references.js

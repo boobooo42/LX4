@@ -1,0 +1,128 @@
+﻿.circle-inner{
+        position: absolute;
+        z-index: 99999;
+        display:block;
+        width:20px;
+        height:20px;
+        border-radius:50%;
+        font-size:20px;
+        color:#fff;
+        line-height:100px;
+        text-align:center;
+        background: rgba(40, 255, 255, .0);
+        box-shadow: inset 0px 0px 10px 0px rgba(150,255,0,.5);
+
+            -webkit-transition: 0.5s ease-in;
+    -moz-transition: 0.5s ease-in;
+    -o-transition: 0.5s ease-in;
+    transition: 0.5s ease-in;
+    }
+
+    .circle-outer{
+        position: absolute;
+        z-index: 99999;
+        display:block;
+        width:20px;
+        height:20px;
+        border-radius:50%;
+        font-size:20px;
+        color:#fff;
+        line-height:100px;
+        text-align:center;
+        background: rgba(40, 255, 255, .0);
+        box-shadow: 0px 0px 30px 5px rgba(150,255,0,.5);
+
+            -webkit-transition: 0.5s ease-in;
+    -moz-transition: 0.5s ease-in;
+    -o-transition: 0.5s ease-in;
+    transition: 0.5s ease-in;
+    }
+
+
+span {
+    margin-top: 20px;
+    font-family: "Courier New", Courier, monospace;
+}
+
+span h1 {
+    margin-top: 20px;
+    text-align: center;
+    font-family: "Courier New", Courier, monospace;
+}
+
+.square{
+    padding: 5px;
+    display:block;
+    text-align: center;
+    margin: 0 auto;
+        width:300px;
+        height:200px;
+        background-color: rgba(200, 200, 200, .3);
+        border-radius: 2em;
+    box-shadow: 0px 0px 20px 3px rgba(0,0,0,.5);
+}
+
+a{
+    text-decoration: inherit;
+    color:inherit;
+}
+
+a:hover {
+    text-decoration: inherit;
+    color:inherit;
+}
+
+.square:hover {
+    text-align: center;
+    margin: 0 auto;
+        height:auto;
+        background-color: rgba(200, 200, 200, .3);
+        border-radius: 2em;
+    box-shadow: 0px 0px 20px 3px rgba(150,255,0,.5);
+}
+
+.square:hover .information {
+    visibility: visible;
+}
+
+.square .information{
+    visibility: hidden;
+    padding: 25px;
+}
+
+.square span{
+    padding-top: 20px;
+    display: block;
+    text-align: center;
+    font-size: 15px;
+}
+
+.square i{
+    text-align: center;
+    padding-top: 10px;
+    margin: 0 auto;
+}
+
+i.glyphicon {
+    text-align: center;
+    margin: 0 auto;
+    font-size: 5em;
+}
+
+.square .scrape-information{
+    visibility: hidden;
+    background-color: black;
+}
+
+.form-group{
+    font-family: "Courier New", Courier, monospace;
+}
+
+.row-margin {
+  margin-top: 50px;
+  margin-bottom: 50px
+}
+
+ul{
+    list-style-type:none;
+}

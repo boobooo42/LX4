@@ -30,7 +30,8 @@ namespace LexicalAnalyzer.Controllers
             return JsonConvert.SerializeObject(ScraperService.Scrapers);
         }
 
-        public class SerializeStatusContractResolver : DefaultContractResolver {
+        public class SerializeStatusContractResolver : DefaultContractResolver
+        {
             public new static readonly SerializeStatusContractResolver Instance
                 = new SerializeStatusContractResolver();
 

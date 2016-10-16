@@ -28,7 +28,11 @@
     "System.Private.DataContractSerialization": "4.1.1",
     "Newtonsoft.Json": "9.0.1",
     "System.Reflection.TypeExtensions": "4.1.0",
-    "Swashbuckle": "6.0.0-beta902"
+    "Swashbuckle": "6.0.0-beta902",
+    "Dapper": "1.50.2",
+    "Microsoft.IdentityModel.Protocols": "2.0.0",
+    "Microsoft.Extensions.Configuration": "1.0.0",
+    "angularjs": "1.5.8"
   },
 
   "tools": {

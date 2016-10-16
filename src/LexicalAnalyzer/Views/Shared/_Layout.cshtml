@@ -8,6 +8,9 @@
     <environment names="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" />
+        <link rel="stylesheet" href="~/css/jquery.mmenu.all.css" />
+        <script type="text/javascript" src="~/js/jquery-2.2.0.js"></script>
+        <script type="text/javascript" src="~/js/jquery.mmenu.all.min.js"></script>
     </environment>
     <environment names="Staging,Production">
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.6/css/bootstrap.min.css"
@@ -16,27 +19,36 @@
         <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
 </head>
+
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">LexicalAnalyzer</a>
+                <a  asp-controller="Home" asp-action="Index" class="navbar-brand">LexicalAnalyzer</a>
             </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
+            <div class="collapse navbar-collapse" id="homeNavbar">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a asp-area="" asp-controller="Home" asp-action="Status">Status</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="">Workflows<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a asp-area="" asp-controller="Workflow" asp-action="Workflow">Begin New Workflow</a></li>
+                            <li><a asp-area="" asp-controller="Workflow" asp-action="BrowseWorkflows">Browse Workflows</a></li>
+                        </ul>
+                    </li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="NeuralNet">Neural Net</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="Corpus">Corpus</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="Documentation">Documentation</a></li>
                 </ul>
             </div>
         </div>
-    </div>
+    </nav>
     <div class="container body-content">
         @RenderBody()
         <hr />
