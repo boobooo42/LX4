@@ -9,5 +9,6 @@ namespace LexicalAnalyzer
     {
         List<File> GetAll();
         void setHash(File file, string result);
+        void insertFile(File file);
     }
 }

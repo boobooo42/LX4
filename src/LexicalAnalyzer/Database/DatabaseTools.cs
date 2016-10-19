@@ -11,7 +11,7 @@ namespace LexicalAnalyzer.Database
     {
         public static void CheckDatabase()
         {
-            InfoRepository info = new InfoRepository();
+            IInfoRepository info = new InfoRepository();
             int version = info.GetVersion();
             // Check an info table
             // If the table doesn't exist, call ProvisionDatabase().
@@ -23,7 +23,7 @@ namespace LexicalAnalyzer.Database
         }
         public static void createFile(string contents)
         {
-            //// Creates a  file to be passed into InsertIntoDatabase method
+            //// Creates a  file  with contents to be passed into InsertIntoDatabase method
             File fi = new File();
             fi.FileContents = contents;
             InsertIntoDatabase(fi);
@@ -33,8 +33,11 @@ namespace LexicalAnalyzer.Database
         public static void InsertIntoDatabase(File file)
         {
             // Create FileRepository object and insert file.
+            IFileRepository FileRepository = new FileRepository();
             String hash=computeHash(file);
             file.FileHash = hash;
+            FileRepository.insertFile(file);
+            
         }
         /// return the computed hash of a given file
         public static string computeHash(File fi)

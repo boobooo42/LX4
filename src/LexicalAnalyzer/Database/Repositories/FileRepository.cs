@@ -15,12 +15,18 @@ namespace LexicalAnalyzer
         {
             return this.db.Query<File>("SELECT * FROM [dbo].[File]").ToList();
         }
-
+        /// sets all the hashs in fileTable  (Took blob maker out this may not be used)
         public void setHash(File file,string result)
         {
             string query = "UPDATE [dbo].[File] SET FileHash = @hash WHERE FileID = @ID;";    
             this.db.Execute(query, new { hash = result, ID = file.FileID });
            
+        }
+        /// check the table to see if the hash is already contained if not insert into database
+        public void insertFile(File file)
+        {
+            string query = "IF NOT EXISTS (SELECT * FROM [dbo].[File] WHERE FileHash = @hash) INSERT INTO [dbo].[File](FileHash, FileContents) VALUES(@hash, @contents);";
+            this.db.Execute(query, new { hash = file.FileHash, contents = file.FileContents });
         }
     }
 }
