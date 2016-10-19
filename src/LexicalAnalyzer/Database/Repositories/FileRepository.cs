@@ -25,8 +25,13 @@ namespace LexicalAnalyzer
         /// check the table to see if the hash is already contained if not insert into database
         public void insertFile(File file)
         {
-            string query = "IF NOT EXISTS (SELECT * FROM [dbo].[File] WHERE FileHash = @hash) INSERT INTO [dbo].[File](FileHash, FileContents) VALUES(@hash, @contents);";
-            this.db.Execute(query, new { hash = file.FileHash, contents = file.FileContents });
+            /// expensive way to get idCount (need optimize)
+            IFileRepository FileRepository = new FileRepository();
+            int idCount;
+            List<File>files= FileRepository.GetAll();
+            idCount=files.Count()+1;
+            string query = "IF NOT EXISTS (SELECT * FROM [dbo].[File] WHERE FileHash = @hash) INSERT INTO [dbo].[File](FileID, FileHash, FileContents) VALUES(@ID, @hash, @contents);";
+            this.db.Execute(query, new {ID = idCount, hash = file.FileHash, contents = file.FileContents, });
         }
     }
 }

@@ -26,6 +26,7 @@ namespace LexicalAnalyzer.Database
             //// Creates a  file  with contents to be passed into InsertIntoDatabase method
             File fi = new File();
             fi.FileContents = contents;
+            //// calls to see if it needs to be inserted into table
             InsertIntoDatabase(fi);
 
         }
@@ -34,8 +35,10 @@ namespace LexicalAnalyzer.Database
         {
             // Create FileRepository object and insert file.
             IFileRepository FileRepository = new FileRepository();
+            //// computes the hash 
             String hash=computeHash(file);
             file.FileHash = hash;
+            /// check file table for file
             FileRepository.insertFile(file);
             
         }

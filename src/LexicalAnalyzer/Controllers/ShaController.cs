@@ -29,7 +29,9 @@ namespace LexicalAnalyzer.Controllers
                 testString = testString + "File content :" + f.FileContents +" File name: "+f.FileName +" File id: "+f.FileID+" File url: "+f.DownloadURL +
                     " date downloaded:" + f.DownloadDate +" hash: "+f.FileHash;
             }
-            
+            Database.DatabaseTools.createFile("lololol");
+            Database.DatabaseTools.createFile("lololol");
+            Database.DatabaseTools.createFile("j10212jadljad");
             //
             /*
             //string testString = "Hi i'm just a test bro";
