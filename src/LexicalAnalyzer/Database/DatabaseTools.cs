@@ -21,14 +21,22 @@ namespace LexicalAnalyzer.Database
         {
             // Create tables.
         }
+        public static void createFile(string contents)
+        {
+            //// Creates a  file to be passed into InsertIntoDatabase method
+            File fi = new File();
+            fi.FileContents = contents;
+            InsertIntoDatabase(fi);
+
+        }
 
         public static void InsertIntoDatabase(File file)
         {
             // Create FileRepository object and insert file.
-
             String hash=computeHash(file);
             file.FileHash = hash;
         }
+        /// return the computed hash of a given file
         public static string computeHash(File fi)
         {
             string stringContent = "";
@@ -45,6 +53,32 @@ namespace LexicalAnalyzer.Database
             {
                 hashResult = hashResult + String.Format("{0:x2}", v);
             }
+            return hashResult;
+        }
+        ///returns the computed corpus hash
+        public  static string computeCorpusHash()
+        {
+            string fileHash = "";
+            string stringHash = "";
+            string hashResult = "";
+            SHA256 mySha = SHA256.Create();
+            IFileRepository FileRepository = new FileRepository();
+            List<File> files = FileRepository.GetAll();
+            foreach(File f in files)
+            {
+                fileHash = f.FileHash;
+                stringHash = stringHash + fileHash;
+                //// gets byte data of the string
+                byte[] byteData = Encoding.UTF8.GetBytes(stringHash);
+                //// compute the hash for the corpus
+                byte[] hashData = mySha.ComputeHash(byteData);
+                /// makes the byte data to readable formate
+                foreach (byte v in hashData)
+                {
+                    hashResult = hashResult + String.Format("{0:x2}", v);
+                }
+            }
+
             return hashResult;
         }
 
