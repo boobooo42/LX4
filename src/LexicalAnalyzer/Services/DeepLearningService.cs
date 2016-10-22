@@ -5,10 +5,8 @@ using System.Threading.Tasks;
 
 namespace LexicalAnalyzer.Services
 {
-    public interface IGuid
+    public class DeepLearningService
     {
-        Guid Guid {
-            get;
-        }
+        /* TODO: Define the deep learning model */
     }
 }

@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace LexicalAnalyzer.Services
+namespace LexicalAnalyzer.Interfaces
 {
+    /// <summary>
+    /// Interface for processes that are to be run in background threads by
+    /// Worker objects.
+    /// </summary>
     public interface ITask
     {
         string Status

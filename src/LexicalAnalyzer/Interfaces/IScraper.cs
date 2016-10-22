@@ -1,9 +1,10 @@
-﻿using System;
+﻿using LexicalAnalyzer.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 
-namespace LexicalAnalyzer.Services
+namespace LexicalAnalyzer.Interfaces
 {
     public interface IScraper : ITask, IGuid
     {

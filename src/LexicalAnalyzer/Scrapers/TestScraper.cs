@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using LexicalAnalyzer.Interfaces;
+using LexicalAnalyzer.Services;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
 
-namespace LexicalAnalyzer.Services
+namespace LexicalAnalyzer.Scrapers
 {
     public class TestScraper : IScraper
     {

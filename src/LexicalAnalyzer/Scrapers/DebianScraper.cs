@@ -1,5 +1,7 @@
 ﻿using HtmlAgilityPack;
+using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Resources;
+using LexicalAnalyzer.Services;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -12,7 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System;
 
-namespace LexicalAnalyzer.Services
+namespace LexicalAnalyzer.Scrapers
 {
     /// <summary>
     /// Scraper for the Debian website

@@ -1,19 +1,24 @@
-﻿using LexicalAnalyzer.Services;
+﻿using LexicalAnalyzer.Models;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
 
+/// <summary>
+/// Generic interface for repositories that provide access to Merkle nodes.
+/// </summary>
 /// <remarks>
 /// <p>
-/// This interface is inspired by <a
-/// href="http://deviq.com/repository-pattern/">this excellent article from
-/// DevIQ</a>.
+/// This interface is inspired by
+/// <a href="http://deviq.com/repository-pattern/">
+/// this excellent article from DevIQ
+/// </a>.
 /// </p>
 /// </remarks>
-namespace LexicalAnalyzer.Database.Repositories
+namespace LexicalAnalyzer.Interfaces
 {
-    public interface IMerkleRepository<T> where T : IMerkleNode
+    public interface IMerkleNodeRepository<T> where T : IMerkleNode
     {
         T GetByHash(MerkleHash hash);
         IEnumerable<T> List();

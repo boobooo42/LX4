@@ -9,7 +9,7 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
-namespace LexicalAnalyzer.Services
+namespace LexicalAnalyzer.Scrapers
 {
     /// <summary>
     /// Contains a collection of utility methods to be used by the different scrapers

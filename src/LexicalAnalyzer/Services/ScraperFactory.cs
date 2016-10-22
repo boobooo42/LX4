@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
+﻿using LexicalAnalyzer.Interfaces;
+using LexicalAnalyzer.Scrapers;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System;
 
@@ -10,6 +12,7 @@ namespace LexicalAnalyzer.Services
     public class ScraperFactory
     {
         /* Singleton pattern */
+        /* FIXME: Replace this singleton pattern with dependency injection */
         private static ScraperFactory m_instance;
         private static ScraperFactory Instance {
             get {

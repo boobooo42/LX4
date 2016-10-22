@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using LexicalAnalyzer.Interfaces;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace LexicalAnalyzer.Services
         private const int DEFAULT_NUM_WORKERS = 4;
 
         /* Singleton pattern */
+        /* FIXME: Replace this singleton pattern with dependency injection */
         private static ScraperService m_instance;
         private static ScraperService Instance {
             get {
