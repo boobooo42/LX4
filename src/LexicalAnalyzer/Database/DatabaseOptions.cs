@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 
 namespace LexicalAnalyzer.Database
 {
-    public class BackendLibraryBlob
+    public class DatabaseOptions
     {
+        public string ConnectionString { get; set; }
     }
 }

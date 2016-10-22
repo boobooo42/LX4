@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using LexicalAnalyzer.Database;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,10 +24,11 @@ namespace LexicalAnalyzer
             return System.IO.Path.Combine(
                     app.ApplicationBasePath, "LexicalAnalyzer.xml");
         }
-
+        
         public Startup(IHostingEnvironment env)
         {
-            var builder = new ConfigurationBuilder()
+            DatabaseTools.CheckDatabase();
+                var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
@@ -63,6 +65,14 @@ namespace LexicalAnalyzer
                     c.IncludeXmlComments(GetXmlCommentsPath());
                     c.DescribeAllEnumsAsStrings();
                 });
+            services.AddOptions();
+
+            // Configure options
+            services.Configure<DatabaseOptions>(
+                    Configuration.GetSection("Database"));
+
+            // Repository services
+            services.AddTransient<IFileRepository, FileRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
