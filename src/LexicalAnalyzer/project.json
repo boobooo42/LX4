@@ -80,6 +80,7 @@
   },
 
   "resource": [
-    "schema.sql"
+    "schema.sql",
+    "example_data.sql"
   ]
 }
