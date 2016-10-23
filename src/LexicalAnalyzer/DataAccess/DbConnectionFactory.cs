@@ -9,7 +9,7 @@ namespace LexicalAnalyzer.DataAccess {
         IOptions<DatabaseOptions> m_options;
 
         /* Constructors */
-        DbConnectionFactory(IOptions<DatabaseOptions> options) {
+        public DbConnectionFactory(IOptions<DatabaseOptions> options) {
             m_options = options;
         }
 

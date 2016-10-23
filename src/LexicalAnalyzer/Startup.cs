@@ -86,6 +86,9 @@ namespace LexicalAnalyzer
             // Repository services
             services.AddTransient<IFileRepository, FileRepository>();
             services.AddTransient<IMerkleTreeContext, MerkleTreeContext>();
+
+            // Database connection service
+            services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

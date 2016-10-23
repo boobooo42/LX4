@@ -3,7 +3,7 @@ using LexicalAnalyzer.Models;
 namespace LexicalAnalyzer.Interfaces {
     /* FIXME: I'm not sure if we really need this interface. --Jonathan */
     public interface IMerkleNode {
-        MerkleHash Hash { get; }
+        string Hash { get; set; }
         /// <summary>
         /// Returns true if the given Merkle node object is missing some of its
         /// contents, false otherwise.

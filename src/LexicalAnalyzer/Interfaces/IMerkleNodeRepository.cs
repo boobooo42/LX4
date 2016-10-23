@@ -27,4 +27,9 @@ namespace LexicalAnalyzer.Interfaces
         IEnumerable<T> List();
 //        IEnumerable<T> List(Expression<Func<T, bool>> predicate);
     }
+
+    public interface IMerkleNodeRepository
+        : IMerkleNodeRepository<MerkleNode>
+    {
+    }
 }

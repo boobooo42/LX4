@@ -17,6 +17,13 @@ namespace LexicalAnalyzer.Controllers
             m_context = context;
         }
 
+        [HttpGet("api/merkle/nodes")]
+        public IEnumerable<MerkleNode> GetNodes() {
+            IEnumerable<MerkleNode> list =
+                m_context.MerkleNodeRepository.List();
+            return list;
+        }
+
         /// <summary>
         /// Access a Merkle node with the given Merkle hash.
         /// </summary>

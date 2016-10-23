@@ -6,21 +6,12 @@ namespace LexicalAnalyzer.Models {
     /// The abstract POCO object inherited by any Merkle node in the database.
     /// </summary>
     public class MerkleNode : IMerkleNode {
-        /* Private members */
-        private MerkleHash m_hash;
 
-        public MerkleHash Hash {
-            get {
-                if (m_hash == null) {
-                    /* TODO: Compute the hash for this node? This should be
-                     * immutable though... */
-                }
-                return m_hash;
-            }
-        }
+        /* Accessors */
+        public string Hash { get; set; }
 
-        /* TODO: Implement the Merkle node flyweight behavior */
-        public bool IsFlyweight { get { return false; } }
+        /* Implement the Merkle node flyweight behavior */
+        public bool IsFlyweight { get; set; }
 
         public IEnumerable<MerkleNode> Children { get; set; }
 

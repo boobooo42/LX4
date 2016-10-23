@@ -5,6 +5,7 @@ namespace LexicalAnalyzer.DataAccess {
     public class MerkleTreeContext : IMerkleTreeContext {
         /* Private members */
         IDbConnectionFactory m_connectionFactory;
+        MerkleNodeRepository m_merkleNodeRepository;
         ContentBlobRepository m_contentBlobRepository;
 
         /* TODO: Provide the IDbConnection object through dependency injection.
@@ -17,13 +18,23 @@ namespace LexicalAnalyzer.DataAccess {
         }
 
         /* Accessors */
+        public IMerkleNodeRepository MerkleNodeRepository {
+            get {
+                if (m_merkleNodeRepository == null) {
+                    m_merkleNodeRepository =
+                        new MerkleNodeRepository(m_connectionFactory);
+                }
+                return m_merkleNodeRepository;
+            }
+        }
+
         public IContentBlobRepository ContentBlobRepository {
             get {
                 if (m_contentBlobRepository == null) {
                     m_contentBlobRepository =
                         new ContentBlobRepository(m_connectionFactory);
                 }
-                return (IContentBlobRepository)m_contentBlobRepository;
+                return m_contentBlobRepository;
             }
         }
         /*
