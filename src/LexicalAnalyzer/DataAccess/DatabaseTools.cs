@@ -58,6 +58,12 @@ namespace LexicalAnalyzer.DataAccess {
                 using (var cn = new SqlConnection(connectionString)) {
                     cn.Open();
                     RunSqlBatch(sql, cn);
+                    /* Insert a record of the database version */
+                    cn.Execute(@"
+                            INSERT INTO la.Info
+                            ( Version )
+                            VALUES ( @version )",
+                            new { version = DatabaseVersion });
                 }
             }
         }
@@ -72,6 +78,7 @@ namespace LexicalAnalyzer.DataAccess {
             string[] statements = re.Split(sql);
             using (IDbTransaction tran = cn.BeginTransaction()) {
                 try {
+                    /* Execute the all SQL statements in series */
                     foreach (string statement in statements) {
                         cn.Execute(statement, transaction: tran);
                     }

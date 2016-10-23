@@ -1,5 +1,14 @@
+-- Lexical Analyzer Database Schema
+-- Version: 1
+
 CREATE SCHEMA la;
 
+-- Metadata Tables
+CREATE TABLE la.Info(
+    Version integer NOT NULL
+    );
+
+-- Merkle Tree Tables
 CREATE TABLE la.MerkleNode(
     Hash char(32) NOT NULL,
     Type varchar(50) NOT NULL,
@@ -52,8 +61,6 @@ CREATE TABLE la.LearningModelBlob(
     CONSTRAINT PK_BackendLibraryBlob PRIMARY KEY (Hash)
     );
 
-
--- Metadata Tables
 
 /*
 -- TODO: Define a macro for maximum filename/url length
