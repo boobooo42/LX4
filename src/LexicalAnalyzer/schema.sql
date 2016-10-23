@@ -1,22 +1,62 @@
-CREATE DATABASE lexical_analyzer;
-GO
-USE lexical_analyzer;
-GO
 CREATE SCHEMA la;
 GO
 
--- FIXME: I'm not sure what this table is for
-CREATE TABLE la.BackendLibraryBlob(
-    BackendLibraryHash char(64) NOT NULL,
-    Version varchar(64) NOT NULL,
-    CONSTRAINT PK_BackendLibraryBlob PRIMARY KEY (BackendLibraryHash)
+CREATE TABLE la.MerkleNode(
+    Hash char(32) NOT NULL,
+    Type varchar(50) NOT NULL,
+    Pinned bit NOT NULL,
+    CONSTRAINT PK_MerkleNode PRIMARY KEY (Hash)
+    );
+
+CREATE TABLE la.MerkleEdge(
+    ParentHash char(32) NOT NULL,
+    ChildHash char(32) NOT NULL,
+    CONSTRAINT PK_MerkleEdge PRIMARY KEY (ParentHash, ChildHash)
+    );
+
+CREATE TABLE la.ContentBlob(
+    Hash char(32) NOT NULL,
+    Contents text NOT NULL,
+    CONSTRAINT PK_ContentHash PRIMARY KEY (Hash)
     );
 
 CREATE TABLE la.CorpusBlob(
-    CorpusHash char(64) NOT NULL,
-    CONSTRAINT PK_CorpusBlob PRIMARY KEY (CorpusHash)
+    Hash char(32) NOT NULL,
+    CONSTRAINT PK_CorpusBlob PRIMARY KEY (Hash)
     );
 
+CREATE TABLE la.NeuralNetBlob(
+    Hash char(32) NOT NULL,
+    CachedNeuralNet text NOT NULL,
+    Status varchar(64) NOT NULL,
+    DateRequested datetime NOT NULL,
+    DateCompleted datetime NOT NULL,
+    CONSTRAINT PK_NeuralNetBlob PRIMARY KEY (Hash)
+    );
+
+CREATE TABLE la.NeuralNetParameterBlob(
+    Hash char(32) NOT NULL,
+    Name varchar(512) NOT NULL,
+    Value text NOT NULL,
+    CONSTRAINT PK_NeuralNetParameterBlob PRIMARY KEY (Hash)
+    );
+
+CREATE TABLE la.ResultsBlob(
+    Hash char(32) NOT NULL,
+    Contents text NULL,
+    CONSTRAINT PK_ResultsBlob PRIMARY KEY (Hash)
+    );
+
+CREATE TABLE la.LearningModelBlob(
+    Hash char(32) NOT NULL,
+    Version varchar(64) NOT NULL,
+    CONSTRAINT PK_BackendLibraryBlob PRIMARY KEY (Hash)
+    );
+
+
+-- Metadata Tables
+
+/*
 -- TODO: Define a macro for maximum filename/url length
 CREATE TABLE la.[File](
     FileID bigint NOT NULL,
@@ -26,47 +66,7 @@ CREATE TABLE la.[File](
     DownloadURL varchar(2048) NULL,
     CONSTRAINT [PK_File] PRIMARY KEY (FileID)
     );
-
-CREATE TABLE la.FileBlob(
-    FileHash char(64) NOT NULL,
-    Contents varchar(max) NOT NULL,
-    CONSTRAINT PK_FileBlob PRIMARY KEY (FileHash)
-    );
-
-CREATE TABLE la.MerkleEdge(
-    ParentHash char(64) NOT NULL,
-    ChildHash char(64) NOT NULL,
-    CONSTRAINT PK_MerkleEdge PRIMARY KEY (ParentHash, ChildHash)
-    );
-
-CREATE TABLE la.MerkleNode(
-    MerkleNodeHash char(64) NOT NULL,
-    Type varchar(50) NOT NULL,
-    Pinned bit NOT NULL,
-    CONSTRAINT PK_MerkleNode PRIMARY KEY (MerkleNodeHash)
-    );
-
-CREATE TABLE la.NeuralNetBlob(
-    NeuralNetHash char(64) NOT NULL,
-    CachedNeuralNet varchar(max) NOT NULL,
-    Status varchar(64) NOT NULL,
-    DateRequested datetime NOT NULL,
-    DateCompleted datetime NOT NULL,
-    CONSTRAINT PK_NeuralNetBlob PRIMARY KEY (NeuralNetHash)
-    );
-
-CREATE TABLE la.NeuralNetParameterBlob(
-    NNParameterHash char(64) NOT NULL,
-    Name varchar(512) NOT NULL,
-    Value varchar(max) NOT NULL,
-    CONSTRAINT PK_NeuralNetParameterBlob PRIMARY KEY (NNParameterHash)
-    );
-
-CREATE TABLE la.ResultsBlob(
-    ResultsHash char(64) NOT NULL,
-    Contents varchar(max) NULL,
-    CONSTRAINT PK_ResultsBlob PRIMARY KEY (ResultsHash)
-    );
+*/
 
 
 /* TODO: Enable this in the future, as this should speed things up
@@ -81,51 +81,58 @@ GO
 
 
 /* Foreign key constraints */
-ALTER TABLE la.BackendLibraryBlob
-    WITH CHECK ADD CONSTRAINT FK_BackendLibraryBlob_MerkleNode
-        FOREIGN KEY (BackendLibraryHash)
-        REFERENCES la.MerkleNode (MerkleNodeHash);
-ALTER TABLE la.BackendLibraryBlob
-    CHECK CONSTRAINT FK_BackendLibraryBlob_MerkleNode;
+ALTER TABLE la.LearningModelBlob
+    WITH CHECK ADD CONSTRAINT FK_LearningModelBlob_MerkleNode
+        FOREIGN KEY (Hash)
+        REFERENCES la.MerkleNode (Hash);
+ALTER TABLE la.LearningModelBlob
+    CHECK CONSTRAINT FK_LearningModelBlob_MerkleNode;
 
 ALTER TABLE la.CorpusBlob
     WITH CHECK ADD CONSTRAINT FK_CorpusBlob_MerkleNode
-        FOREIGN KEY (CorpusHash)
-        REFERENCES la.MerkleNode (MerkleNodeHash);
+        FOREIGN KEY (Hash)
+        REFERENCES la.MerkleNode (Hash);
 ALTER TABLE la.CorpusBlob
     CHECK CONSTRAINT FK_CorpusBlob_MerkleNode;
 
-ALTER TABLE la.FileBlob
-    WITH CHECK ADD CONSTRAINT FK_FileBlob_MerkleNode
-        FOREIGN KEY (FileHash)
-        REFERENCES la.MerkleNode (MerkleNodeHash);
-ALTER TABLE la.FileBlob
-    CHECK CONSTRAINT [FK_FileBlob_MerkleNode];
+ALTER TABLE la.ContentBlob
+    WITH CHECK ADD CONSTRAINT FK_ContentBlob_MerkleNode
+        FOREIGN KEY (Hash)
+        REFERENCES la.MerkleNode (Hash);
+ALTER TABLE la.ContentBlob
+    CHECK CONSTRAINT [FK_ContentBlob_MerkleNode];
 
 ALTER TABLE la.MerkleEdge
-    WITH CHECK ADD CONSTRAINT FK_MerkleNode_MerkleEdge
+    WITH CHECK ADD CONSTRAINT FK_MerkleNode_MerkleEdge_Parent
         FOREIGN KEY (ParentHash)
-        REFERENCES la.MerkleNode (MerkleNodeHash);
+        REFERENCES la.MerkleNode (Hash);
 ALTER TABLE la.[MerkleEdge]
-    CHECK CONSTRAINT FK_MerkleNode_MerkleEdge;
+    CHECK CONSTRAINT FK_MerkleNode_MerkleEdge_Parent;
+
+ALTER TABLE la.MerkleEdge
+    WITH CHECK ADD CONSTRAINT FK_MerkleNode_MerkleEdge_Child
+        FOREIGN KEY (ChildHash)
+        REFERENCES la.MerkleNode (Hash);
+ALTER TABLE la.[MerkleEdge]
+    CHECK CONSTRAINT FK_MerkleNode_MerkleEdge_Child;
 
 ALTER TABLE la.NeuralNetBlob
     WITH CHECK ADD CONSTRAINT FK_NeuralNetBlob_MerkleNode
-        FOREIGN KEY (NeuralNetHash)
-        REFERENCES la.MerkleNode (MerkleNodeHash);
+        FOREIGN KEY (Hash)
+        REFERENCES la.MerkleNode (Hash);
 ALTER TABLE la.NeuralNetBlob
     CHECK CONSTRAINT FK_NeuralNetBlob_MerkleNode;
 
 ALTER TABLE la.NeuralNetParameterBlob
     WITH CHECK ADD CONSTRAINT FK_NeuralNetParameterBlob_MerkleNode
-    FOREIGN KEY (NNParameterHash)
-    REFERENCES la.MerkleNode (MerkleNodeHash);
+    FOREIGN KEY (Hash)
+    REFERENCES la.MerkleNode (Hash);
 ALTER TABLE la.NeuralNetParameterBlob
     CHECK CONSTRAINT FK_NeuralNetParameterBlob_MerkleNode;
 
 ALTER TABLE la.ResultsBlob
     WITH CHECK ADD CONSTRAINT FK_ResultsBlob_MerkleNode
-    FOREIGN KEY (ResultsHash)
-    REFERENCES la.MerkleNode (MerkleNodeHash);
+    FOREIGN KEY (Hash)
+    REFERENCES la.MerkleNode (Hash);
 ALTER TABLE la.ResultsBlob
     CHECK CONSTRAINT FK_ResultsBlob_MerkleNode;

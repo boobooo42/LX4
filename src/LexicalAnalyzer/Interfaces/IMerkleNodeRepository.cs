@@ -20,14 +20,11 @@ namespace LexicalAnalyzer.Interfaces
 {
     public interface IMerkleNodeRepository<T> where T : IMerkleNode
     {
-        T GetByHash(MerkleHash hash);
-        IEnumerable<T> List();
-        IEnumerable<T> List(Expression<Func<T, bool>> predicate);
         void Add(T entity);
         void Delete(T entity);
-        /* FIXME: What is edit needed for? This is all by reference isn't it?
-         * Probably because we need to generate UPDATE queries whenever
-         * anything changes. */
-        void Edit(T entity);
+        void Update(T entity);
+        T GetByHash(MerkleHash hash);
+        IEnumerable<T> List();
+//        IEnumerable<T> List(Expression<Func<T, bool>> predicate);
     }
 }

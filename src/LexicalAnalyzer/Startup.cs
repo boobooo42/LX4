@@ -1,4 +1,5 @@
-﻿using LexicalAnalyzer.Database;
+﻿using LexicalAnalyzer.DataAccess;
+using LexicalAnalyzer.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

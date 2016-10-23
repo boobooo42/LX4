@@ -11,16 +11,15 @@ namespace LexicalAnalyzer.Controllers
 {
     public class DatabaseController : Controller
     {
-        IFileRepository m_fileRepository;
-        public DatabaseController(IFileRepository fileRepository) {
-            m_fileRepository = fileRepository;
+        public DatabaseController() {
+            /* TODO: Use dependency injection to get some handle into the
+             * database */
         }
 
         [HttpGet("api/database/file")]
         public IEnumerable<string> GetFile()
         {
             return new string[] {
-                m_options.Value.ConnectionString,
                 "value2"
             };
         }
