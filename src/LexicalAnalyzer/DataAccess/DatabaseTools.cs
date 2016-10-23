@@ -18,10 +18,10 @@ namespace LexicalAnalyzer.DataAccess {
         /* Public methods */
         public static void InitializeDatabase(string connectionString)
         {
-            Debug.WriteLine("Connection String: " + connectionString);
             try {
                 /* TODO: Support more than one database provider */
                 using (var cn = new SqlConnection(connectionString)) {
+                    cn.Open();
                     /* Try to retrieve the database version from the currently
                      * existing database */
                     IEnumerable<DatabaseInfo> result =
@@ -38,19 +38,8 @@ namespace LexicalAnalyzer.DataAccess {
             } catch {
                 /* The database does not appear to have our Info table; we
                  * assume that it is empty and that we must provision tables */
-                /* Read schema.sql from our assembly resources
-                 * Thanks to:
-                 * <http://codeopinion.com/asp-net-core-embedded-resource/>
-                 */
-                var assembly = Assembly.GetEntryAssembly();
-                var resourceStream = assembly.GetManifestResourceStream(
+                string sql = ReadAssemblyResource(
                         "LexicalAnalyzer.schema.sql");
-                string sql;
-                using (var reader = new StreamReader(
-                            resourceStream, Encoding.UTF8))
-                {
-                    sql = reader.ReadToEnd();
-                }
                 Debug.Assert(sql != null);
                 /* Provision the database by executing the SQL code in the
                  * schema */
@@ -68,7 +57,45 @@ namespace LexicalAnalyzer.DataAccess {
             }
         }
 
-        public static void RunSqlBatch(string sql, IDbConnection cn) {
+        public static void AddExampleData(string connectionString) {
+            /* Read the example data from the assembly resourc */
+            string sql = ReadAssemblyResource(
+                    "LexicalAnalyzer.example_data.sql");
+            Debug.Assert(sql != null);
+            try {
+                /* TODO: Support more than one database provider */
+                using (var cn = new SqlConnection(connectionString)) {
+                    cn.Open();
+                    RunSqlBatch(sql, cn);
+                }
+            } catch (SqlException e) {
+                for (int i = 0; i < e.Errors.Count; ++i) {
+                    Debug.WriteLine("SQL Error: " + e.Errors[i].ToString());
+                }
+
+                /* Since the transaction failed, we can assume that we already
+                 * have example data in our database */
+                Debug.WriteLine("Failed to add example data; assuming we already have data");
+            }
+        }
+
+        private static string ReadAssemblyResource(string name) {
+            /* Read schema.sql from our assembly resources
+             * Thanks to:
+             * <http://codeopinion.com/asp-net-core-embedded-resource/>
+             */
+            var assembly = Assembly.GetEntryAssembly();
+            var resourceStream = assembly.GetManifestResourceStream(name);
+            string result;
+            using (var reader = new StreamReader(
+                        resourceStream, Encoding.UTF8))
+            {
+                result = reader.ReadToEnd();
+            }
+            return result;
+        }
+
+        private static void RunSqlBatch(string sql, IDbConnection cn) {
             /* NOTE: This is a very naive SQL statement parser. It cannot
              * handle things like semicolons in quotes or comments. A real
              * parser of some sort would be needed to do this properly, but so

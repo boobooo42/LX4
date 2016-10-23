@@ -1,4 +1,5 @@
 ﻿using LexicalAnalyzer.DataAccess;
+using LexicalAnalyzer.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -37,10 +38,14 @@ namespace LexicalAnalyzer
              * DatabaseOptions object in the clever way that
              * Microsoft.Extensions.Options does it, so I gave up and passed
              * the connection string. --Jonathan */
-            DatabaseTools.InitializeDatabase(
-                    (string)Configuration
-                        .GetSection("Database")
-                        .GetValue(typeof(string), "ConnectionString"));
+            string connectionString =
+                (string)Configuration
+                    .GetSection("Database")
+                    .GetValue(typeof(string), "ConnectionString");
+            DatabaseTools.InitializeDatabase(connectionString);
+            if (env.IsDevelopment()) {
+                DatabaseTools.AddExampleData(connectionString);
+            }
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -80,6 +85,7 @@ namespace LexicalAnalyzer
 
             // Repository services
             services.AddTransient<IFileRepository, FileRepository>();
+            services.AddTransient<IMerkleTreeContext, MerkleTreeContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

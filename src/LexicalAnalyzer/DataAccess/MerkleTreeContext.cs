@@ -12,7 +12,7 @@ namespace LexicalAnalyzer.DataAccess {
          * factory or provider:
          * <http://stackoverflow.com/questions/14523166/is-there-a-simple-way-to-use-dependency-injection-on-my-connections>
          */
-        MerkleTreeContext(IDbConnectionFactory connectionFactory) {
+        public MerkleTreeContext(IDbConnectionFactory connectionFactory) {
             m_connectionFactory = connectionFactory;
         }
 

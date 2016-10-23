@@ -10,31 +10,31 @@ CREATE TABLE la.Info(
 
 -- Merkle Tree Tables
 CREATE TABLE la.MerkleNode(
-    Hash char(32) NOT NULL,
+    Hash char(64) NOT NULL,
     Type varchar(50) NOT NULL,
     Pinned bit NOT NULL,
     CONSTRAINT PK_MerkleNode PRIMARY KEY (Hash)
     );
 
 CREATE TABLE la.MerkleEdge(
-    ParentHash char(32) NOT NULL,
-    ChildHash char(32) NOT NULL,
+    ParentHash char(64) NOT NULL,
+    ChildHash char(64) NOT NULL,
     CONSTRAINT PK_MerkleEdge PRIMARY KEY (ParentHash, ChildHash)
     );
 
 CREATE TABLE la.ContentBlob(
-    Hash char(32) NOT NULL,
+    Hash char(64) NOT NULL,
     Contents text NOT NULL,
     CONSTRAINT PK_ContentHash PRIMARY KEY (Hash)
     );
 
 CREATE TABLE la.CorpusBlob(
-    Hash char(32) NOT NULL,
+    Hash char(64) NOT NULL,
     CONSTRAINT PK_CorpusBlob PRIMARY KEY (Hash)
     );
 
 CREATE TABLE la.NeuralNetBlob(
-    Hash char(32) NOT NULL,
+    Hash char(64) NOT NULL,
     CachedNeuralNet text NOT NULL,
     Status varchar(64) NOT NULL,
     DateRequested datetime NOT NULL,
@@ -43,20 +43,20 @@ CREATE TABLE la.NeuralNetBlob(
     );
 
 CREATE TABLE la.NeuralNetParameterBlob(
-    Hash char(32) NOT NULL,
+    Hash char(64) NOT NULL,
     Name varchar(512) NOT NULL,
     Value text NOT NULL,
     CONSTRAINT PK_NeuralNetParameterBlob PRIMARY KEY (Hash)
     );
 
 CREATE TABLE la.ResultsBlob(
-    Hash char(32) NOT NULL,
+    Hash char(64) NOT NULL,
     Contents text NULL,
     CONSTRAINT PK_ResultsBlob PRIMARY KEY (Hash)
     );
 
 CREATE TABLE la.LearningModelBlob(
-    Hash char(32) NOT NULL,
+    Hash char(64) NOT NULL,
     Version varchar(64) NOT NULL,
     CONSTRAINT PK_BackendLibraryBlob PRIMARY KEY (Hash)
     );
