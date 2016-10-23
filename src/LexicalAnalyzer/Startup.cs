@@ -1,5 +1,4 @@
 ﻿using LexicalAnalyzer.DataAccess;
-using LexicalAnalyzer.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -28,13 +27,20 @@ namespace LexicalAnalyzer
         
         public Startup(IHostingEnvironment env)
         {
-            DatabaseTools.CheckDatabase();
-                var builder = new ConfigurationBuilder()
+            var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
+            /* FIXME: I could not figure out how to instantiate a
+             * DatabaseOptions object in the clever way that
+             * Microsoft.Extensions.Options does it, so I gave up and passed
+             * the connection string. --Jonathan */
+            DatabaseTools.InitializeDatabase(
+                    (string)Configuration
+                        .GetSection("Database")
+                        .GetValue(typeof(string), "ConnectionString"));
         }
 
         public IConfigurationRoot Configuration { get; }

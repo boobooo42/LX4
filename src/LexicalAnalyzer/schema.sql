@@ -1,5 +1,4 @@
 CREATE SCHEMA la;
-GO
 
 CREATE TABLE la.MerkleNode(
     Hash char(32) NOT NULL,
@@ -65,7 +64,7 @@ CREATE TABLE la.[File](
     DownloadDate timestamp NULL,
     DownloadURL varchar(2048) NULL,
     CONSTRAINT [PK_File] PRIMARY KEY (FileID)
-    );
+    )
 */
 
 
