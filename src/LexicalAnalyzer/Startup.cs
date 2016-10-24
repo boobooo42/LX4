@@ -84,7 +84,7 @@ namespace LexicalAnalyzer
                     Configuration.GetSection("Database"));
 
             // Repository services
-            services.AddTransient<IFileRepository, FileRepository>();
+            services.AddTransient<ICorpusContext, CorpusContext>();
             services.AddTransient<IMerkleTreeContext, MerkleTreeContext>();
 
             // Database connection service

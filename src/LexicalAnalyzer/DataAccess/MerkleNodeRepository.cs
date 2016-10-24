@@ -28,7 +28,9 @@ namespace LexicalAnalyzer.DataAccess {
         protected abstract string TableName { get; }
 
         protected IDbConnection Connection() {
-            return m_connectionFactory.CreateConnection();
+            var conn =  m_connectionFactory.CreateConnection();
+            conn.Open();
+            return conn;
         }
 
         public abstract void Add(T entity);

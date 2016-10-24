@@ -69,10 +69,6 @@ namespace LexicalAnalyzer.DataAccess {
                     RunSqlBatch(sql, cn);
                 }
             } catch (SqlException e) {
-                for (int i = 0; i < e.Errors.Count; ++i) {
-                    Debug.WriteLine("SQL Error: " + e.Errors[i].ToString());
-                }
-
                 /* Since the transaction failed, we can assume that we already
                  * have example data in our database */
                 Debug.WriteLine("Failed to add example data; assuming we already have data");
@@ -80,7 +76,7 @@ namespace LexicalAnalyzer.DataAccess {
         }
 
         private static string ReadAssemblyResource(string name) {
-            /* Read schema.sql from our assembly resources
+            /* Read string from our assembly resources
              * Thanks to:
              * <http://codeopinion.com/asp-net-core-embedded-resource/>
              */
@@ -110,8 +106,11 @@ namespace LexicalAnalyzer.DataAccess {
                         cn.Execute(statement, transaction: tran);
                     }
                     tran.Commit();
-                } catch {
+                } catch (SqlException e) {
                     tran.Rollback();
+                    for (int i = 0; i < e.Errors.Count; ++i) {
+                        Debug.WriteLine("SQL Error: " + e.Errors[i].ToString());
+                    }
                     throw;
                 }
             }

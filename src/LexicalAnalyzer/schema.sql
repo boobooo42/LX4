@@ -8,6 +8,28 @@ CREATE TABLE la.Info(
     Version integer NOT NULL
     );
 
+-- Corpus Tables
+CREATE TABLE la.Corpus (
+    Id bigint NOT NULL,
+    Name varchar(2048) NOT NULL,
+    Description text NOT NULL,
+    Locked bit DEFAULT '0',
+    CONSTRAINT PK_Corpus PRIMARY KEY (Id)
+    )
+
+CREATE TABLE la.CorpusContent (
+    Id bigint NOT NULL,
+    CorpusId bigint NOT NULL,
+    Hash char(64) NOT NULL,
+    Name varchar(2048) NOT NULL,
+    Type varchar(64) NOT NULL,
+    ScraperGuid uniqueidentifier NULL,
+    ScraperType varchar(2048) NULL,
+    DownloadDate timestamp NULL,
+    DownloadURL varchar(2048) NULL,
+    CONSTRAINT PK_CorpusContent PRIMARY KEY (Id)
+    );
+
 -- Merkle Tree Tables
 CREATE TABLE la.MerkleNode(
     Hash char(64) NOT NULL,
@@ -87,6 +109,14 @@ GO
 
 
 /* Foreign key constraints */
+ALTER TABLE la.CorpusContent
+    WITH CHECK ADD CONSTRAINT FK_CorpusContent_Corpus
+        FOREIGN KEY (CorpusId)
+        REFERENCES la.Corpus (Id);
+ALTER TABLE la.CorpusContent
+    CHECK CONSTRAINT FK_CorpusContent_Corpus;
+
+
 ALTER TABLE la.LearningModelBlob
     WITH CHECK ADD CONSTRAINT FK_LearningModelBlob_MerkleNode
         FOREIGN KEY (Hash)

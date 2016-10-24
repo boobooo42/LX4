@@ -1,17 +1,30 @@
-﻿using System;
+﻿using LexicalAnalyzer.Interfaces;
+using LexicalAnalyzer.Models;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace LexicalAnalyzer.Controllers
 {
     public class CorpusController : Controller
     {
-        [HttpGet("api/corpus/list")]
-        public IEnumerable<string> Get()
+        /* Private members */
+        ICorpusContext m_context;
+
+        /* Constructors */
+        public CorpusController(ICorpusContext context) {
+            m_context = context;
+        }
+
+        /// <summary>
+        /// Get a list of corpora stored on the database
+        /// </summary>
+        [HttpGet("api/corpus")]
+        public IEnumerable<Corpus> List()
         {
-            return new string[] { "value1", "value2" };
+            return m_context.CorpusRepository.List();
         }
     }
 }
