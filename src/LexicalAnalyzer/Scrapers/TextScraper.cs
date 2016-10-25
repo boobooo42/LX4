@@ -124,7 +124,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             Debug.Assert(false);
             List<string> links = scrapePG("http://www.gutenberg.org/robot/harvest", 10);
-
+            
         }
 
         #region linkScraper
@@ -218,17 +218,17 @@ namespace LexicalAnalyzer.Scrapers
         /// to byte arrays
         /// </summary>
         /// <param name="filesFromPage"></param>
-        void downloadFilesFromPage(List<string> filesFromPage)
+        List<byte[]> downloadFilesFromPage(List<string> filesFromPage)
         {
-
+            var fileList = new List<byte[]>();
             foreach (string downloadURL in filesFromPage)
-
             {
                 using (MemoryStream download = (loadFileToStream(downloadURL).Result))
                 {
-                    var fileList = getFilesFromZipStream(download, ".txt");
+                    fileList.AddRange(getFilesFromZipStream(download, ".txt"));
                 }
             }
+            return fileList;
         }
 
         #endregion
@@ -252,14 +252,19 @@ namespace LexicalAnalyzer.Scrapers
             //adds txt files to list of streams
             foreach (ZipArchiveEntry entry in archive.Entries)
             {
-                if (entry.FullName.EndsWith(fileType, StringComparison.OrdinalIgnoreCase))
+                try
                 {
-                    unzippedEntryStream = entry.Open(); // .Open will return a stream                                                        //Process entry data here
-                    byte[] byteArray = ReadFully(unzippedEntryStream); //converts stream to byte array
-                    listOfTextStreams.Add(byteArray);
-                    unzippedEntryStream.Dispose();
-                }
+                    if (entry.FullName.EndsWith(fileType, StringComparison.OrdinalIgnoreCase))
+                    {
 
+                        unzippedEntryStream = entry.Open(); // .Open will return a stream                                                        //Process entry data here
+                        byte[] byteArray = ReadFully(unzippedEntryStream); //converts stream to byte array
+                        ScraperUtilities.loadByteArrayIntoDatabase(byteArray);
+                        listOfTextStreams.Add(byteArray);
+                        unzippedEntryStream.Dispose();
+                    }
+                }
+                catch { }
             }
 
 
@@ -354,8 +359,7 @@ namespace LexicalAnalyzer.Scrapers
                 finalLinkList.AddRange(dlList);
 
                 //This is where the downloading happens, uncomment if you want to download zip files
-                // downloadFilesFromPage(dlList);
-
+                List<byte[]> downloadedFiles = downloadFilesFromPage(dlList);
                 currentURL = getNextPage(tempLinkList);
                 finalLinkList.Add(currentURL);
             }
