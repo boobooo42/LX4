@@ -21,9 +21,6 @@ namespace LexicalAnalyzer.Controllers
             SHA256 mySha = SHA256.Create();
             IFileRepository FileRepository = new FileRepository();
             List<File> files = FileRepository.GetAll();
-            Database.DatabaseTools.createFile("Here is a test string to test out");
-            Database.DatabaseTools.createFile("lololol");
-            Database.DatabaseTools.createFile("This stirng is gonna be a blank");
             foreach (File f in files)
             {
                 
