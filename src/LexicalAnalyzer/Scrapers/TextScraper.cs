@@ -123,8 +123,11 @@ namespace LexicalAnalyzer.Scrapers
         public void Run()
         {
             Debug.Assert(false);
-            List<string> links = scrapePG("http://www.gutenberg.org/robot/harvest", 10);
-            
+            string rootURL = "";
+            foreach(KeyValueProperty i in m_properties)
+                if (i.Key.Equals("website"))
+                    rootURL = i.Value;
+            scrapePG(rootURL, 10);          
         }
 
         #region linkScraper
@@ -214,21 +217,19 @@ namespace LexicalAnalyzer.Scrapers
         }
 
         /// <summary>
-        /// Main method to download zip files from a page and extract the text files
+        /// Downloads zip files from urls, extracts them, and loads their contents into the database
         /// to byte arrays
         /// </summary>
-        /// <param name="filesFromPage"></param>
-        List<byte[]> downloadFilesFromPage(List<string> filesFromPage)
+        /// <param name="urls"></param>
+        void downloadZipFilesFromLinks(List<string> urls)
         {
-            var fileList = new List<byte[]>();
-            foreach (string downloadURL in filesFromPage)
+            foreach (string downloadURL in urls)
             {
                 using (MemoryStream download = (loadFileToStream(downloadURL).Result))
                 {
-                    fileList.AddRange(getFilesFromZipStream(download, ".txt"));
+                    extractAndLoadZipIntoDatabase(download, ".txt");
                 }
             }
-            return fileList;
         }
 
         #endregion
@@ -236,18 +237,15 @@ namespace LexicalAnalyzer.Scrapers
         #region extract
 
         /// <summary>
-        /// gets files of the given type from a .zip 
-        /// returns a list of byte arrays
+        /// extracts the given zip file and loads its contents into the database
         /// </summary>
         /// <param name="zipStream"></param>
+        /// <param name="fileType"></param>
         /// <returns></returns>
-        List<byte[]> getFilesFromZipStream(MemoryStream zipStream, string fileType)
+        void extractAndLoadZipIntoDatabase(MemoryStream zipStream, string fileType)
         {
             Stream unzippedEntryStream;  //Unzipped data from a file in the archive
-
-            List<byte[]> listOfTextStreams = new List<byte[]>();
             ZipArchive archive = new ZipArchive(zipStream);
-
 
             //adds txt files to list of streams
             foreach (ZipArchiveEntry entry in archive.Entries)
@@ -260,26 +258,12 @@ namespace LexicalAnalyzer.Scrapers
                         unzippedEntryStream = entry.Open(); // .Open will return a stream                                                        //Process entry data here
                         byte[] byteArray = ReadFully(unzippedEntryStream); //converts stream to byte array
                         ScraperUtilities.loadByteArrayIntoDatabase(byteArray);
-                        listOfTextStreams.Add(byteArray);
                         unzippedEntryStream.Dispose();
                     }
                 }
-                catch { }
+                catch { } //ignore invalid files
             }
-
-
-            return listOfTextStreams;
         }
-
-        /// <summary>
-        /// stores a text file in the database
-        /// </summary>
-        /// <param name="textFile"></param>
-        void addTextFileToDatabase(byte[] textFile)
-        {
-
-        }
-
 
         /// <summary>
         /// converts a Stream to a byte array
@@ -339,32 +323,19 @@ namespace LexicalAnalyzer.Scrapers
         #endregion
 
         /// <summary>
-        /// returns a list of urls for .txt files from the ProjectGutenberg website
-        /// the limits set the range of txt files to return
+        /// Scrapes the Project Gutenberg website
         /// </summary>
-        /// <param name="lowerLimit"></param>
-        /// <param name="upperLimit"></param>
-        public List<string> scrapePG(string currentURL, int pagesToGet)
+        /// <param name="currentURL"></param>
+        /// <param name="pagesToGet"></param>
+        public void scrapePG(string currentURL, int pagesToGet)
         {
-            //the main URL for the project gutenberg depository, hope this doens't change
-            //"http://www.gutenberg.org/robot/harvest";
-
-            List<string> finalLinkList = new List<string>();
-
-
             for (int i = 0; i < pagesToGet; i++)
             {
                 List<string> tempLinkList = GetLinksFromPage(currentURL, "//a[@href]");
                 var dlList = getListOfDownloadsForPage(tempLinkList, ".zip");
-                finalLinkList.AddRange(dlList);
-
-                //This is where the downloading happens, uncomment if you want to download zip files
-                List<byte[]> downloadedFiles = downloadFilesFromPage(dlList);
+                downloadZipFilesFromLinks(dlList);
                 currentURL = getNextPage(tempLinkList);
-                finalLinkList.Add(currentURL);
             }
-
-            return finalLinkList;
 
         }
 
