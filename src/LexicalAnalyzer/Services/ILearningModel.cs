@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace LexicalAnalyzer.Services
 {
-    public interface ILearn : ITask, IGuid
+    public interface ILearningModel : ITask, IGuid
     {
         string DisplayName {
             get;
