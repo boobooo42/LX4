@@ -1,13 +1,13 @@
 ﻿using HtmlAgilityPack;
-using LexicalAnalyzer.Resources;
+using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
 using System;
 
 namespace LexicalAnalyzer.Controllers

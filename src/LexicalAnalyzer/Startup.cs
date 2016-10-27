@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using LexicalAnalyzer.DataAccess;
+using LexicalAnalyzer.Interfaces;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,7 +25,7 @@ namespace LexicalAnalyzer
             return System.IO.Path.Combine(
                     app.ApplicationBasePath, "LexicalAnalyzer.xml");
         }
-
+        
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -32,6 +34,18 @@ namespace LexicalAnalyzer
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
+            /* FIXME: I could not figure out how to instantiate a
+             * DatabaseOptions object in the clever way that
+             * Microsoft.Extensions.Options does it, so I gave up and passed
+             * the connection string. --Jonathan */
+            string connectionString =
+                (string)Configuration
+                    .GetSection("Database")
+                    .GetValue(typeof(string), "ConnectionString");
+            DatabaseTools.InitializeDatabase(connectionString);
+            if (env.IsDevelopment()) {
+                DatabaseTools.AddExampleData(connectionString);
+            }
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -63,6 +77,18 @@ namespace LexicalAnalyzer
                     c.IncludeXmlComments(GetXmlCommentsPath());
                     c.DescribeAllEnumsAsStrings();
                 });
+            services.AddOptions();
+
+            // Configure options
+            services.Configure<DatabaseOptions>(
+                    Configuration.GetSection("Database"));
+
+            // Repository services
+            services.AddTransient<ICorpusContext, CorpusContext>();
+            services.AddTransient<IMerkleTreeContext, MerkleTreeContext>();
+
+            // Database connection service
+            services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

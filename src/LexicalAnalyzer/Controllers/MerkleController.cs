@@ -1,46 +1,51 @@
-﻿using System;
+﻿using LexicalAnalyzer.Interfaces;
+using LexicalAnalyzer.Models;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+using System;
 
 namespace LexicalAnalyzer.Controllers
 {
     public class MerkleController : Controller
     {
-        public ActionResult Index(){
-            return View();
+        /* Private members */
+        IMerkleTreeContext m_context;
+
+        public MerkleController(IMerkleTreeContext context) {
+            m_context = context;
         }
 
-        [HttpGet]
-        public JsonResult Get()
-        {
-            var result = "Request: Get()";
-            return Json(result);
+        [HttpGet("api/merkle/nodes")]
+        public IEnumerable<MerkleNode> GetNodes() {
+            IEnumerable<MerkleNode> list =
+                m_context.MerkleNodeRepository.List();
+            return list;
         }
 
-        [HttpGet("{id}")]
-        public JsonResult Get(int id)
+        /// <summary>
+        /// Access a Merkle node with the given Merkle hash.
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// Use this call to get a specific Merkle node with a given hash.
+        /// </p>
+        /// <p>
+        /// The hash is a base 16 encoded SHA256 string.
+        /// </p>
+        /// </remarks>
+        [HttpGet("api/merkle/node/{hash}")]
+        public MerkleNode GetNode(string hash)
         {
-            var result = "Request: Get(int id)";
-            return Json(result);
-        }
-
-        [HttpPost]
-        public void Post([FromBody]string value)
-        {
-        }
-
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            /* TODO: I need to implement a generic MerkleNodeRepository */
+            /*
+            MerkleNode node =
+                m_context.MerkleNodeRepository.GetByHash(
+                    new MerkleHash(hash));
+            return node;
+            */
+            return default(MerkleNode);
         }
     }
 }

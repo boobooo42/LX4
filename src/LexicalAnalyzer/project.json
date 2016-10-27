@@ -32,7 +32,9 @@
     "Dapper": "1.50.2",
     "Microsoft.IdentityModel.Protocols": "2.0.0",
     "Microsoft.Extensions.Configuration": "1.0.0",
-    "angularjs": "1.5.8"
+    "angularjs": "1.5.8",
+    "System.Collections.NonGeneric": "4.0.1",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.1"
   },
 
   "tools": {
@@ -75,5 +77,10 @@
   "scripts": {
     "prepublish": [ "bower install", "dotnet bundle" ],
     "postpublish": [ "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%" ]
-  }
+  },
+
+  "resource": [
+    "schema.sql",
+    "example_data.sql"
+  ]
 }

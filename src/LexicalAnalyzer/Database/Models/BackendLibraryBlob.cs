@@ -7,5 +7,6 @@ namespace LexicalAnalyzer.Database
 {
     public class BackendLibraryBlob
     {
+
     }
 }

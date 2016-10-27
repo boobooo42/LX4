@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Encodings.Web;
 
 namespace LexicalAnalyzer.Controllers
 {
@@ -13,9 +14,9 @@ namespace LexicalAnalyzer.Controllers
             return View();
         }
 
-        public IActionResult About()
+        public IActionResult About() 
         {
-            ViewData["Message"] = "Your application description page.";
+            ViewData["Result"] = "This is your about page ";
 
             return View();
         }
