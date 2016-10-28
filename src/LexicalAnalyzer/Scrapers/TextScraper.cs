@@ -18,14 +18,16 @@ namespace LexicalAnalyzer.Scrapers
     /// </summary>
     public class TextScraper : IScraper
     {
-
-        /* Private members */
         private Guid m_guid;
         private string m_status;
         private float m_progress;
         private int m_priority;
         private List<KeyValueProperty> m_properties;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <returns></returns>
         public TextScraper()
         {
             m_guid = System.Guid.NewGuid();
@@ -53,7 +55,10 @@ namespace LexicalAnalyzer.Scrapers
                     ));
         }
 
-        /* Public Interface */
+        /// <summary>
+        /// Gets guid
+        /// </summary>
+        /// <returns></returns>
         public Guid Guid
         {
             get
@@ -62,11 +67,19 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        /// <summary>
+        /// Gets display name--is hardcoded
+        /// </summary>
+        /// <returns></returns>
         public string DisplayName
         {
             get { return "Text Scraper"; }
         }
 
+        /// <summary>
+        /// Gets description--is hardcoded
+        /// </summary>
+        /// <returns></returns>
         public string Description
         {
             get
@@ -77,6 +90,10 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        /// <summary>
+        /// Gets content type --is hardcoded
+        /// </summary>
+        /// <returns></returns>
         public string ContentType
         {
             get
@@ -85,6 +102,10 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        /// <summary>
+        /// Gets status
+        /// </summary>
+        /// <returns></returns>
         public string Status
         {
             get
@@ -97,6 +118,10 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        /// <summary>
+        /// Gets progress
+        /// </summary>
+        /// <returns></returns>
         public float Progress
         {
             get
@@ -105,6 +130,10 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        /// <summary>
+        /// Gets priority
+        /// </summary>
+        /// <returns></returns>
         public int Priority
         {
             get
@@ -113,21 +142,16 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        /// <summary>
+        /// Gets properties
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<KeyValueProperty> Properties
         {
             get
             {
                 return m_properties;
             }
-        }
-        public void Run()
-        {
-            Debug.Assert(false);
-            string rootURL = "";
-            foreach(KeyValueProperty i in m_properties)
-                if (i.Key.Equals("website"))
-                    rootURL = i.Value;
-            scrapePG(rootURL, 10);          
         }
 
         #region linkScraper
@@ -163,15 +187,13 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
-
-
-
         /// <summary>
         /// returns a list of files or links from a webpage based
         /// on the given xpath expression
         /// XPATH examples - "//a[contains(@href,'.zip')]" "//a[contains(@href,'.deb')]"
         /// </summary>
         /// <param name="URL"></param>
+        /// <param name="XPATHexpression"></param>
         /// <returns></returns>
         List<String> GetLinksFromPage(string URL, string XPATHexpression)
         {
@@ -234,7 +256,7 @@ namespace LexicalAnalyzer.Scrapers
 
         #endregion
 
-        #region extract
+        #region extract and load
 
         /// <summary>
         /// extracts the given zip file and loads its contents into the database
@@ -287,12 +309,12 @@ namespace LexicalAnalyzer.Scrapers
 
         #endregion
 
-        #region website mapping
+        #region Project Gutenberg website mapping
 
         /// <summary>
         /// Gets the URL for the next page on gutenberg/robot/harvest
         /// </summary>
-        /// <param name="URL"></param>
+        /// <param name="linksFromPage"></param>
         /// <returns></returns>
         string getNextPage(List<string> linksFromPage)
         {
@@ -322,6 +344,21 @@ namespace LexicalAnalyzer.Scrapers
 
         #endregion
 
+        #region run
+        /// <summary>
+        /// Runs the text scraper
+        /// </summary>
+        /// <returns></returns>
+        public void Run()
+        {
+            Debug.Assert(false);
+            string rootURL = "";
+            foreach (KeyValueProperty i in m_properties)
+                if (i.Key.Equals("website"))
+                    rootURL = i.Value;
+            scrapePG(rootURL, 10);
+        }
+
         /// <summary>
         /// Scrapes the Project Gutenberg website
         /// </summary>
@@ -339,6 +376,6 @@ namespace LexicalAnalyzer.Scrapers
 
         }
 
-
+        #endregion
     }
 }
