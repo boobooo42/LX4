@@ -1,4 +1,5 @@
 ﻿using LexicalAnalyzer.Interfaces;
+using LexicalAnalyzer.Models;
 using LexicalAnalyzer.Services;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,26 +16,12 @@ namespace LexicalAnalyzer.Scrapers
         private string m_status;
         private float m_progress;
         private int m_priority;
-        private List<KeyValueProperty> m_properties;
 
         public TestScraper() {
             m_guid = System.Guid.NewGuid();
             m_status = "init";
             m_progress = 0.0f;
             m_priority = 0;
-            m_properties = new List<KeyValueProperty>();
-            m_properties.Add(
-                    new KeyValueProperty(
-                        "timeout",  /* key */
-                        "30",  /* defaultValue */
-                        "seconds"  /* type */
-                        ));
-            m_properties.Add(
-                    new KeyValueProperty(
-                        "website",  /* key */
-                        "http://example.com",  /* defaultValue */
-                        "url"  /* type */
-                        ));
         }
 
         /* Public Interface */
@@ -44,11 +31,11 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
-        public string DisplayName {
+        public static string DisplayName {
             get { return "Test Scraper"; }
         }
 
-        public string Description {
+        public static string Description {
             get {
                 return
                     @"A scraper used for testing purposes. This scraper does
@@ -57,7 +44,7 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
-        public string ContentType {
+        public static string ContentType {
             get {
                 return "text";
             }
@@ -84,10 +71,27 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
-        public IEnumerable<KeyValueProperty> Properties {
+        public static IEnumerable<KeyValueProperty> DefaultProperties {
             get {
-                return m_properties;
+                var properties = new List<KeyValueProperty>();
+                properties.Add(
+                        new KeyValueProperty(
+                            "timeout",  /* key */
+                            "30",  /* defaultValue */
+                            "seconds"  /* type */
+                            ));
+                properties.Add(
+                        new KeyValueProperty(
+                            "website",  /* key */
+                            "http://example.com",  /* defaultValue */
+                            "url"  /* type */
+                            ));
+                return new List<KeyValueProperty>();
             }
+        }
+
+        public IEnumerable<KeyValueProperty> Properties {
+            get; set;
         }
 
         public void Run() {

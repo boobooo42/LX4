@@ -1,4 +1,5 @@
-﻿using LexicalAnalyzer.Services;
+﻿using LexicalAnalyzer.Models;
+using LexicalAnalyzer.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,15 +9,19 @@ namespace LexicalAnalyzer.Interfaces
 {
     public interface IScraper : ITask, IGuid
     {
-        string DisplayName {
+        /* NOTE: All IScraper implementors must implement these as static
+         * properties */
+        /*
+        static string DisplayName {
             get;
         }
-        string Description {
+        static string Description {
             get;
         }
-        string ContentType {
+        static string ContentType {
             get;
         }
+        /*
 
         /*
         IEnumerable<KeyValueProperty> DefaultProperties {
@@ -25,7 +30,7 @@ namespace LexicalAnalyzer.Interfaces
         */
 
         IEnumerable<KeyValueProperty> Properties {
-            get;
+            get; set;
         }
     }
 }

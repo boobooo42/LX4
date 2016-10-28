@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using LexicalAnalyzer.Interfaces;
+using LexicalAnalyzer.Models;
 using LexicalAnalyzer.Resources;
 using LexicalAnalyzer.Services;
 using System.Collections.Generic;
@@ -21,12 +22,11 @@ namespace LexicalAnalyzer.Scrapers
     /// </summary>
     public class DebianScraper : IScraper
     {
-        DebianScraper() {
+        public DebianScraper() {
             m_guid = System.Guid.NewGuid();
             m_status = "init";
             /* TODO: Add properties that DebianScraper exposes to the web
              * interface. */
-            m_properties = new List<KeyValueProperty>();
         }
 
         #region Structs
@@ -73,7 +73,7 @@ namespace LexicalAnalyzer.Scrapers
         /// Gets the display name
         /// </summary>
         /// <returns></returns>
-        public string DisplayName {
+        public static string DisplayName {
             get { return "Debian Scraper"; }
         }
 
@@ -81,7 +81,7 @@ namespace LexicalAnalyzer.Scrapers
         /// Gets the description
         /// </summary>
         /// <returns></returns>
-        public string Description {
+        public static string Description {
             get {
                 return
                     @"Useful for scraping .deb files from the Debian archive
@@ -94,7 +94,7 @@ namespace LexicalAnalyzer.Scrapers
         /// Gets the content type
         /// </summary>
         /// <returns></returns>
-        public string ContentType {
+        public static string ContentType {
             get {
                 return "executables";
             }
@@ -132,11 +132,15 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
-        private List<KeyValueProperty> m_properties;
-        public IEnumerable<KeyValueProperty> Properties {
+        public static IEnumerable<KeyValueProperty> DefaultProperties {
             get {
-                return m_properties;
+                var properties = new List<KeyValueProperty>();
+                return properties;
             }
+        }
+
+        public IEnumerable<KeyValueProperty> Properties {
+            get; set;
         }
         #endregion
 

@@ -1,4 +1,5 @@
 ﻿using LexicalAnalyzer.Interfaces;
+using LexicalAnalyzer.Models;
 using LexicalAnalyzer.Scrapers;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -38,20 +39,44 @@ namespace LexicalAnalyzer.Services
             foreach (Type t in m_scraperTypes) {
                 Debug.Assert(t.GetInterfaces().Contains(typeof(IScraper)));
             }
+
+            /* TODO: Ensure that each scraper type implements the needed
+             * static methods */
         }
 
-        private List<string> m_ScraperTypes {
+        private IEnumerable<ScraperType> m_ScraperTypes {
             get {
-                List<string> result = new List<string>();
+                List<ScraperType> result = new List<ScraperType>();
 
                 foreach (Type t in m_scraperTypes) {
-                    result.Add(t.FullName);
+                    ScraperType st = new ScraperType();
+                    /* Store the fully qualified name of the implementing
+                     * class */
+                    st.Type = t.FullName;
+                    /* Invoke the respective static methods for this type */
+                    st.DisplayName = (string)t
+                        .GetProperty("DisplayName",
+                                BindingFlags.Public | BindingFlags.Static)
+                        .GetValue(null, null);
+                    st.Description = (string)t
+                        .GetProperty("Description",
+                                BindingFlags.Public | BindingFlags.Static)
+                        .GetValue(null);
+                    st.ContentType = (string)t
+                        .GetProperty("ContentType",
+                                BindingFlags.Public | BindingFlags.Static)
+                        .GetValue(null);
+                    st.Properties = (IEnumerable<KeyValueProperty>)
+                        t.GetProperty("DefaultProperties",
+                                BindingFlags.Public | BindingFlags.Static)
+                        .GetValue(null);
+                    result.Add(st);
                 }
 
                 return result;
             }
         }
-        public static List<string> ScraperTypes {
+        public static IEnumerable<ScraperType> ScraperTypes {
             get {
                 return Instance.m_ScraperTypes;
             }

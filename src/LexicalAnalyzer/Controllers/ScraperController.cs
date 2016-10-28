@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using LexicalAnalyzer.Interfaces;
+using LexicalAnalyzer.Models;
 using LexicalAnalyzer.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Serialization;
@@ -229,9 +230,8 @@ namespace LexicalAnalyzer.Controllers
         /// ScraperFactory. Scrapers can be created using any of these types.
         /// </remarks>
         [HttpGet("api/scraper/types")]
-        public List<string> Types()
+        public IEnumerable<ScraperType> Types()
         {
-            /* TODO: Return more info, such as the description of each type */
             return ScraperFactory.ScraperTypes;
         }
 
