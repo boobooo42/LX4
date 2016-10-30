@@ -21,17 +21,12 @@ namespace LexicalAnalyzer.Controllers
             SHA256 mySha = SHA256.Create();
             IFileRepository FileRepository = new FileRepository();
             List<File> files = FileRepository.GetAll();
-            Database.Function.BlobMaker maker = new Database.Function.BlobMaker();
-            maker.computeHash();
             foreach (File f in files)
             {
                 
                 testString = testString + "File content :" + f.FileContents +" File name: "+f.FileName +" File id: "+f.FileID+" File url: "+f.DownloadURL +
                     " date downloaded:" + f.DownloadDate +" hash: "+f.FileHash;
             }
-            Database.DatabaseTools.createFile("lololol");
-            Database.DatabaseTools.createFile("lololol");
-            Database.DatabaseTools.createFile("j10212jadljad");
             //
             /*
             //string testString = "Hi i'm just a test bro";

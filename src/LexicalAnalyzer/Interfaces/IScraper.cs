@@ -21,10 +21,7 @@ namespace LexicalAnalyzer.Interfaces
         static string ContentType {
             get;
         }
-        /*
-
-        /*
-        IEnumerable<KeyValueProperty> DefaultProperties {
+        static IEnumerable<KeyValueProperty> DefaultProperties {
             get;
         }
         */
