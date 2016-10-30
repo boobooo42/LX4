@@ -22,11 +22,10 @@ namespace LexicalAnalyzer.Scrapers
     /// </summary>
     public class DebianScraper : IScraper
     {
-        public DebianScraper() {
+        public DebianScraper(ICorpusContext context) {
             m_guid = System.Guid.NewGuid();
             m_status = "init";
-            /* TODO: Add properties that DebianScraper exposes to the web
-             * interface. */
+            m_context = context;
         }
 
         #region Structs
@@ -56,6 +55,7 @@ namespace LexicalAnalyzer.Scrapers
         List<HtmlNode> DownLinkList;
         HtmlNodeCollection DownCollection;
         private Guid m_guid;
+        private ICorpusContext m_context;
         #endregion
 
         #region  Public Interface

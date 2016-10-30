@@ -16,12 +16,14 @@ namespace LexicalAnalyzer.Scrapers
         private string m_status;
         private float m_progress;
         private int m_priority;
+        private ICorpusContext m_context;
 
-        public TestScraper() {
+        public TestScraper(ICorpusContext context) {
             m_guid = System.Guid.NewGuid();
             m_status = "init";
             m_progress = 0.0f;
             m_priority = 0;
+            m_context = context;
         }
 
         /* Public Interface */

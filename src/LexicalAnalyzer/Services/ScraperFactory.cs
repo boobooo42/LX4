@@ -10,23 +10,15 @@ using System;
 
 namespace LexicalAnalyzer.Services
 {
-    public class ScraperFactory
+    public class ScraperFactory : IScraperFactory
     {
-        /* Singleton pattern */
-        /* FIXME: Replace this singleton pattern with dependency injection */
-        private static ScraperFactory m_instance;
-        private static ScraperFactory Instance {
-            get {
-                if (m_instance == null) {
-                    m_instance = new ScraperFactory();
-                }
-                return m_instance;
-            }
-        }
-
+        /* Private members */
         private List<Type> m_scraperTypes;
+        private ICorpusContext m_context;
 
-        private ScraperFactory() {
+        /* Constructors */
+        public ScraperFactory(ICorpusContext context) {
+            m_context = context;
             m_scraperTypes = new List<Type>();
 
             /* Fill our array of scraper types */
@@ -42,10 +34,10 @@ namespace LexicalAnalyzer.Services
             }
 
             /* TODO: Ensure that each scraper type implements the needed
-             * static methods */
+             * static methods (with appropriate signatures) */
         }
 
-        private IEnumerable<ScraperType> m_ScraperTypes {
+        public IEnumerable<ScraperType> ScraperTypes {
             get {
                 List<ScraperType> result = new List<ScraperType>();
 
@@ -77,24 +69,17 @@ namespace LexicalAnalyzer.Services
                 return result;
             }
         }
-        public static IEnumerable<ScraperType> ScraperTypes {
-            get {
-                return Instance.m_ScraperTypes;
-            }
-        }
 
-        private IScraper m_BuildScraper(string type) {
+        public IScraper BuildScraper(string type) {
             Type t = m_scraperTypes.Find(elem => { return elem.FullName == type; });
             if (t == null) {
                 return null;
             }
             if (t.GetInterfaces().Contains(typeof(IScraper))) {
-                return (IScraper)Activator.CreateInstance(t);
+                object[] arguments = new object[] { m_context };
+                return (IScraper)Activator.CreateInstance(t, arguments);
             }
             return null;
-        }
-        public static IScraper BuildScraper(string type) {
-            return Instance.m_BuildScraper(type);
         }
     }
 }

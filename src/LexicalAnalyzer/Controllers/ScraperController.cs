@@ -15,6 +15,19 @@ namespace LexicalAnalyzer.Controllers
 {
     public class ScraperController : Controller
     {
+        /* Private members */
+        IScraperService m_scraperService;
+        IScraperFactory m_scraperFactory;
+
+        /* Constructors */
+        public ScraperController(
+                IScraperService scraperService,
+                IScraperFactory scraperFactory)
+        {
+            m_scraperService = scraperService;
+            m_scraperFactory = scraperFactory;
+        }
+
         /// <summary>
         /// Returns a list of all of the scrapers currently instantiated.
         /// </summary>
@@ -28,7 +41,7 @@ namespace LexicalAnalyzer.Controllers
         public string List()
         {
             /* List all of the scrapers currently instantiated */
-            return JsonConvert.SerializeObject(ScraperService.Scrapers);
+            return JsonConvert.SerializeObject(m_scraperService.Scrapers);
         }
 
         public class SerializeStatusContractResolver : DefaultContractResolver
@@ -97,7 +110,7 @@ namespace LexicalAnalyzer.Controllers
         public string Status()
         {
             return JsonConvert.SerializeObject(
-                    ScraperService.Scrapers,
+                    m_scraperService.Scrapers,
                     Formatting.Indented,
                     new JsonSerializerSettings {
                     ContractResolver = SerializeStatusContractResolver.Instance
@@ -120,7 +133,7 @@ namespace LexicalAnalyzer.Controllers
                 return null;
             }
             /* Get a single scraper with the given guid */
-            IScraper scraper = ScraperService.GetScraper(guid);
+            IScraper scraper = m_scraperService.GetScraper(guid);
             return scraper;
         }
 
@@ -143,7 +156,7 @@ namespace LexicalAnalyzer.Controllers
         {
             /* Remove the scraper with the given guid */
             /* TODO: Return success or failure status ? */
-            ScraperService.RemoveScraper(guid);
+            m_scraperService.RemoveScraper(guid);
         }
 
         /// <summary>
@@ -168,7 +181,7 @@ namespace LexicalAnalyzer.Controllers
         [HttpPost("api/scraper/{guid}/start")]
         public string Start(string guid)
         {
-            ScraperService.StartScraper(guid);
+            m_scraperService.StartScraper(guid);
             return "We're starting something!";
         }
 
@@ -189,8 +202,8 @@ namespace LexicalAnalyzer.Controllers
         [HttpPost("api/scraper/start")]
         public void StartAll()
         {
-            foreach (IScraper scraper in ScraperService.Scrapers) {
-                ScraperService.StartScraper(scraper.Guid);
+            foreach (IScraper scraper in m_scraperService.Scrapers) {
+                m_scraperService.StartScraper(scraper.Guid);
             }
         }
 
@@ -216,7 +229,7 @@ namespace LexicalAnalyzer.Controllers
         public string Pause(string guid)
         {
             /* FIXME: Check for null guid values */
-            ScraperService.PauseScraper(guid);
+            m_scraperService.PauseScraper(guid);
             return "We're pausing something!";
         }
 
@@ -232,7 +245,7 @@ namespace LexicalAnalyzer.Controllers
         [HttpGet("api/scraper/types")]
         public IEnumerable<ScraperType> Types()
         {
-            return ScraperFactory.ScraperTypes;
+            return m_scraperFactory.ScraperTypes;
         }
 
         /// <summary>
@@ -252,7 +265,7 @@ namespace LexicalAnalyzer.Controllers
         public string Create([FromBody] string type)
         {
             /* FIXME: Check for null (or invalid?) type values? */
-            IScraper scraper = ScraperService.CreateScraper(type);
+            IScraper scraper = m_scraperService.CreateScraper(type);
             Debug.WriteLine("scraper type requested: " + type);
             return JsonConvert.SerializeObject(scraper);
         }
