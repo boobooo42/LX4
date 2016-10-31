@@ -11,6 +11,9 @@ using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System;
+using System.Data.SqlTypes;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace LexicalAnalyzer.Scrapers
 {
@@ -162,7 +165,7 @@ namespace LexicalAnalyzer.Scrapers
         /// <returns></returns>
         public IEnumerable<KeyValueProperty> Properties
         {
-            get; set;
+            get ; set;
         }
 
         #region linkScraper
@@ -260,7 +263,7 @@ namespace LexicalAnalyzer.Scrapers
             {
                 using (MemoryStream download = (loadFileToStream(downloadURL).Result))
                 {
-                    extractAndLoadZipIntoDatabase(download, ".txt");
+                    extractAndLoadZipIntoDatabase(download, ".txt",downloadURL);
                 }
             }
         }
@@ -275,7 +278,7 @@ namespace LexicalAnalyzer.Scrapers
         /// <param name="zipStream"></param>
         /// <param name="fileType"></param>
         /// <returns></returns>
-        void extractAndLoadZipIntoDatabase(MemoryStream zipStream, string fileType)
+        void extractAndLoadZipIntoDatabase(MemoryStream zipStream, string fileType, string downloadURL)
         {
             Stream unzippedEntryStream;  //Unzipped data from a file in the archive
             ZipArchive archive = new ZipArchive(zipStream);
@@ -290,12 +293,69 @@ namespace LexicalAnalyzer.Scrapers
 
                         unzippedEntryStream = entry.Open(); // .Open will return a stream                                                        //Process entry data here
                         byte[] byteArray = ReadFully(unzippedEntryStream); //converts stream to byte array
-                        ScraperUtilities.loadByteArrayIntoDatabase(byteArray);
+                     //   ScraperUtilities.loadByteArrayIntoDatabase(byteArray);
+
+
+
+                        SqlDateTime sqlDate = new SqlDateTime(DateTime.Now);
+                        addCorpusContent(-1, "", ".txt", "Project Gutenberg File"
+                            , this.m_guid, this.GetType().FullName, sqlDate, downloadURL,
+                            byteArray);
+
+
                         unzippedEntryStream.Dispose();
                     }
+                   
                 }
-                catch { } //ignore invalid files
+                catch {} //ignore invalid files
             }
+        }
+
+        /// <summary>
+        /// creates a corpus content and adds it to the corpur content repository
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <param name="Hash"></param>
+        /// <param name="Name"></param>
+        /// <param name="Type"></param>
+        /// <param name="ScraperGuid"></param>
+        /// <param name="ScraperType"></param>
+        /// <param name="DownloadDate"></param>
+        /// <param name="DownloadURL"></param>
+        /// <param name="Content"></param>
+        /// <param name="corpContent"></param>
+        void addCorpusContent(long Id, string Hash, string Name, string Type,
+    SqlGuid ScraperGuid, string ScraperType, SqlDateTime DownloadDate, string DownloadURL,
+    byte[] Content)
+        {
+            CorpusContent corpContent = new CorpusContent();
+
+            /* creates hash of byte array*/
+            using (MD5 md5Hash = MD5.Create())
+            {
+                // Convert the input string to a byte array and compute the hash.
+                byte[] data = md5Hash.ComputeHash(Content);
+                StringBuilder sBuilder = new StringBuilder();
+
+                // Loop through each byte of the hashed data 
+                // and format each one as a hexadecimal string.
+                for (int i = 0; i < data.Length; i++)
+                {
+                    sBuilder.Append(data[i].ToString("x2"));
+                }
+                Hash = sBuilder.ToString(); //change hash to real hash
+            }
+
+            corpContent.Id = Id;
+            corpContent.Hash = Hash;
+            corpContent.Name = Name;
+            corpContent.Type = Type;
+            corpContent.ScraperGuid = ScraperGuid;
+            corpContent.ScraperType = ScraperType;
+            corpContent.DownloadDate = DownloadDate;
+            corpContent.DownloadURL = DownloadURL;
+            corpContent.Content = Content;
+            m_context.CorpusContentRepository.Add(corpContent);
         }
 
         /// <summary>
@@ -364,7 +424,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             Debug.Assert(false);
             string rootURL = "";
-            foreach (KeyValueProperty i in this.Properties)
+            foreach (KeyValueProperty i in DefaultProperties)
                 if (i.Key.Equals("website"))
                     rootURL = i.Value;
             scrapePG(rootURL, 10);
