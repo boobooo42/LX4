@@ -6,8 +6,10 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 
-namespace LexicalAnalyzer.DataAccess {
-    public class CorpusContentRepository : ICorpusContentRepository {
+namespace LexicalAnalyzer.DataAccess
+{
+    public class CorpusContentRepository : ICorpusContentRepository
+    {
         /* Private members */
         private IDbConnectionFactory m_connectionFactory;
 
@@ -19,28 +21,32 @@ namespace LexicalAnalyzer.DataAccess {
         }
 
         /* Private methods */
-        private IDbConnection Connection() {
+        private IDbConnection Connection()
+        {
             var conn = m_connectionFactory.CreateConnection();
             return conn;
         }
 
         /* Public methods */
-        public void Add(CorpusContent content) {
+        public void Add(CorpusContent content)
+        {
             Debug.Assert(content.Id == -1);
-            using (var conn = this.Connection()) {
+            using (var conn = this.Connection())
+            {
                 conn.Execute(@"
                         INSERT INTO la.CorpusContent
-                            ( Hash, Name, Type,
-                             ScraperGuid,
-                             ScraperType, 
-                             DownloadDate, 
+                            ( CorpusId, Hash, Name, Type,
                              DownloadURL )
-                            VALUES ( @Hash, @Name, @Type,
-                                @ScraperGuid,
-                                @ScraperType,
-                                @DownloadDate,
+                            VALUES ( @CorpusId, @Hash, @Name, @Type,
                                 @DownloadURL )
-                            ", content);
+                            ", new
+                {
+                    CorpusId = 1, //TODO Edit CorpusContext model to contain this field. 
+                    Hash = content.Hash,
+                    Name = content.Name,
+                    Type = content.Type,
+                    DownloadUrl = content.DownloadURL
+                });
                 /* TODO: Check for flyweight CorpusContent objects */
                 /* TODO: Make sure the contents are somehow added to the Merkle
                  * tree as a ContentBlob */
@@ -49,27 +55,33 @@ namespace LexicalAnalyzer.DataAccess {
             }
         }
 
-        public void Delete(CorpusContent content) {
+        public void Delete(CorpusContent content)
+        {
             Debug.Assert(content.Id != -1);
-            using (var conn = this.Connection()) {
+            using (var conn = this.Connection())
+            {
                 conn.Execute(@"
                         DELETE FROM la.CorpusContent
                             WHERE Id=@Id
-                            ", content);
+                            ", new { Id = content.Id });
+
                 /* TODO: Schedule garbage collection in the Merkle tree in case
                  * ContentBlob associated with this corpus content has been
                  * orphaned */
             }
         }
 
-        public void Update(CorpusContent content) {
+        public void Update(CorpusContent content)
+        {
             Debug.Assert(content.Id != -1);
             /* TODO */
         }
 
-        public CorpusContent GetById(long id) {
+        public CorpusContent GetById(long id)
+        {
             CorpusContent content = null;
-            using (var conn = this.Connection()) {
+            using (var conn = this.Connection())
+            {
                 /* TODO: Support two different calls, one for fetching
                  * flyweight objects and one for heavyweight objects */
                 IEnumerable<CorpusContent> result =
@@ -82,7 +94,8 @@ namespace LexicalAnalyzer.DataAccess {
                         FROM la.CorpusContent
                         WHERE Id=@Id
                             ", new { Id = id });
-                if (result.Any()) {
+                if (result.Any())
+                {
                     Debug.Assert(result.Count() == 1);
                     content = result.First();
                 }
@@ -90,9 +103,11 @@ namespace LexicalAnalyzer.DataAccess {
             return content;
         }
 
-        public IEnumerable<CorpusContent> List() {
+        public IEnumerable<CorpusContent> List()
+        {
             IEnumerable<CorpusContent> list = null;
-            using (var conn = this.Connection()) {
+            using (var conn = this.Connection())
+            {
                 /* NOTE: It would be a bad idea to fetch a heavyweight list of
                  * all of the corpus content in the database, so we fetch
                  * flyweight objects here */
