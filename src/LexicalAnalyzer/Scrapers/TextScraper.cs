@@ -293,11 +293,11 @@ namespace LexicalAnalyzer.Scrapers
 
                         unzippedEntryStream = entry.Open(); // .Open will return a stream                                                        //Process entry data here
                         byte[] byteArray = ReadFully(unzippedEntryStream); //converts stream to byte array
-                     //   ScraperUtilities.loadByteArrayIntoDatabase(byteArray);
+                                                                           //   ScraperUtilities.loadByteArrayIntoDatabase(byteArray);
 
 
 
-                        SqlDateTime sqlDate = new SqlDateTime(DateTime.Now);
+                        DateTime sqlDate = DateTime.Now;
                         addCorpusContent(-1, "", ".txt", "Project Gutenberg File"
                             , this.m_guid, this.GetType().FullName, sqlDate, downloadURL,
                             byteArray);
@@ -325,7 +325,7 @@ namespace LexicalAnalyzer.Scrapers
         /// <param name="Content"></param>
         /// <param name="corpContent"></param>
         void addCorpusContent(long Id, string Hash, string Name, string Type,
-    SqlGuid ScraperGuid, string ScraperType, SqlDateTime DownloadDate, string DownloadURL,
+    SqlGuid ScraperGuid, string ScraperType, DateTime DownloadDate, string DownloadURL,
     byte[] Content)
         {
             CorpusContent corpContent = new CorpusContent();

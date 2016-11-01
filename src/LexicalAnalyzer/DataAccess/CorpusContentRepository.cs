@@ -103,7 +103,7 @@ namespace LexicalAnalyzer.DataAccess
             return content;
         }
 
-        public IEnumerable<CorpusContent> List()
+        public IEnumerable<CorpusContent> List(int? corpusId)
         {
             IEnumerable<CorpusContent> list = null;
             using (var conn = this.Connection())
@@ -118,7 +118,8 @@ namespace LexicalAnalyzer.DataAccess
                         DownloadDate,
                         DownloadURL
                     FROM la.CorpusContent
-                        ");
+                    WHERE CorpusId=@CorpusId
+                        ", new { CorpusId = corpusId });
             }
             return list;
         }

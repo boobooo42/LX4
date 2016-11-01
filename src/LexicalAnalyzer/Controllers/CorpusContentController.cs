@@ -9,6 +9,7 @@ using System.Data.SqlTypes;
 
 namespace LexicalAnalyzer.Controllers
 {
+    [Route("api/[controller]")]
     public class CorpusContentController : Controller
     {
         /* Private members */
@@ -23,10 +24,10 @@ namespace LexicalAnalyzer.Controllers
         /// <summary>
         /// Get a list of corpora stored on the database
         /// </summary>
-        [HttpGet("api/corpus/{id}/content")]
-        public IEnumerable<CorpusContent> List(long id)
+        [HttpGet("list/{id}")]
+        public IEnumerable<CorpusContent> List(int id)
         {
-            return m_context.CorpusContentRepository.List();
+            return m_context.CorpusContentRepository.List(id);
         }
 
         /// <summary>

@@ -7,7 +7,7 @@ namespace LexicalAnalyzer.Interfaces {
         void Delete(T entity);
         void Update(T entity);
         T GetById(long id);
-        IEnumerable<T> List();
+        IEnumerable<T> List(int? id);
 //        IEnumerable<T> List(Expression<Func<T, bool>> predicate);
     }
 }

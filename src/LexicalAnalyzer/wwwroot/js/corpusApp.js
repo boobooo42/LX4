@@ -31,11 +31,12 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
 
     //Gets all scrappers and neural nets. 
     $scope.getCorpusContent = function (corpusId) {
+        var route = "/api/CorpusContent/list/" + corpusId;
+
         $http({
             method: 'get',
-            url: '/api/corpus/{id}/content',
-            params: { id: corpusId }
-        })
+            url: route
+            })
            .success(function (response) {
                $scope.corpusContent = response;
                console.log($scope.corpusContent);

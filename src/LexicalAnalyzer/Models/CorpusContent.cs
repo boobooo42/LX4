@@ -1,3 +1,4 @@
+using System;
 using System.Data.SqlTypes;
 
 namespace LexicalAnalyzer.Models {
@@ -10,7 +11,7 @@ namespace LexicalAnalyzer.Models {
         /* FIXME: Some of these data types are specific to MSSQL */
         public SqlGuid ScraperGuid { get; set; }
         public string ScraperType { get; set; }
-        public SqlDateTime DownloadDate { get; set; }
+        public DateTime DownloadDate { get; set; }
         public string DownloadURL { get; set; }
         public byte[] Content { get; set; }
 
