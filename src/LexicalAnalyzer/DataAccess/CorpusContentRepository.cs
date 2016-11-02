@@ -35,13 +35,13 @@ namespace LexicalAnalyzer.DataAccess
             {
                 conn.Execute(@"
                         INSERT INTO la.CorpusContent
-                            ( Id, CorpusId, Hash, Name, Type,
+                            (CorpusId, Hash, Name, Type,
                              DownloadURL )
-                            VALUES ( @Id, @CorpusId, @Hash, @Name, @Type,
+                            VALUES ( @CorpusId, @Hash, @Name, @Type,
                                 @DownloadURL )
                             ", new
                 {
-                    Id = content.Id, 
+                   
                     CorpusId = 1, //TODO Edit CorpusContext model to contain this field. 
                     Hash = content.Hash,
                     Name = content.Name,
