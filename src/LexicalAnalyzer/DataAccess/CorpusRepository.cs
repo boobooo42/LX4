@@ -83,7 +83,7 @@ namespace LexicalAnalyzer.DataAccess {
             return corpus;
         }
 
-        public IEnumerable<Corpus> List() {
+        public IEnumerable<Corpus> List(int? id) {
             IEnumerable<Corpus> list = null;
             using (var conn = this.Connection()) {
                 list = conn.Query<Corpus>(@"
