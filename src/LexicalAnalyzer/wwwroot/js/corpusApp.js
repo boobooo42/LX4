@@ -58,15 +58,16 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
         console.log($scope.corpus);
     }
 
-    $scope.deleteContent = function (corpusId) {
-        alert("Content will be deleted: " + corpusId);
+    $scope.deleteContent = function (contentId) {
+        var route = "/api/CorpusContent/delete/" + contentId;
+
         $http({
             method: 'get',
-            url: '/api/content/delete',
-            params: { id: corpusId }
+            url: route
         })
            .success(function (response) {
                console.log(response);
+               alert("Successfully Deleted");
            })
            .error(function () {
                console.log("Failed to get corpus content.")
@@ -75,15 +76,15 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
 
     $scope.createContent = function () {
         alert($scope.newContent);
-        var conn = $http.post('/api/content/add', $scope.newContent,
+        var conn = $http.post('/api/CorpusContent/add', $scope.newContent,
         {
             headers: { 'Content-Type': 'application/json' }
         })
         .success(function () {
             alert("good");
         })
-        .error(function () {
-            alert("bad");
+        .error(function (e) {
+            alert("Error: " + e);
         });
     }
 

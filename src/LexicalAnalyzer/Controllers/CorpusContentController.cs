@@ -33,7 +33,7 @@ namespace LexicalAnalyzer.Controllers
         /// <summary>
         /// Get a list of corpora stored on the database
         /// </summary>
-        [HttpGet("api/content/delete")]
+        [HttpGet("delete/{id}")]
         public void Delete(int id)
         {
             var temp = m_context.CorpusContentRepository.GetById(id);
@@ -44,7 +44,7 @@ namespace LexicalAnalyzer.Controllers
         /// Adds content to a given corpus.
         /// </summary>
         /// <param name="obj"></param>
-        [HttpPost("api/content/add")]
+        [HttpPost("add")]
         public void Add([FromBody] object obj)
         {
             var m = Json(obj);
