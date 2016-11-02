@@ -42,7 +42,7 @@ namespace LexicalAnalyzer.DataAccess
                             ", new
                 {
                    
-                    CorpusId = 1, //TODO Edit CorpusContext model to contain this field. 
+                    CorpusId = 1,
                     Hash = content.Hash,
                     Name = content.Name,
                     Type = content.Type,

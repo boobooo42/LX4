@@ -331,23 +331,28 @@ namespace LexicalAnalyzer.Scrapers
             CorpusContent corpContent = new CorpusContent();
 
             /* creates hash of byte array*/
-            using (MD5 md5Hash = MD5.Create())
-            {
-                // Convert the input string to a byte array and compute the hash.
-                byte[] data = md5Hash.ComputeHash(Content);
-                StringBuilder sBuilder = new StringBuilder();
+            string hashResult = "";
+            SHA256 shaHash = SHA256.Create();
+           // Convert the input string to a byte array and compute the hash.
+                byte[] data = shaHash.ComputeHash(Content);
+                hashResult = "";
 
                 // Loop through each byte of the hashed data 
                 // and format each one as a hexadecimal string.
-                for (int i = 0; i < data.Length; i++)
+                /* for (int i = 0; i < data.Length; i++)
+                 {
+                     sBuilder.Append(data[i].ToString("x2"));
+                 }*/
+                //// puts the bytes into a single readable string with the format
+                foreach (byte v in data)
                 {
-                    sBuilder.Append(data[i].ToString("x2"));
+                    hashResult = hashResult + String.Format("{0:x2}", v);
                 }
-                Hash = sBuilder.ToString(); //change hash to real hash
-            }
+               // Hash = sBuilder.ToString(); //change hash to real hash
+            
 
             corpContent.Id = Id;
-            corpContent.Hash = Hash;
+            corpContent.Hash = hashResult;
             corpContent.Name = Name;
             corpContent.Type = Type;
             corpContent.ScraperGuid = ScraperGuid;
