@@ -1,8 +1,10 @@
-using System;
+﻿using System;
 using System.Data.SqlTypes;
 
-namespace LexicalAnalyzer.Models {
-    public class CorpusContent {
+namespace Dto
+{
+    public class CorpusContentDto
+    {
         /* Accessors */
         public long Id { get; set; }
         public long CorpusId { get; set; }
@@ -15,10 +17,5 @@ namespace LexicalAnalyzer.Models {
         public DateTime DownloadDate { get; set; }
         public string DownloadURL { get; set; }
         public byte[] Content { get; set; }
-
-        /* Constructors */
-        public CorpusContent() {
-            Id = -1;  /* Default constructed with an invalid ID */
-        }
     }
 }

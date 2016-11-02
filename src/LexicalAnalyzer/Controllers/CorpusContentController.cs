@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System;
 using System.Data.SqlTypes;
+using Dto;
 
 namespace LexicalAnalyzer.Controllers
 {
@@ -26,7 +27,7 @@ namespace LexicalAnalyzer.Controllers
         /// </summary>
         [HttpGet("list/{id}")]
         public IEnumerable<CorpusContent> List(int id)
-        {
+        { 
             return m_context.CorpusContentRepository.List(id);
         }
 
@@ -45,14 +46,22 @@ namespace LexicalAnalyzer.Controllers
         /// </summary>
         /// <param name="obj"></param>
         [HttpPost("add")]
-        public void Add([FromBody] object obj)
+        public void Add([FromBody] CorpusContentDto obj)
         {
-            var m = Json(obj);
-            var a = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
-            var corpusContent = (CorpusContent)Newtonsoft.Json.JsonConvert.DeserializeObject(a, typeof(CorpusContent));
-            corpusContent.ScraperGuid = new SqlGuid(Guid.NewGuid().ToString());
-            corpusContent.Hash = Guid.NewGuid().ToString();
-            corpusContent.Id = 43;
+            var corpusContent = new CorpusContent()
+            {
+                Id = obj.Id,
+                CorpusId = obj.CorpusId,
+                Content = obj.Content,
+                DownloadDate = DateTime.Now,
+                DownloadURL = "N/A",
+                Name = obj.Name,
+                Hash = "Not Assigned.",
+                ScraperGuid = new Guid(),
+                ScraperType = "Manual Insert",
+                Type = obj.Type
+            };
+
             m_context.CorpusContentRepository.Add(corpusContent);
         }
     }

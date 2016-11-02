@@ -3,6 +3,7 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
     $scope.coprusList;
     $scope.corpusContent;
     $scope.corpus;
+    $scope.selectedCorpus;
     $scope.newContent = {
         id: -1,
         name: "string",
@@ -47,6 +48,7 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
     }
 
     $scope.display = function (c) {
+        $scope.selectedCorpus = c;
         for (var i = 0; i < $scope.corpusList.length; i++) {
             if ($scope.corpusList[i].name == c) {
                 $scope.corpus = $scope.corpusList[i];
@@ -58,7 +60,7 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
         console.log($scope.corpus);
     }
 
-    $scope.deleteContent = function (contentId) {
+    $scope.deleteContent = function (contentId, corpusId) {
         var route = "/api/CorpusContent/delete/" + contentId;
 
         $http({
@@ -68,6 +70,7 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
            .success(function (response) {
                console.log(response);
                alert("Successfully Deleted");
+               $scope.display($scope.selectedCorpus);
            })
            .error(function () {
                console.log("Failed to get corpus content.")
@@ -75,13 +78,12 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
     }
 
     $scope.createContent = function () {
-        alert($scope.newContent);
         var conn = $http.post('/api/CorpusContent/add', $scope.newContent,
         {
             headers: { 'Content-Type': 'application/json' }
         })
         .success(function () {
-            alert("good");
+            $scope.display($scope.selectedCorpus);
         })
         .error(function (e) {
             alert("Error: " + e);

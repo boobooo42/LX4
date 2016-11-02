@@ -325,7 +325,7 @@ namespace LexicalAnalyzer.Scrapers
         /// <param name="Content"></param>
         /// <param name="corpContent"></param>
         void addCorpusContent(long Id, string Hash, string Name, string Type,
-    SqlGuid ScraperGuid, string ScraperType, DateTime DownloadDate, string DownloadURL,
+    Guid ScraperGuid, string ScraperType, DateTime DownloadDate, string DownloadURL,
     byte[] Content)
         {
             CorpusContent corpContent = new CorpusContent();
