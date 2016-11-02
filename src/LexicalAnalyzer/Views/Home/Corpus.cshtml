@@ -2,20 +2,36 @@
 <script src="~/js/angular-route.min.js"></script>
 <script src="~/js/corpusApp.js"></script>
 
+<style>
+    .remove {
+        color: lightgray;
+    }
+
+        .remove:hover {
+            color: red;
+        }
+
+    #content-view {
+        display: none;
+    }
+</style>
+
 <div class="row row-margin" ng-app="corpusApp" ng-controller="corpus">
     <h3><span>Corpus</span></h3><hr />
     <div class="form-group">
         <label for="">Select a Corpus</label>
-        <select class="form-control" id="corpusList" ng-model="selectedCorpus" ng-change="display(selectedCorpus)">
+        <select class="form-control" id="corpusList" ng-model="selectedCorpus" onchange="displayContentView()" ng-change="display(selectedCorpus)">
             <option ng-repeat="c in corpusList">
                 {{c.name}}
             </option>
         </select>
-        <button style="float:right; margin:5px" type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#DeleteCorpusModal">Delete Corpus</button>
-        <button style="float:right; margin:5px" type="button" class="btn btn-success btn-sm" ng-click="display(selectedCorpus)">Refresh</button>
-        <button style="float:right; margin:5px" type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#AddContentModal">Add Content</button>
-
     </div>
+
+    <div id="content-view">
+    <button style="float:right; margin:5px" type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#DeleteCorpusModal">Delete Corpus</button>
+    <button style="float:right; margin:5px" type="button" class="btn btn-success btn-sm" ng-click="display(selectedCorpus)">Refresh</button>
+    <button style="float:right; margin:5px" type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#AddContentModal">Add Content</button>
+
     <br />
     <br />
     <!---DISPLAY CORPUS BELOW WITH ADDED VIEW-->
@@ -49,6 +65,8 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
     </div>
 
     <!-- Modal -->
@@ -99,15 +117,8 @@
 
 
 
-
-
-
-<style>
-    .remove {
-        color: lightgray;
+<script>
+    function displayContentView(){
+        $("#content-view").show();
     }
-
-        .remove:hover {
-            color: red;
-        }
-</style>
+</script>
