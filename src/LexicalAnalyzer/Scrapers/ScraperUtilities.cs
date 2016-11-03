@@ -400,7 +400,7 @@ namespace LexicalAnalyzer.Scrapers
             Database.DatabaseTools.createFile(System.Text.Encoding.UTF8.GetString(input));
         }
 
-        static void addCorpusContent(long Id, string Hash, string Name, string Type,
+        public static void addCorpusContent(long Id, string Hash, string Name, string Type,
 SqlGuid ScraperGuid, string ScraperType, SqlDateTime DownloadDate, string DownloadURL,
 byte[] Content, ICorpusContext m_context)
         {
