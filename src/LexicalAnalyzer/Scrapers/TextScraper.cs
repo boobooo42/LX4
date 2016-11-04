@@ -41,6 +41,7 @@ namespace LexicalAnalyzer.Scrapers
             m_context = context;
         }
 
+        #region Properties
         /// <summary>
         /// Gets guid
         /// </summary>
@@ -167,6 +168,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             get ; set;
         }
+        #endregion
 
         #region linkScraper
 
@@ -291,7 +293,7 @@ namespace LexicalAnalyzer.Scrapers
                     if (entry.FullName.EndsWith(fileType, StringComparison.OrdinalIgnoreCase))
                     {
 
-                        unzippedEntryStream = entry.Open(); // .Open will return a stream                                                        //Process entry data here
+                        unzippedEntryStream = entry.Open(); // .Open will return a stream
                         byte[] byteArray = ReadFully(unzippedEntryStream); //converts stream to byte array
                      //   ScraperUtilities.loadByteArrayIntoDatabase(byteArray);
 
