@@ -194,12 +194,14 @@ namespace LexicalAnalyzer.Scrapers
             Auth.SetCredentials(userCredentials);
 
             var stream = Stream.CreateSampleStream();
+            stream.AddTweetLanguageFilter(LanguageFilter.English);
             stream.TweetReceived += (sender, args) =>
             {
                 // Do what you want with the Tweet.
                 Console.WriteLine(args.Tweet);
             };
             stream.StartStream();
+           
         
     }
     }
