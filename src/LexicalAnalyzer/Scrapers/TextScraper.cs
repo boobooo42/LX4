@@ -351,7 +351,7 @@ namespace LexicalAnalyzer.Scrapers
                // Hash = sBuilder.ToString(); //change hash to real hash
             
 
-            corpContent.Id = Id;
+            //corpContent.Id = Id;
             corpContent.Hash = hashResult;
             corpContent.Name = Name;
             corpContent.Type = Type;

@@ -33,7 +33,7 @@ namespace LexicalAnalyzer.DataAccess
             Debug.Assert(content.Id == -1);
             using (var conn = this.Connection())
             {
-                conn.Execute(@"
+                conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.CorpusContent WHERE Hash =@Hash)
                         INSERT INTO la.CorpusContent
                             (CorpusId, Hash, Name, Type,
                              DownloadURL )
