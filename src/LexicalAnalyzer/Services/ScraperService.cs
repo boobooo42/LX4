@@ -7,35 +7,25 @@ using System;
 
 namespace LexicalAnalyzer.Services
 {
-    public class ScraperService
+    public class ScraperService : IScraperService
     {
         /* Constants */
         private const int DEFAULT_NUM_WORKERS = 4;
 
-        /* Singleton pattern */
-        /* FIXME: Replace this singleton pattern with dependency injection */
-        private static ScraperService m_instance;
-        private static ScraperService Instance {
-            get {
-                if (m_instance == null) {
-                    m_instance = new ScraperService();
-                }
-                return m_instance;
-            }
-        }
-
-        private ScraperService() {
-            m_scrapers = new List<IScraper>();
-            m_workerPool = new WorkerPool(DEFAULT_NUM_WORKERS);
-        }
-
         /* Private members */
         private List<IScraper> m_scrapers;
         private WorkerPool m_workerPool;
+        private IScraperFactory m_scraperFactory;
+
+        public ScraperService(IScraperFactory scraperFactory) {
+            m_scrapers = new List<IScraper>();
+            m_workerPool = new WorkerPool(DEFAULT_NUM_WORKERS);
+            m_scraperFactory = scraperFactory;
+        }
 
         /* Public interface */
-        private IScraper m_CreateScraper(string type) {
-            IScraper scraper = ScraperFactory.BuildScraper(type);
+        public IScraper CreateScraper(string type) {
+            IScraper scraper = m_scraperFactory.BuildScraper(type);
             if (scraper == null) {
                 return null;
             }
@@ -46,21 +36,15 @@ namespace LexicalAnalyzer.Services
             m_scrapers.Add(scraper);
             return scraper;
         }
-        public static IScraper CreateScraper(string type) {
-            return Instance.m_CreateScraper(type);
-        }
 
-        private IScraper m_GetScraper(Guid guid) {
+        public IScraper GetScraper(Guid guid) {
             return m_scrapers.Find(elem => { return elem.Guid == guid; });
         }
-        public static IScraper GetScraper(Guid guid) {
-            return Instance.m_GetScraper(guid);
-        }
-        public static IScraper GetScraper(string guid) {
-            return Instance.m_GetScraper(new System.Guid(guid));
+        public IScraper GetScraper(string guid) {
+            return this.GetScraper(new System.Guid(guid));
         }
 
-        private bool m_RemoveScraper(Guid guid) {
+        public bool RemoveScraper(Guid guid) {
             IScraper scraper = m_scrapers.Find(
                     elem => {
                         return elem.Guid == guid;
@@ -73,51 +57,37 @@ namespace LexicalAnalyzer.Services
             Debug.Assert(!m_scrapers.Contains(scraper));
             return true;
         }
-        public static bool RemoveScraper(Guid guid) {
-            return Instance.m_RemoveScraper(guid);
-        }
-        public static bool RemoveScraper(string guid) {
-            return Instance.m_RemoveScraper(new System.Guid(guid));
+        public bool RemoveScraper(string guid) {
+            return this.RemoveScraper(new System.Guid(guid));
         }
 
-        private List<IScraper> m_Scrapers {
+        public IEnumerable<IScraper> Scrapers {
             get {
                 return m_scrapers;
             }
         }
-        public static List<IScraper> Scrapers {
-            get {
-                return Instance.m_Scrapers;
-            }
-        }
 
-        private void m_StartScraper(Guid guid) {
-            IScraper scraper = m_GetScraper(guid);
+        public void StartScraper(Guid guid) {
+            IScraper scraper = this.GetScraper(guid);
             if (scraper == null)
                 return;
 
             m_workerPool.StartTask(scraper);
         }
-        public static void StartScraper(Guid guid) {
-            Instance.m_StartScraper(guid);
-        }
-        public static void StartScraper(string guid) {
-            Instance.m_StartScraper(new System.Guid(guid));
+        public void StartScraper(string guid) {
+            this.StartScraper(new System.Guid(guid));
         }
 
-        private void m_PauseScraper(Guid guid) {
-            IScraper scraper = m_GetScraper(guid);
+        public void PauseScraper(Guid guid) {
+            IScraper scraper = this.GetScraper(guid);
             if (scraper == null)
                 return;
 
             /* TODO: Make sure the given scraper task is paused */
             m_workerPool.PauseTask(scraper);
         }
-        public static void PauseScraper(Guid guid) {
-            Instance.m_PauseScraper(guid);
-        }
-        public static void PauseScraper(string guid) {
-            Instance.m_PauseScraper(new System.Guid(guid));
+        public void PauseScraper(string guid) {
+            this.PauseScraper(new System.Guid(guid));
         }
     }
 }

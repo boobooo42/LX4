@@ -38,3 +38,73 @@ textarea {
     display: none
   }
 }
+
+.docs{
+    padding: 20px;
+    padding-right:30px;
+    margin: 20px;
+    margin-right:0;
+    box-shadow: 0px 0px 10px 2px rgba(128, 128, 128, .8);
+    border-radius: 10px;
+    border-bottom-right-radius:0px;
+    border-top-right-radius:0px;
+    float: right;
+    transform: translate(300px, 0px);
+
+    -webkit-transition: 0.25s ease-in;
+    -moz-transition: 0.25s ease-in;
+    -o-transition: 0.25s ease-in;
+    transition: 0.25s ease-in;
+}
+
+.docs:hover {
+    transform: translate(0px, 0px);
+                -webkit-transition: 0.5s ease-in;
+    -moz-transition: 0.25s ease-in;
+    -o-transition: 0.25s ease-in;
+    transition: 0.25s ease-in;
+}
+
+.docs-title{
+        text-align: center;
+        font-size: 16px;
+}
+
+.status-container{
+    
+}
+
+.scrapper-status{
+    margin: 20px;
+    padding: 10px;
+    border: 3px solid rgba(128, 128, 128, .3);
+    border-radius: 1em;
+}
+
+.status-pause{
+    float: right;
+}
+
+
+.status-pause:hover{
+    float: right;
+    color:red;
+    font-size:15px;
+}
+
+.glyphicon .glyphicon-pause{
+    font-size:25px;
+}
+
+.remove{
+   text-align: center;
+   color:lightgray;
+}
+
+.remove:hover{
+  color:red;
+}
+
+.glyphicon .glyphicon-remove{
+    color:green;
+}

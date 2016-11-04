@@ -15,6 +15,7 @@ namespace LexicalAnalyzer.DataAccess {
         /* Accessors */
         public ICorpusRepository CorpusRepository {
             get {
+                /* FIXME: This is a critical section */
                 if (m_corpusRepository == null) {
                     m_corpusRepository =
                         new CorpusRepository(m_connectionFactory);
@@ -25,6 +26,7 @@ namespace LexicalAnalyzer.DataAccess {
 
         public ICorpusContentRepository CorpusContentRepository {
             get {
+                /* FIXME: This is a critical section */
                 if (m_corpusContentRepository == null) {
                     m_corpusContentRepository =
                         new CorpusContentRepository(m_connectionFactory);

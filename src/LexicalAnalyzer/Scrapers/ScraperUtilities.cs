@@ -390,5 +390,10 @@ namespace LexicalAnalyzer.Scrapers
             return downloadList;
         }
         #endregion
+
+        public static void loadByteArrayIntoDatabase(byte[] input)
+        {
+            Database.DatabaseTools.createFile(System.Text.Encoding.UTF8.GetString(input));
+        }
     }
 }

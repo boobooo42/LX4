@@ -25,7 +25,7 @@ CREATE TABLE la.CorpusContent (
     Type varchar(64) NOT NULL,
     ScraperGuid uniqueidentifier NULL,
     ScraperType varchar(2048) NULL,
-    DownloadDate timestamp NULL,
+    DownloadDate datetime NULL,
     DownloadURL varchar(2048) NULL,
     CONSTRAINT PK_CorpusContent PRIMARY KEY (Id)
     );

@@ -1,15 +1,19 @@
 ﻿using HtmlAgilityPack;
 using LexicalAnalyzer.Interfaces;
+using LexicalAnalyzer.Models;
 using LexicalAnalyzer.Services;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Compression;
+using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http;
 using System.Threading.Tasks;
+using System;
+using System.Data.SqlTypes;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace LexicalAnalyzer.Scrapers
 {
@@ -18,42 +22,29 @@ namespace LexicalAnalyzer.Scrapers
     /// </summary>
     public class TextScraper : IScraper
     {
-
-        /* Private members */
         private Guid m_guid;
         private string m_status;
         private float m_progress;
         private int m_priority;
-        private List<KeyValueProperty> m_properties;
+        private ICorpusContext m_context;
 
-        public TextScraper()
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <returns></returns>
+        public TextScraper(ICorpusContext context)
         {
             m_guid = System.Guid.NewGuid();
             m_status = "init";
             m_progress = 0.0f;
             m_priority = 0;
-            m_properties = new List<KeyValueProperty>();
-            m_properties.Add(
-                    new KeyValueProperty(
-                        "timeout",  /* key */
-                        "30",  /* defaultValue */
-                        "seconds"  /* type */
-                        ));
-            m_properties.Add(
-                    new KeyValueProperty(
-                        "website",  /* key */
-                        "http://www.gutenberg.org/robot/harvest",  /* defaultValue */
-                        "url"  /* type */
-                        ));
-            m_properties.Add(
-                new KeyValueProperty(
-                    "filesToDownload", /* key */
-                    "", /* defaultValue */
-                    "urls" /* type */
-                    ));
+            m_context = context;
         }
 
-        /* Public Interface */
+        /// <summary>
+        /// Gets guid
+        /// </summary>
+        /// <returns></returns>
         public Guid Guid
         {
             get
@@ -62,12 +53,20 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
-        public string DisplayName
+        /// <summary>
+        /// Gets display name--is hardcoded
+        /// </summary>
+        /// <returns></returns>
+        public static string DisplayName
         {
             get { return "Text Scraper"; }
         }
 
-        public string Description
+        /// <summary>
+        /// Gets description--is hardcoded
+        /// </summary>
+        /// <returns></returns>
+        public static string Description
         {
             get
             {
@@ -77,7 +76,11 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
-        public string ContentType
+        /// <summary>
+        /// Gets content type --is hardcoded
+        /// </summary>
+        /// <returns></returns>
+        public static string ContentType
         {
             get
             {
@@ -85,6 +88,10 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        /// <summary>
+        /// Gets status
+        /// </summary>
+        /// <returns></returns>
         public string Status
         {
             get
@@ -97,6 +104,10 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        /// <summary>
+        /// Gets progress
+        /// </summary>
+        /// <returns></returns>
         public float Progress
         {
             get
@@ -105,6 +116,10 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        /// <summary>
+        /// Gets priority
+        /// </summary>
+        /// <returns></returns>
         public int Priority
         {
             get
@@ -113,18 +128,44 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
-        public IEnumerable<KeyValueProperty> Properties
+        /// <summary>
+        /// List of properties supported by TextScraper and their respective
+        /// default values.
+        /// </summary>
+        public static IEnumerable<KeyValueProperty> DefaultProperties
         {
             get
             {
-                return m_properties;
+                var properties = new List<KeyValueProperty>();
+                properties.Add(
+                        new KeyValueProperty(
+                            "timeout",  /* key */
+                            "30",  /* defaultValue */
+                            "seconds"  /* type */
+                            ));
+                properties.Add(
+                        new KeyValueProperty(
+                            "website",  /* key */
+                            "http://www.gutenberg.org/robot/harvest",  /* defaultValue */
+                            "url"  /* type */
+                            ));
+                properties.Add(
+                        new KeyValueProperty(
+                            "filesToDownload", /* key */
+                            "", /* defaultValue */
+                            "urls" /* type */
+                            ));
+                return properties;
             }
         }
-        public void Run()
-        {
-            Debug.Assert(false);
-            List<string> links = scrapePG("http://www.gutenberg.org/robot/harvest", 10);
 
+        /// <summary>
+        /// Gets properties
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<KeyValueProperty> Properties
+        {
+            get ; set;
         }
 
         #region linkScraper
@@ -160,15 +201,13 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
-
-
-
         /// <summary>
         /// returns a list of files or links from a webpage based
         /// on the given xpath expression
         /// XPATH examples - "//a[contains(@href,'.zip')]" "//a[contains(@href,'.deb')]"
         /// </summary>
         /// <param name="URL"></param>
+        /// <param name="XPATHexpression"></param>
         /// <returns></returns>
         List<String> GetLinksFromPage(string URL, string XPATHexpression)
         {
@@ -214,67 +253,115 @@ namespace LexicalAnalyzer.Scrapers
         }
 
         /// <summary>
-        /// Main method to download zip files from a page and extract the text files
+        /// Downloads zip files from urls, extracts them, and loads their contents into the database
         /// to byte arrays
         /// </summary>
-        /// <param name="filesFromPage"></param>
-        void downloadFilesFromPage(List<string> filesFromPage)
+        /// <param name="urls"></param>
+        void downloadZipFilesFromLinks(List<string> urls)
         {
-
-            foreach (string downloadURL in filesFromPage)
-
+            foreach (string downloadURL in urls)
             {
                 using (MemoryStream download = (loadFileToStream(downloadURL).Result))
                 {
-                    var fileList = getFilesFromZipStream(download, ".txt");
+                    extractAndLoadZipIntoDatabase(download, ".txt",downloadURL);
                 }
             }
         }
 
         #endregion
 
-        #region extract
+        #region extract and load
 
         /// <summary>
-        /// gets files of the given type from a .zip 
-        /// returns a list of byte arrays
+        /// extracts the given zip file and loads its contents into the database
         /// </summary>
         /// <param name="zipStream"></param>
+        /// <param name="fileType"></param>
         /// <returns></returns>
-        List<byte[]> getFilesFromZipStream(MemoryStream zipStream, string fileType)
+        void extractAndLoadZipIntoDatabase(MemoryStream zipStream, string fileType, string downloadURL)
         {
             Stream unzippedEntryStream;  //Unzipped data from a file in the archive
-
-            List<byte[]> listOfTextStreams = new List<byte[]>();
             ZipArchive archive = new ZipArchive(zipStream);
-
 
             //adds txt files to list of streams
             foreach (ZipArchiveEntry entry in archive.Entries)
             {
-                if (entry.FullName.EndsWith(fileType, StringComparison.OrdinalIgnoreCase))
+                try
                 {
-                    unzippedEntryStream = entry.Open(); // .Open will return a stream                                                        //Process entry data here
-                    byte[] byteArray = ReadFully(unzippedEntryStream); //converts stream to byte array
-                    listOfTextStreams.Add(byteArray);
-                    unzippedEntryStream.Dispose();
+                    if (entry.FullName.EndsWith(fileType, StringComparison.OrdinalIgnoreCase))
+                    {
+
+                        unzippedEntryStream = entry.Open(); // .Open will return a stream                                                        //Process entry data here
+                        byte[] byteArray = ReadFully(unzippedEntryStream); //converts stream to byte array
+                                                                           //   ScraperUtilities.loadByteArrayIntoDatabase(byteArray);
+
+
+
+                        DateTime sqlDate = DateTime.Now;
+                        addCorpusContent(-1, "", ".txt", "Project Gutenberg File"
+                            , this.m_guid, this.GetType().FullName, sqlDate, downloadURL,
+                            byteArray);
+
+
+                        unzippedEntryStream.Dispose();
+                    }
+                   
                 }
-
+                catch {} //ignore invalid files
             }
-
-
-            return listOfTextStreams;
         }
 
         /// <summary>
-        /// stores a text file in the database
+        /// creates a corpus content and adds it to the corpur content repository
         /// </summary>
-        /// <param name="textFile"></param>
-        void addTextFileToDatabase(byte[] textFile)
+        /// <param name="Id"></param>
+        /// <param name="Hash"></param>
+        /// <param name="Name"></param>
+        /// <param name="Type"></param>
+        /// <param name="ScraperGuid"></param>
+        /// <param name="ScraperType"></param>
+        /// <param name="DownloadDate"></param>
+        /// <param name="DownloadURL"></param>
+        /// <param name="Content"></param>
+        /// <param name="corpContent"></param>
+        void addCorpusContent(long Id, string Hash, string Name, string Type,
+    Guid ScraperGuid, string ScraperType, DateTime DownloadDate, string DownloadURL,
+    byte[] Content)
         {
+            CorpusContent corpContent = new CorpusContent();
 
+            /* creates hash of byte array*/
+            string hashResult = "";
+            SHA256 shaHash = SHA256.Create();
+           // Convert the input string to a byte array and compute the hash.
+                byte[] data = shaHash.ComputeHash(Content);
+                hashResult = "";
+
+                // Loop through each byte of the hashed data 
+                // and format each one as a hexadecimal string.
+                /* for (int i = 0; i < data.Length; i++)
+                 {
+                     sBuilder.Append(data[i].ToString("x2"));
+                 }*/
+                //// puts the bytes into a single readable string with the format
+                foreach (byte v in data)
+                {
+                    hashResult = hashResult + String.Format("{0:x2}", v);
+                }
+               // Hash = sBuilder.ToString(); //change hash to real hash
+            
+
+            //corpContent.Id = Id;
+            corpContent.Hash = hashResult;
+            corpContent.Name = Name;
+            corpContent.Type = Type;
+            corpContent.ScraperGuid = ScraperGuid;
+            corpContent.ScraperType = ScraperType;
+            corpContent.DownloadDate = DownloadDate;
+            corpContent.DownloadURL = DownloadURL;
+            corpContent.Content = Content;
+            m_context.CorpusContentRepository.Add(corpContent);
         }
-
 
         /// <summary>
         /// converts a Stream to a byte array
@@ -298,12 +385,12 @@ namespace LexicalAnalyzer.Scrapers
 
         #endregion
 
-        #region website mapping
+        #region Project Gutenberg website mapping
 
         /// <summary>
         /// Gets the URL for the next page on gutenberg/robot/harvest
         /// </summary>
-        /// <param name="URL"></param>
+        /// <param name="linksFromPage"></param>
         /// <returns></returns>
         string getNextPage(List<string> linksFromPage)
         {
@@ -333,37 +420,38 @@ namespace LexicalAnalyzer.Scrapers
 
         #endregion
 
+        #region run
         /// <summary>
-        /// returns a list of urls for .txt files from the ProjectGutenberg website
-        /// the limits set the range of txt files to return
+        /// Runs the text scraper
         /// </summary>
-        /// <param name="lowerLimit"></param>
-        /// <param name="upperLimit"></param>
-        public List<string> scrapePG(string currentURL, int pagesToGet)
+        /// <returns></returns>
+        public void Run()
         {
-            //the main URL for the project gutenberg depository, hope this doens't change
-            //"http://www.gutenberg.org/robot/harvest";
+            Debug.Assert(false);
+            string rootURL = "";
+            foreach (KeyValueProperty i in DefaultProperties)
+                if (i.Key.Equals("website"))
+                    rootURL = i.Value;
+            scrapePG(rootURL, 10);
+        }
 
-            List<string> finalLinkList = new List<string>();
-
-
+        /// <summary>
+        /// Scrapes the Project Gutenberg website
+        /// </summary>
+        /// <param name="currentURL"></param>
+        /// <param name="pagesToGet"></param>
+        public void scrapePG(string currentURL, int pagesToGet)
+        {
             for (int i = 0; i < pagesToGet; i++)
             {
                 List<string> tempLinkList = GetLinksFromPage(currentURL, "//a[@href]");
                 var dlList = getListOfDownloadsForPage(tempLinkList, ".zip");
-                finalLinkList.AddRange(dlList);
-
-                //This is where the downloading happens, uncomment if you want to download zip files
-                // downloadFilesFromPage(dlList);
-
+                downloadZipFilesFromLinks(dlList);
                 currentURL = getNextPage(tempLinkList);
-                finalLinkList.Add(currentURL);
             }
-
-            return finalLinkList;
 
         }
 
-
+        #endregion
     }
 }

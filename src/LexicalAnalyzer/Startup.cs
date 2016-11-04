@@ -1,5 +1,6 @@
 ﻿using LexicalAnalyzer.DataAccess;
 using LexicalAnalyzer.Interfaces;
+using LexicalAnalyzer.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -89,6 +90,10 @@ namespace LexicalAnalyzer
 
             // Database connection service
             services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
+
+            // Scraper services
+            services.AddSingleton<IScraperFactory, ScraperFactory>();
+            services.AddSingleton<IScraperService, ScraperService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

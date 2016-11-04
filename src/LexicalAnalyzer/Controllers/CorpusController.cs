@@ -24,7 +24,7 @@ namespace LexicalAnalyzer.Controllers
         [HttpGet("api/corpus")]
         public IEnumerable<Corpus> List()
         {
-            return m_context.CorpusRepository.List();
+            return m_context.CorpusRepository.List(null);
         }
     }
 }
