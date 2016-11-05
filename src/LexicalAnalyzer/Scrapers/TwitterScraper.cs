@@ -171,17 +171,51 @@ namespace LexicalAnalyzer.Scrapers
 
         void TwitterTest()
         {
-            var key = "GzWUY0oTfH4AMZdnMqrm0wcde";
-            var secret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
+            string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
+            string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
+            UserAuthentication(consumerKey, consumerSecret);
+            FullTwitterSample();
+        }
 
+        void FullTwitterSample()
+        {
+
+            // Enable Automatic RateLimit handling
+            RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
+            var stream = Stream.CreateSampleStream();
+            stream.StallWarnings = true;
+            stream.AddTweetLanguageFilter(LanguageFilter.English);
+            stream.FilterLevel = Tweetinvi.Streaming.Parameters.StreamFilterLevel.Low;
+            stream.TweetReceived += (sender, args) =>
+            {
+                // Do what you want with the Tweet.
+
+                var k = args.Tweet;
+                try
+                {
+                    Console.WriteLine(k);
+                }
+
+                catch { }
+
+            };
+            stream.StartStream();
+
+
+        }
+
+        void UserAuthentication(string consumerKey, string consumerSecret)
+        {
             // Create a new set of credentials for the application.
-            var appCredentials = new TwitterCredentials(key, secret);
+            var appCredentials = new TwitterCredentials(consumerKey, consumerSecret);
 
             // Init the authentication process and store the related `AuthenticationContext`.
             var authenticationContext = AuthFlow.InitAuthentication(appCredentials);
 
             // Go to the URL so that Twitter authenticates the user and gives him a PIN code.
             Console.WriteLine(authenticationContext.AuthorizationURL);
+
+            //Process.Start(authenticationContext.AuthorizationURL);
 
             // Ask the user to enter the pin code given by Twitter
             Console.WriteLine("enter pin");
@@ -192,17 +226,7 @@ namespace LexicalAnalyzer.Scrapers
 
             // Use the user credentials in your application
             Auth.SetCredentials(userCredentials);
+        }
 
-            var stream = Stream.CreateSampleStream();
-            stream.AddTweetLanguageFilter(LanguageFilter.English);
-            stream.TweetReceived += (sender, args) =>
-            {
-                // Do what you want with the Tweet.
-                Console.WriteLine(args.Tweet);
-            };
-            stream.StartStream();
-           
-        
-    }
     }
 }
