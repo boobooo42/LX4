@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Tweetinvi;
 using Tweetinvi.Models;
+using Tweetinvi.Models.Entities;
 
 namespace LexicalAnalyzer.Scrapers
 {
@@ -189,11 +190,25 @@ namespace LexicalAnalyzer.Scrapers
             stream.TweetReceived += (sender, args) =>
             {
                 // Do what you want with the Tweet.
+                
+                var tweet = args.Tweet;
+                string text = tweet.Text;
+                //string text = tweet.FullText;  //We may want this instead
+                ICoordinates location = tweet.Coordinates;              
+                DateTime timeCreated = tweet.CreatedAt;
+                long id = tweet.Id;
+                string authorName = tweet.CreatedBy.Name;
+                List<string> hashtags = new List<string>();
+                foreach(IHashtagEntity h in tweet.Hashtags)                
+                    hashtags.Add(h.Text);               
+                string url = tweet.Url;
+                string language = tweet.Language.ToString();
+                string source = tweet.Source; // not sure what this is
 
-                var k = args.Tweet;
                 try
                 {
-                    Console.WriteLine(k);
+                    
+                    Console.WriteLine(tweet);
                 }
 
                 catch { }
