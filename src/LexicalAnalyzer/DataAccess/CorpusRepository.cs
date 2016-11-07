@@ -25,14 +25,23 @@ namespace LexicalAnalyzer.DataAccess {
         }
 
         /* Public methods */
-        public void Add(Corpus corpus) {
+        public void Add(Corpus corpus)
+        {
             Debug.Assert(corpus.Id == -1);
-            using (var conn = this.Connection()) {
-                conn.Execute(@"
-                        INSERT INTO la.Corpus
-                        ( Name, Description, Locked )
-                        VALUES ( @Name, @Description, @Locked )
-                        ", corpus);
+            using (var conn = this.Connection())
+            {
+                using (var tran = conn.BeginTransaction())
+                {
+                    try {
+                        conn.Execute(
+                    @" INSERT INTO la.Corpus(Id, Name, Description, Locked ) VALUES ( @Id, @Name, @Description, @Locked )",
+                    new { Id = corpus.Id, Name = corpus.Name, Description = corpus.Description, Locked = corpus.Locked });
+                    }
+                    catch {
+                        tran.Rollback();
+                        throw;
+                    }
+                }
             }
         }
 
@@ -43,14 +52,9 @@ namespace LexicalAnalyzer.DataAccess {
                     try {
                         /* Delete the corpus and all of its content in one
                          * database transaction */
-                        conn.Execute(@"
-                                DELETE FROM la.Corpus
-                                    WHERE Id=@Id
-                                ", corpus);
-                        conn.Execute(@"
-                                DELETE FROM la.Corpus
-                                    WHERE CorpusId=@Id
-                                ", corpus);
+                        conn.Execute(
+                            @" DELETE FROM la.Corpus WHERE CorpusId=@Id ",
+                            new { CorpusId = corpus.Id });
                         tran.Commit();
                         /* TODO: Schedule garbage collection of possibly
                          * orphaned CorpusBlobs */
@@ -63,8 +67,23 @@ namespace LexicalAnalyzer.DataAccess {
         }
 
         public void Update(Corpus corpus) {
-            Debug.Assert(corpus.Id != -1);
-            /* TODO */
+            Debug.Assert(corpus.Id == -1);
+            using (var conn = this.Connection())
+            {
+                using (var tran = conn.BeginTransaction())
+                {
+                    try{
+                        conn.Execute(
+                    @" UPDATE la.Corpus SET Name =@Name, Description = @Description, Locked = @Locked 
+                       where Id = @Id",
+                    new { Name = corpus.Name, Description = corpus.Description, Locked = corpus.Locked, Id =corpus.Id });
+                    }
+                    catch{
+                        tran.Rollback();
+                        throw;
+                    }
+                }
+            }
         }
 
         public Corpus GetById(long id) {

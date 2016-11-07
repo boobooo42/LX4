@@ -31,29 +31,49 @@ namespace LexicalAnalyzer.DataAccess
         public void Add(CorpusContent content)
         {
             Debug.Assert(content.Id == -1);
-            using (var conn = this.Connection())
+            try
             {
-                conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.CorpusContent WHERE Hash =@Hash)
+                using (var conn = this.Connection())
+                {
+                    using (var tran = conn.BeginTransaction())
+                    {
+                        try
+                        {
+                            conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.CorpusContent WHERE Hash =@Hash)
                         INSERT INTO la.CorpusContent
                             (CorpusId, Hash, Name, Type,
                              DownloadURL )
                             VALUES ( @CorpusId, @Hash, @Name, @Type,
                                 @DownloadURL )
                             ", new
-                {
-                   
-                    CorpusId = 1,
-                    Hash = content.Hash,
-                    Name = content.Name,
-                    Type = content.Type,
-                    DownloadUrl = content.DownloadURL
-                });
+                            {
+
+                                CorpusId = 1,
+                                Hash = content.Hash,
+                                Name = content.Name,
+                                Type = content.Type,
+                                DownloadUrl = content.DownloadURL
+                            });
+                            tran.Commit();
+                        }
+                        catch (System.Exception e)
+                        {
+                            tran.Rollback();
+                            throw new System.Exception(" Error in commiting");
+                        }
+                    }
+                }
+            }
+            catch (System.Exception e)
+            {
+                throw new System.Exception(" Inserting error");
+            }
                 /* TODO: Check for flyweight CorpusContent objects */
                 /* TODO: Make sure the contents are somehow added to the Merkle
                  * tree as a ContentBlob */
                 /* TODO: If we also add a ContentBlob here, it would be nice to
                  * do everything as a single transaction */
-            }
+            
         }
 
         public void Delete(CorpusContent content)
