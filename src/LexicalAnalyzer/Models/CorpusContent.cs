@@ -15,6 +15,8 @@ namespace LexicalAnalyzer.Models {
         public DateTime DownloadDate { get; set; }
         public string DownloadURL { get; set; }
         public byte[] Content { get; set; }
+        public float Long { get; set; }
+        public float Lat { get; set; }
 
         /* Constructors */
         public CorpusContent() {

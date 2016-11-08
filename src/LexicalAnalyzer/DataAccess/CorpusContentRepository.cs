@@ -42,9 +42,9 @@ namespace LexicalAnalyzer.DataAccess
                             conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.CorpusContent WHERE Hash =@Hash)
                         INSERT INTO la.CorpusContent
                             (CorpusId, Hash, Name, Type,
-                             DownloadURL )
+                             DownloadURL, Long, Lat )
                             VALUES ( @CorpusId, @Hash, @Name, @Type,
-                                @DownloadURL )
+                                @DownloadURL, @Long, @Lat )
                             ", new
                             {
 
@@ -52,7 +52,9 @@ namespace LexicalAnalyzer.DataAccess
                                 Hash = content.Hash,
                                 Name = content.Name,
                                 Type = content.Type,
-                                DownloadUrl = content.DownloadURL
+                                DownloadUrl = content.DownloadURL,
+                                Long = content.Long,
+                                Lat = content.Lat
                             });
                             tran.Commit();
                         }
