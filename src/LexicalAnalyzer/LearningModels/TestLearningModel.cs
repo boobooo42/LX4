@@ -26,19 +26,19 @@ namespace LexicalAnalyzer.Scrapers
         private static IEnumerable<KeyValueProperty> DefaultProperties {
             get {
                 var properties = new List<KeyValueProperty>();
-                properties.Add(
-                        new KeyValueProperty(
-                            "timeout",  /* key */
-                            "30",  /* defaultValue */
-                            "seconds"  /* type */
-                            ));
-                properties.Add(
-                        new KeyValueProperty(
-                            "website",  /* key */
-                            "http://example.com",  /* defaultValue */
-                            "url"  /* type */
-                            ));
-                return new List<KeyValueProperty>();
+                //properties.Add(
+                //        new KeyValueProperty(
+                //            "timeout",  /* key */
+                //            "30",  /* defaultValue */
+                //            "seconds"  /* type */
+                //            ));
+                //properties.Add(
+                //        new KeyValueProperty(
+                //            "website",  /* key */
+                //            "http://example.com",  /* defaultValue */
+                //            "url"  /* type */
+                //            ));
+                return properties;
             }
         }
         public void Run() {
