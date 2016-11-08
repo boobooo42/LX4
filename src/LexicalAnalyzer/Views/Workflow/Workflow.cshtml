@@ -13,9 +13,9 @@
 
                         <!-- Scrape the web button -->
                         <div class="col-sm-5 col-sm-offset-1">
-                            <a href="#scrapper" class="square" style="text-decoration:none;">
+                            <a href="#scraper" class="square" style="text-decoration:none;">
                                 <span>Scrape The Web</span> <i class="glyphicon glyphicon glyphicon-save-file"></i>
-                                <span class="information">Select or Configure your own scrapper to search the web for some interesting content.</span>
+                                <span class="information">Select or Configure your own scraper to search the web for some interesting content.</span>
                             </a>
                         </div>
 
@@ -30,80 +30,74 @@
                     </div>
                 </div>
                 <div ng-view></div>
-                <script type="text/ng-template" id="scrapper.htm">
+                <script type="text/ng-template" id="scraper.htm">
                     <span class="text-center"><h3>Scrape The Web</h3></span>
                     <hr />
                     <div class="row row-margin">
-                        <div>
 
-                            <!-- Modal -->
-                            <div id="newEditScraper" class="modal fade" role="dialog">
-                                <div class="modal-dialog">
+                        <!-- Modal -->
+                        <div id="newEditScraper" class="modal fade" role="dialog">
+                            <div class="modal-dialog">
 
-                                    <!-- Modal content-->
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal" data-toggle="collapse" data-target="#collapseArea" aria-expanded="true" aria-controls="collapseArea">&times;</button>
-                                            <h4 class="modal-title">Create new scraper or edit existing?</h4>
-                                        </div>
-                                        <div class="modal-body">
-                                            <button type="button" class="btn btn-default" ng-click="editScraper()">Edit</button>
-                                            <button type="button" class="btn btn-default" ng-click="newScraper()">New</button>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <p />
-                                        </div>
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" data-toggle="collapse" data-target="#collapseArea" aria-expanded="true" aria-controls="collapseArea">&times;</button>
+                                        <h4 class="modal-title">Create new scraper or manage existing scrapers?</h4>
                                     </div>
-
+                                    <div class="modal-body">
+                                        <button type="button" class="btn btn-default" ng-click="newScraper()">Create New</button>
+                                        <button type="button" class="btn btn-default" ng-click="editScraper()">Manage Existing</button>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <p />
+                                    </div>
                                 </div>
+
                             </div>
-
-
-                            <!-- Scrape the web FORM -->
-                            <form id="scraperForm">
-                                <div class="row row-margin panel panel-default">
-                                    <div class="col-sm-6 panel panel-default" id="scraperInfo">
-                                        <h3 class="panel-heading">Scraper</h3>
-                                    </div>
-                                    <div class="col-sm-6 panel panel-default" id="scraperProperties">
-                                        <h3 class="panel-heading">Properties</h3>
-                                    </div>
-                                </div>
-                                @*<div class="form-group">
-                                            <label for="email">Name</label>
-                                            <input type="text" class="form-control" id="name">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="">Select Websites</label>
-                                            <select multiple class="form-control" id="exampleSelect1">
-                                                <option ng-repeat="option in websites">
-                                                    {{option}}
-                                                </option>
-                                            </select>
-                                        </div>
-                                        <button type="submit" class="btn btn-default" id="runScrape" ng-click="runScrape()">Run</button>
-                                    </form>*@
                         </div>
 
-                        @*<div class="col-sm-6" style="right:0">
-                                <span><h3>Steps</h3></span>
-                                <hr />
-                                <div class="workflow-container-outer">
-                                    <div class="workflow-container-inner">
-                                        <a href="#" class="circle-outer"></a>
-                                        <a href="#" class="circle-inner"></a>
-                                        <ul class="workflow-list">
-                                            <li class=""><span><i class="icon-ok"></i>Gather Content</span></li>
-                                            <hr>
-                                            <li class=""><span><i class="icon-plus"></i>Review Content</span></li>
-                                            <hr>
-                                            <li class=""><span><i class="icon-plus"></i>Commit Content</span></li>
-                                        </ul>
-                                        <button type="submit" class="btn btn-default" id="nextStep" ng-click="nextStep()">Next</button>
-                                        <button type="submit" class="btn btn-default" id="prevStep" ng-click="prevStep()">Previous</button>
-                                    </div>
+
+                        <!-- Scrape the web FORM -->
+                        <form id="scraperNew" hidden>
+                            <div class="row row-margin panel panel-default">
+                                <div class="col-sm-6 panel panel-default" id="scraperInfo">
+                                    <h3 class="panel-heading">Scraper</h3>
+                                    <label>Scraper Name: </label>
+                                    <input type="text" id="scraperName" class="form-control"/> <br />
+                                    <label>Scraper Type: </label>
+                                    <select class="form-control" id="scrapers">
+                                        <option disabled selected > -- Select Scraper -- </option>
+                                        <option ng-repeat="option in scrapers">
+                                            {{option}}
+                                        </option>
+                                    </select> 
+                                    <div id="scraperContent"></div>
                                 </div>
-                            </div>*@
+                                <div class="col-sm-6 panel panel-default">
+                                    <h3 class="panel-heading">Properties</h3>
+                                    <div class="panel-body" id="scraperProperties"></div> 
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-default" id="runScrape" ng-click="createScraper()">Create Scraper</button>
+                        </form>
+
+                        <div id="scraperEdit" class="table-responsive" hidden>
+                            <table class="table table-bordered table-hover">
+                                <thead id="editTHead">
+                                    <tr>
+                                        <th></th>
+                                        <th>GUID</th>
+                                        <th>Status</th>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="editTBody" class="table">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </script>
                 <script type="text/ng-template" id="train.htm">

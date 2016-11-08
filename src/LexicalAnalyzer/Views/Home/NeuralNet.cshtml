@@ -8,6 +8,10 @@
         //border-radius: 10px;
         box-shadow: inset 0px 0px 20px 3px rgba(0,0,0,.25);
     }
+
+    .sidebar{
+        display:none;
+    }
 </style>
 
 <script src="https://d3js.org/d3.v3.min.js"></script>
@@ -33,7 +37,7 @@
         <div class="col-md-9">
             <section id="neural-net"></section>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 sidebar">
             <h4>Test Neural Net</h4>
             <hr />
 
@@ -78,6 +82,7 @@
     <script>
 
         function displayTestNet() {
+            $(".sidebar").show();
             $("#neural-net").empty();
 
             var width = 847,
