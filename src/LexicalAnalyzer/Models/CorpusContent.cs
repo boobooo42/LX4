@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data.SqlTypes;
 
 namespace LexicalAnalyzer.Models {
@@ -13,8 +14,19 @@ namespace LexicalAnalyzer.Models {
         public Guid ScraperGuid { get; set; }
         public string ScraperType { get; set; }
         public DateTime DownloadDate { get; set; }
-        public string DownloadURL { get; set; }
+        public string URL { get; set; }
         public byte[] Content { get; set; }
+
+        #region Twitter
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+        public DateTime CreationTime { get; set; }
+        public long TweetID { get; set; }
+        public string AuthorName { get; set; }
+        public List<string> Hashtags { get; set; }        
+        public string Language { get; set; }
+        public string Source { get; set; }
+        #endregion
 
         /* Constructors */
         public CorpusContent() {

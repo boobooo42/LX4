@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Tweetinvi;
 using Tweetinvi.Models;
@@ -205,10 +206,13 @@ namespace LexicalAnalyzer.Scrapers
                 string language = tweet.Language.ToString();
                 string source = tweet.Source; // not sure what this is
 
+                ScraperUtilities.addCorpusContent(-1, "", ".txt", "Tweet" , this.m_guid, this.GetType().FullName, timeCreated, url, 
+                    Encoding.ASCII.GetBytes(text), location, id, authorName, hashtags, language, source, m_context);
                 try
                 {
                     
-                    Console.WriteLine(tweet);
+                    Debug.WriteLine(tweet);
+
                 }
 
                 catch { }
@@ -228,14 +232,14 @@ namespace LexicalAnalyzer.Scrapers
             var authenticationContext = AuthFlow.InitAuthentication(appCredentials);
 
             // Go to the URL so that Twitter authenticates the user and gives him a PIN code.
-            Console.WriteLine(authenticationContext.AuthorizationURL);
+            Debug.WriteLine(authenticationContext.AuthorizationURL);
 
             //Process.Start(authenticationContext.AuthorizationURL);
 
             // Ask the user to enter the pin code given by Twitter
-            Console.WriteLine("enter pin");
-            var pinCode = Console.ReadLine();
-
+            Debug.WriteLine("enter pin");
+            var pinCode = "1"; //Now change pincode in immediate window
+           // Debug.Assert(false); 
             // With this pin code it is now possible to get the credentials back from Twitter
             var userCredentials = AuthFlow.CreateCredentialsFromVerifierCode(pinCode, authenticationContext);
 

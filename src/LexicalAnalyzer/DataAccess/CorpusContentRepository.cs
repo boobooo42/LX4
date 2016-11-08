@@ -52,7 +52,7 @@ namespace LexicalAnalyzer.DataAccess
                                 Hash = content.Hash,
                                 Name = content.Name,
                                 Type = content.Type,
-                                DownloadUrl = content.DownloadURL
+                                DownloadUrl = content.URL
                             });
                             tran.Commit();
                         }

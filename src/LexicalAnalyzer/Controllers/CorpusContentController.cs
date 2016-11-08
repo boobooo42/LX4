@@ -54,7 +54,7 @@ namespace LexicalAnalyzer.Controllers
                 CorpusId = obj.CorpusId,
                 Content = obj.Content,
                 DownloadDate = DateTime.Now,
-                DownloadURL = "N/A",
+                URL = "N/A",
                 Name = obj.Name,
                 Hash = "Not Assigned.",
                 ScraperGuid = new Guid(),
