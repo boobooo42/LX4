@@ -16,6 +16,8 @@ namespace LexicalAnalyzer.Models {
         public DateTime DownloadDate { get; set; }
         public string URL { get; set; }
         public byte[] Content { get; set; }
+        public float Long { get; set; }
+        public float Lat { get; set; }
 
         #region Twitter
         public double Latitude { get; set; }
