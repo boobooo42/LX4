@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System;
 
 namespace LexicalAnalyzer.Controllers
@@ -127,14 +128,15 @@ namespace LexicalAnalyzer.Controllers
         /// </p>
         /// </remarks>
         [HttpGet("api/scraper/{guid}")]
-        public IScraper Get(string guid)
+        public string Get(string guid)
         {
-            if (guid == null) {
-                return null;
-            }
-            /* Get a single scraper with the given guid */
             IScraper scraper = m_scraperService.GetScraper(guid);
-            return scraper;
+            if (scraper == null) {
+                var error = new LexicalAnalyzer.Models.Error();
+                error.Message = "Could not find Scraper with the given GUID";
+                return JsonConvert.SerializeObject(error);
+            }
+            return JsonConvert.SerializeObject(scraper);
         }
 
         /// <summary>
@@ -261,15 +263,65 @@ namespace LexicalAnalyzer.Controllers
         /// call to /api/scraper/{guid}/start.
         /// </p>
         /// </remarks>
-        [HttpPost("api/scraper")]
-        public string Create([FromBody] string type)
+        [HttpPost("api/scraper/{type}")]
+        public string Create(string type, [FromBody] Scraper s)
         {
-            /* FIXME: Check for null (or invalid?) type values? */
+            if (s == null) {
+                /* The JSON sent was not in the correct format */
+                Response.StatusCode = 400;  /* Bad Request */
+                var error = new LexicalAnalyzer.Models.Error();
+                error.Message = "Invalid structure for Scraper object";
+                return JsonConvert.SerializeObject(error);
+            }
+            if (s.Status != "init") {
+                var error = new LexicalAnalyzer.Models.Error();
+                error.Message = "Initial Scraper status must be 'init'";
+                return JsonConvert.SerializeObject(error);
+            }
             IScraper scraper = m_scraperService.CreateScraper(type);
-            Debug.WriteLine("scraper type requested: " + type);
+            scraper.Status = s.Status;
+            scraper.Properties = s.Properties;
             return JsonConvert.SerializeObject(scraper);
         }
 
+        /// <summary>
+        /// Set parameters of a scraper
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// </p>
+        /// </remarks>
+        [HttpPut("api/scraper/{guid}")]
+        public string Update(string guid, [FromBody] Scraper s)
+        {
+            IScraper scraper = m_scraperService.GetScraper(guid);
+            if (scraper == null) {
+                var error = new LexicalAnalyzer.Models.Error();
+                error.Message = "Could not find Scraper with the given GUID";
+                return JsonConvert.SerializeObject(error);
+            }
+            if (s == null) {
+                /* The JSON sent was not in the correct format */
+                Response.StatusCode = 400;  /* Bad Request */
+                var error = new LexicalAnalyzer.Models.Error();
+                error.Message = "Invalid structure for Scraper object";
+                return JsonConvert.SerializeObject(error);
+            }
+            scraper.Properties = s.Properties;
+            if (s.Status.ToLower() == "start") {
+                m_scraperService.StartScraper(guid);
+            } else if (s.Status.ToLower() == "pause") {
+                m_scraperService.PauseScraper(guid);
+            } else {
+                Response.StatusCode = 400;  /* Bad Request */
+                var error = new LexicalAnalyzer.Models.Error();
+                error.Message = "The only valid Scraper status values to set are 'start' or 'pause'";
+                return JsonConvert.SerializeObject(error);
+            }
+            return JsonConvert.SerializeObject(scraper);
+        }
+
+        /*
         // PATCH api/scraper/{guid}
         /// <summary>
         /// Set some of the parametrs of a scraper
@@ -284,8 +336,8 @@ namespace LexicalAnalyzer.Controllers
         [HttpPatch("api/scraper/{guid}")]
         public string Create()
         {
-            /* TODO: I have no idea what to do here */
             return "";
         }
+        */
     }
 }
