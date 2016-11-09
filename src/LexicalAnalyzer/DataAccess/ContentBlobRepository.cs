@@ -24,10 +24,8 @@ namespace LexicalAnalyzer.DataAccess {
             Debug.Assert(!content.IsFlyweight);
             using (IDbConnection cn = this.Connection()) {
                 cn.Execute(
-                        "INSERT INTO la.ContentBlob " +
-                            "(Hash, Contents) " +
-                            "VALUES (@Hash, @Contents)",
-                        content);
+                        "INSERT INTO la.ContentBlob (Hash, Contents) VALUES (@Hash, @Contents)",
+                        new { Hash = content.Hash, Contents = content.Content });
                 /* TODO: Insert the corresponding MerkleNode record */
             }
         }
@@ -35,9 +33,8 @@ namespace LexicalAnalyzer.DataAccess {
         public override void Delete(ContentBlob content) {
             using (IDbConnection cn = this.Connection()) {
                 cn.Execute(
-                        "DELETE FROM la.ContentBlob " +
-                            "WHERE Hash=@Hash",
-                        content);
+                        "DELETE FROM la.ContentBlob WHERE Hash=@Hash",
+                        new { Hash = content.Hash });
             }
             /* TODO: Delete the corresponding MerkleNode record */
         }
@@ -49,7 +46,7 @@ namespace LexicalAnalyzer.DataAccess {
                 cn.Execute(
                         "DELETE FROM ContentBlob " +
                             "WHERE Hash=@Hash",
-                        content);
+                        new {Hash = content.Hash});
                         */
             }
         }
@@ -57,9 +54,8 @@ namespace LexicalAnalyzer.DataAccess {
         public override ContentBlob GetByHash(MerkleHash hash) {
             ContentBlob content = null;
             using (IDbConnection cn = this.Connection()) {
-                IEnumerable<ContentBlob> result = cn.Query<ContentBlob>(@"
-                        SELECT *
-                        FROM la.ContentBlob
+                IEnumerable<ContentBlob> result = cn.Query<ContentBlob>(
+                    @" SELECT * FROM la.ContentBlob
                         LEFT OUTER JOIN MerkleNode
                             ON (MerkleNode.Hash = ContentBlob.Hash)
                         WHERE ContentBlob.Hash=@Hash

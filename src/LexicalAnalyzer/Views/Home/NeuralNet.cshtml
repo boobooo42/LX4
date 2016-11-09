@@ -1,18 +1,137 @@
-﻿<div class="container">
+﻿<style>
+    .overlay {
+        fill: none;
+        pointer-events: all;
+    }
+
+    #neural-net{
+        //border-radius: 10px;
+        box-shadow: inset 0px 0px 20px 3px rgba(0,0,0,.25);
+    }
+
+    .sidebar{
+        display:none;
+    }
+</style>
+
+<script src="https://d3js.org/d3.v3.min.js"></script>
+
+<div class="container">
     <div class="row row-margin">
         <h3><span>Neural Net</span></h3><hr />
         <div class="form-group">
             <label for="">Select a Neural Net</label>
-            <select class="form-control" id="corpusList">
+            <select class="form-control" id="corpusList" onchange="displayTestNet()">
                 <option>Neural Net 1</option>
                 <option>Neural Net 2</option>
                 <option>Neural Net 3</option>
                 <option>Neural Net 4</option>
+                <option>Test Neural Net</option>
             </select>
         </div>
 
-        <!---DISPLAY NEURAL NET BELOW WITH ADDED VIEW-->
-        Neural Net will be displayed below theough seperate view. (NOT IMPLEMENTED YET)
 
     </div>
+
+    <div class="row">
+        <div class="col-md-9">
+            <section id="neural-net"></section>
+        </div>
+        <div class="col-md-3 sidebar">
+            <h4>Test Neural Net</h4>
+            <hr />
+
+            <div>
+                <p><strong>Description:</strong> This is a description of the test neural net you see to the left. This can give detail to what the intentions of the neural net are.</p>
+
+                <p><strong>Corpa Used:</strong> This can be a list of the corpa used to create the neural net.</p>
+
+                <p><strong>Created By:</strong> Khalil Hakim</p>
+                <p><strong>Date Created:</strong> N/A</p>
+
+                <button style="margin:5px" type="button" class="btn btn-success btn-sm" ng-click="display(selectedCorpus)">Refresh</button>
+                <button style="margin:5px" type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#DeleteNeuralNet">Delete Neural Net</button>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Delete Neural Net Modal -->
+<div class="modal fade" style="width:auto" id="DeleteNeuralNet" role="dialog">
+    <div style="width:300px" class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h2 class="modal-title">WARNING</h2>
+            </div>
+            <div class="modal-body">
+                <p>Are you absolutely positively sure you want to delete this Neural Net?</p>
+            </div>
+            <div class="modal-footer">
+                <div style="margin: 0 auto" type="button" class="btn btn-danger" data-dismiss="modal">Not too sure..</div>
+                <div style="margin: 0 auto" type="button" class="btn btn-success" data-dismiss="modal">Yes.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+    <script>
+
+        function displayTestNet() {
+            $(".sidebar").show();
+            $("#neural-net").empty();
+
+            var width = 847,
+                height = 665;
+
+            var randomX = d3.random.normal(width / 2, 80),
+                randomY = d3.random.normal(height / 2, 80);
+
+            var data = d3.range(1000).map(function () {
+                return [
+                  randomX(),
+                  randomY()
+                ];
+            });
+
+            var x = d3.scale.linear()
+                .domain([0, width])
+                .range([0, width]);
+
+            var y = d3.scale.linear()
+                .domain([0, height])
+                .range([height, 0]);
+
+            var canvas = d3.select("section").append("canvas")
+                .attr("width", width)
+                .attr("height", height)
+                .call(d3.behavior.zoom().x(x).y(y).scaleExtent([1, 100]).on("zoom", zoom))
+              .node().getContext("2d");
+
+            draw();
+
+            function zoom() {
+                canvas.clearRect(0, 0, width, height);
+                draw();
+            }
+
+            function draw() {
+                var i = -1, n = data.length, d, cx, cy;
+                canvas.beginPath();
+                while (++i < n) {
+                    d = data[i];
+                    cx = x(d[0]);
+                    cy = y(d[1]);
+                    canvas.moveTo(cx, cy);
+                    canvas.arc(cx, cy, 2.5, 0, 2 * Math.PI);
+                    canvas.font = "7px Georgia";
+                    canvas.fillText("word", cx - 7, cy + 10);
+                }
+                canvas.fill();
+            }
+        }
+    </script>
