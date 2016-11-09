@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Tweetinvi;
 using Tweetinvi.Models;
@@ -168,7 +169,7 @@ namespace LexicalAnalyzer.Scrapers
         /// <returns></returns>
         public void Run()
         {
-            //Debug.Assert(false);
+            Debug.Assert(false);
             TwitterTest();
         }
 
@@ -183,6 +184,9 @@ namespace LexicalAnalyzer.Scrapers
         void FullTwitterSample()
         {
 
+
+            List<ITweet> tweetList = new List<ITweet>();
+
             // Enable Automatic RateLimit handling
             RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
             var stream = Stream.CreateSampleStream();
@@ -192,28 +196,21 @@ namespace LexicalAnalyzer.Scrapers
             stream.TweetReceived += (sender, args) =>
             {
                 // Do what you want with the Tweet.
-                
-                var tweet = args.Tweet;
-                string text = tweet.Text;
-                //string text = tweet.FullText;  //We may want this instead
-                ICoordinates location = tweet.Coordinates;              
-                DateTime timeCreated = tweet.CreatedAt;
-                long id = tweet.Id;
-                string authorName = tweet.CreatedBy.Name;
-                List<string> hashtags = new List<string>();
-                foreach(IHashtagEntity h in tweet.Hashtags)                
-                    hashtags.Add(h.Text);               
-                string url = tweet.Url;
-                string language = tweet.Language.ToString();
-                string source = tweet.Source; // not sure what this is
 
-                ScraperUtilities.addCorpusContent(-1, "", ".txt", "Tweet" , this.m_guid, this.GetType().FullName, timeCreated, url, 
-                    Encoding.ASCII.GetBytes(text), location, id, authorName, hashtags, language, source, m_context);
+                ITweet tweet = args.Tweet;
                 try
                 {
-                    
+                    //  tweetList.Add(tweet);
                     Debug.WriteLine(tweet);
+                    Console.WriteLine(tweet);
 
+                    //if (tweetList.Count > 10)
+                    //{
+                    //    stream.StopStream();
+                     //   foreach (ITweet tweet2 in tweetList)
+                            ScraperUtilities.addCorpusContent("tweet", "tweet", this.Guid, 
+                                this.GetType().FullName, tweet, this.m_context);
+                   // }
                 }
 
                 catch { }
@@ -237,15 +234,22 @@ namespace LexicalAnalyzer.Scrapers
             {
                 Process.Start(new ProcessStartInfo("cmd", $"/c start {authUrl}")); // Works ok on windows
             }
-            // Go to the URL so that Twitter authenticates the user and gives him a PIN code.
-            Debug.WriteLine(authenticationContext.AuthorizationURL);
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Process.Start("xdg-open", authUrl);  // Works ok on linux
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", authUrl); // Not tested
+            }
 
-            //Process.Start(authenticationContext.AuthorizationURL);
 
             // Ask the user to enter the pin code given by Twitter
             Debug.WriteLine("enter pin");
-            var pinCode = "1"; //Now change pincode in immediate window
-           // Debug.Assert(false); 
+            Console.WriteLine("enter pin");
+            //  var pinCode = "1"; //Now change pincode in immediate window
+            var pinCode = Console.ReadLine();
+            // Debug.Assert(false); 
             // With this pin code it is now possible to get the credentials back from Twitter
             var userCredentials = AuthFlow.CreateCredentialsFromVerifierCode(pinCode, authenticationContext);
 

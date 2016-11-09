@@ -1,19 +1,14 @@
 ﻿using HtmlAgilityPack;
 using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Models;
-using LexicalAnalyzer.Services;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.IO;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System;
-using System.Data.SqlTypes;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace LexicalAnalyzer.Scrapers
 {
@@ -291,15 +286,13 @@ namespace LexicalAnalyzer.Scrapers
                     if (entry.FullName.EndsWith(fileType, StringComparison.OrdinalIgnoreCase))
                     {
 
-                        unzippedEntryStream = entry.Open(); // .Open will return a stream                                                        //Process entry data here
+                        unzippedEntryStream = entry.Open(); // .Open will return a stream                                                      
                         byte[] byteArray = ReadFully(unzippedEntryStream); //converts stream to byte array
-                                                                           //   ScraperUtilities.loadByteArrayIntoDatabase(byteArray);
-
-
+                                                                          
 
                         DateTime sqlDate = DateTime.Now;
-                        ScraperUtilities.addCorpusContent(-1, "", ".txt", "Project Gutenberg File"
-                            , this.m_guid, this.GetType().FullName, sqlDate, downloadURL,
+                        ScraperUtilities.addCorpusContent("Project Gutenberg File", "text", 
+                            this.m_guid, this.GetType().FullName, sqlDate, downloadURL,
                             byteArray,m_context);
 
 
@@ -311,51 +304,6 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
-    //    /// <summary>
-    //    /// creates a corpus content and adds it to the corpur content repository
-    //    /// </summary>
-    //    /// <param name="Id"></param>
-    //    /// <param name="Hash"></param>
-    //    /// <param name="Name"></param>
-    //    /// <param name="Type"></param>
-    //    /// <param name="ScraperGuid"></param>
-    //    /// <param name="ScraperType"></param>
-    //    /// <param name="DownloadDate"></param>
-    //    /// <param name="DownloadURL"></param>
-    //    /// <param name="Content"></param>
-    //    /// <param name="corpContent"></param>
-    //    void addCorpusContent(long Id, string Hash, string Name, string Type,
-    //Guid ScraperGuid, string ScraperType, DateTime DownloadDate, string DownloadURL,
-    //byte[] Content)
-    //    {
-    //        CorpusContent corpContent = new CorpusContent();
-
-    //        /* creates hash of byte array*/
-    //        string hashResult = "";
-    //        SHA256 shaHash = SHA256.Create();
-    //       // Convert the input string to a byte array and compute the hash.
-    //            byte[] data = shaHash.ComputeHash(Content);
-    //            hashResult = "";
-
-    //            //// puts the bytes into a single readable string with the format
-    //            foreach (byte v in data)
-    //            {
-    //                hashResult = hashResult + String.Format("{0:x2}", v);
-    //            }
-    //           // Hash = sBuilder.ToString(); //change hash to real hash
-            
-
-    //        //corpContent.Id = Id;
-    //        corpContent.Hash = hashResult;
-    //        corpContent.Name = Name;
-    //        corpContent.Type = Type;
-    //        corpContent.ScraperGuid = ScraperGuid;
-    //        corpContent.ScraperType = ScraperType;
-    //        corpContent.DownloadDate = DownloadDate;
-    //        corpContent.DownloadURL = DownloadURL;
-    //        corpContent.Content = Content;
-    //        m_context.CorpusContentRepository.Add(corpContent);
-    //    }
 
         /// <summary>
         /// converts a Stream to a byte array
