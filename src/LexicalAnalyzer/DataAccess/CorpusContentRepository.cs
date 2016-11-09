@@ -52,7 +52,7 @@ namespace LexicalAnalyzer.DataAccess
                                 Hash = content.Hash,
                                 Name = content.Name,
                                 Type = content.Type,
-                                DownloadUrl = content.DownloadURL,
+                                DownloadUrl = content.URL,
                                 Long = content.Long,
                                 Lat = content.Lat
                             });
@@ -61,14 +61,16 @@ namespace LexicalAnalyzer.DataAccess
                         catch (System.Exception e)
                         {
                             tran.Rollback();
-                            throw new System.Exception(" Error in commiting");
+                            throw e;
+                            //throw new System.Exception(" Error in commiting");
                         }
                     }
                 }
             }
             catch (System.Exception e)
             {
-                throw new System.Exception(" Inserting error");
+                throw e;
+                //throw new System.Exception(" Inserting error");
             }
                 /* TODO: Check for flyweight CorpusContent objects */
                 /* TODO: Make sure the contents are somehow added to the Merkle

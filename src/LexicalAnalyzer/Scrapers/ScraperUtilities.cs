@@ -487,15 +487,16 @@ namespace LexicalAnalyzer.Scrapers
             corpContent.CreationTime = creationTime;
             corpContent.URL = URL;
             corpContent.Content = Content;
-            m_context.CorpusContentRepository.Add(corpContent);
-            corpContent.Latitude = location.Latitude;
-            corpContent.Longitude = location.Longitude;
+            if (location != null) //may be null if no tweet does not have a location
+            {
+                corpContent.Latitude = location.Latitude;
+                corpContent.Longitude = location.Longitude;
+            }
             corpContent.TweetID = tweetID;
             corpContent.AuthorName = authorName;
             corpContent.Hashtags = hashtags;
             corpContent.Language = language;
-            corpContent.Source = source;
-            m_context.CorpusContentRepository.Add(corpContent);
+            corpContent.Source = source;            
 
             /* creates hash of byte array*/
             string hashResult = "";
@@ -520,6 +521,7 @@ namespace LexicalAnalyzer.Scrapers
 
             //corpContent.Id = Id;
             corpContent.Hash = hashResult;
+            m_context.CorpusContentRepository.Add(corpContent);
         }
     }
 }

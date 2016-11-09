@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Tweetinvi;
@@ -167,7 +168,7 @@ namespace LexicalAnalyzer.Scrapers
         /// <returns></returns>
         public void Run()
         {
-            Debug.Assert(false);
+            //Debug.Assert(false);
             TwitterTest();
         }
 
@@ -231,6 +232,11 @@ namespace LexicalAnalyzer.Scrapers
             // Init the authentication process and store the related `AuthenticationContext`.
             var authenticationContext = AuthFlow.InitAuthentication(appCredentials);
 
+            string authUrl = authenticationContext.AuthorizationURL;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start(new ProcessStartInfo("cmd", $"/c start {authUrl}")); // Works ok on windows
+            }
             // Go to the URL so that Twitter authenticates the user and gives him a PIN code.
             Debug.WriteLine(authenticationContext.AuthorizationURL);
 
