@@ -32,10 +32,7 @@ namespace LexicalAnalyzer.DataAccess
             Debug.Assert(content.Id == -1);
             using (var conn = this.Connection())
             {
-                conn.Execute(@"INSERT INTO la.MerkleNode (Hash,Type,Pinned) VALUES (@Hash,@Type,@Pinned)",
-                    new { Hash = content.Hash, Type = "ContentBlob", Pinned = 0 });
-                conn.Execute(@"INSERT INTO la.ContentBlob (Hash, Contents) VALUES (@Hash, @Contents)",
-                        new { Hash = content.Hash, Contents = content.Content });
+                    /// adds to the CorpusContentTable
                 conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.CorpusContent WHERE Hash =@Hash)
                         INSERT INTO la.CorpusContent
                             (CorpusId, Hash, Name, Type,
@@ -53,12 +50,24 @@ namespace LexicalAnalyzer.DataAccess
                     Long = content.Long,
                     Lat = content.Lat
                 });
+                /// adds to the MerkleNodeTable
+                conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.MerkleNode WHERE Hash =@Hash)
+                        INSERT INTO la.MerkleNode (Hash,Type,Pinned) VALUES (@Hash,@Type,@Pinned)",
+                    new { Hash = content.Hash, Type = "ContentBlob", Pinned = 0 });
+                /// adds to the ContentBlobTable
+                conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.ContentBlob WHERE Hash =@Hash)
+                            INSERT INTO la.ContentBlob (Hash, Contents) VALUES (@Hash, @Contents)",
+                        new { Hash = content.Hash, Contents = content.Content });
+
+
+
                 //// makes the contentBlob to add to contentBlobTable
                 //ContentBlob conBlob = new ContentBlob();
                 // ContentBlobRepository conRepo = new ContentBlobRepository(m_connectionFactory);
                 //conBlob.Hash = content.Hash;
                 // conBlob.Content = content.Content;
                 //conRepo.Add(conBlob);
+
                 /* TODO: Check for flyweight CorpusContent objects */
                 /* TODO: Make sure the contents are somehow added to the Merkle
                  * tree as a ContentBlob */
