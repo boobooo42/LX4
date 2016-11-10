@@ -48,7 +48,7 @@ CREATE TABLE la.MerkleEdge(
 
 CREATE TABLE la.ContentBlob(
     Hash char(64) NOT NULL,
-    Contents text NOT NULL,
+    Contents nvarchar(max) NOT NULL,
     CONSTRAINT PK_ContentHash PRIMARY KEY (Hash)
     );
 
