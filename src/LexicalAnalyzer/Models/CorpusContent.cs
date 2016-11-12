@@ -20,9 +20,6 @@ namespace LexicalAnalyzer.Models {
         public float Lat { get; set; }
 
         #region Twitter
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
-        public DateTime CreationTime { get; set; }
         public long TweetID { get; set; }
         public string AuthorName { get; set; }
         public List<string> Hashtags { get; set; }        

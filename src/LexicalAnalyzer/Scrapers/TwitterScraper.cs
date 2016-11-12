@@ -208,7 +208,7 @@ namespace LexicalAnalyzer.Scrapers
                     //{
                     //    stream.StopStream();
                      //   foreach (ITweet tweet2 in tweetList)
-                            ScraperUtilities.addCorpusContent("tweet", "tweet", this.Guid, 
+                            ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid, 
                                 this.GetType().FullName, tweet, this.m_context);
                    // }
                 }

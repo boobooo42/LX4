@@ -239,6 +239,7 @@ namespace LexicalAnalyzer.Scrapers
             HttpClient client = new HttpClient();
 
             var textArray = await client.GetByteArrayAsync(downloadURL);
+           
 
             MemoryStream memoryStream = new MemoryStream(textArray);
             Random rand = new Random(DateTime.Now.Millisecond);

@@ -438,7 +438,7 @@ namespace LexicalAnalyzer.Scrapers
             corpContent.ScraperGuid = ScraperGuid;
             corpContent.ScraperType = ScraperType;
             corpContent.Content = Encoding.ASCII.GetBytes(tweet.Text);
-            corpContent.CreationTime = tweet.CreatedAt;
+            corpContent.DownloadDate= tweet.CreatedAt;
             corpContent.URL = tweet.Url;
             if (tweet.Coordinates != null) //may be null if tweet does not have a location
             {
