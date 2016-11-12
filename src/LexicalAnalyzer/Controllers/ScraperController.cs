@@ -279,6 +279,12 @@ namespace LexicalAnalyzer.Controllers
                 return JsonConvert.SerializeObject(error);
             }
             IScraper scraper = m_scraperService.CreateScraper(type);
+            if (scraper == null) {
+                var error = new LexicalAnalyzer.Models.Error();
+                error.Message = String.Format(
+                        "Unknown scraper type '{0}'", type);
+                return JsonConvert.SerializeObject(error);
+            }
             scraper.Status = s.Status;
             scraper.Properties = s.Properties;
             return JsonConvert.SerializeObject(scraper);
