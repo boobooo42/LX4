@@ -47,13 +47,31 @@
                                     </div>
                                     <div class="modal-body">
                                         <button type="button" class="btn btn-default" ng-click="newScraper()">Create New</button>
-                                        <button type="button" class="btn btn-default" ng-click="editScraper()">Manage Existing</button>
+                                        <button type="button" class="btn btn-default" ng-click="manageScrapers()">Manage Existing</button>
                                     </div>
                                     <div class="modal-footer">
                                         <p />
                                     </div>
                                 </div>
 
+                            </div>
+                        </div>
+
+                        <!-- Modal -->
+                        <div id="twitterAuth" class="modal fade" role="dialog">
+                            <div class="modal-dialog">
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" data-toggle="collapse" data-target="#collapseArea" aria-expanded="true" aria-controls="collapseArea">&times;</button>
+                                        <h4 class="modal-title">Retrieve Pin</h4>
+                                    </div>
+                                    <div class="modal-body" id="twitterPinBody"></div>
+                                    <div class="modal-footer">
+                                        <input type="text" class="form-control" id="twitterPin">
+                                        <button type="button" class="btn btn-default" id="submitPin" >acceptPin</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -64,19 +82,19 @@
                                 <div class="col-sm-6 panel panel-default" id="scraperInfo">
                                     <h3 class="panel-heading">Scraper</h3>
                                     <label>Scraper Name: </label>
-                                    <input type="text" id="scraperName" class="form-control"/> <br />
+                                    <input type="text" id="scraperName" class="form-control" /> <br />
                                     <label>Scraper Type: </label>
                                     <select class="form-control" id="scrapers">
-                                        <option disabled selected > -- Select Scraper -- </option>
+                                        <option disabled selected> -- Select Scraper -- </option>
                                         <option ng-repeat="option in scrapers">
                                             {{option}}
                                         </option>
-                                    </select> 
+                                    </select>
                                     <div id="scraperContent"></div>
                                 </div>
                                 <div class="col-sm-6 panel panel-default">
                                     <h3 class="panel-heading">Properties</h3>
-                                    <div class="panel-body" id="scraperProperties"></div> 
+                                    <div class="panel-body" id="scraperProperties"></div>
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-default" id="runScrape" ng-click="createScraper()">Create Scraper</button>
@@ -95,6 +113,21 @@
                                     </tr>
                                 </thead>
                                 <tbody id="editTBody" class="table">
+                                    <tr ng-repeat="scraper in currentScraperList">
+                                        <th scope="row">
+                                            <p>
+                                                <span class="glyphicon glyphicon-file" ng-click="editScraper($event)"></span>
+                                                <span class="glyphicon glyphicon-trash" ng-click="deleteScraper($event)"></span>
+                                                <span class="glyphicon glyphicon-stop" ng-click="stopScraper($event)"></span>
+                                                <span class="glyphicon glyphicon-play" ng-click="startScraper($event)"></span>
+                                            </p>
+                                        </th>
+                                        <th scope="row" class="guid"> {{scraper.guid}} </th>
+                                        <th scope="row"> {{scraper.status}} </th>
+                                        <th scope="row"> {{scraper.name}} </th>
+                                        <th scope="row"> {{scraper.type}} </th>
+                                        <th scope="row"> {{scraper.desc}} </th>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>

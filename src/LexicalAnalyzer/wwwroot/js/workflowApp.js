@@ -1,4 +1,5 @@
 ﻿var workflowApp = angular.module("workflowApp", ['ngRoute']);
+
 workflowApp.config(['$routeProvider', function ($routeProvider) {
     $routeProvider.
 
@@ -11,7 +12,7 @@ workflowApp.config(['$routeProvider', function ($routeProvider) {
             templateUrl: 'train.htm',
             controller: 'TrainController'
         });
-        
+
 }])
     .factory('factoryWebsites', function () {
         var factory = {};
@@ -40,19 +41,47 @@ workflowApp.controller('ScraperController', ['$scope', '$http', 'factoryWebsites
     }
     var existingScrapers = [];
 
-    $scope.editScraper = function () {
-        $("#newEditScraper").modal("hide");    
+    $scope.manageScrapers = function () {
+        $("#newEditScraper").modal("hide");
         getExistingScrapers();
     }
 
-    $scope.setupEdit = function (e) {
-        alert("click edit");
+    $scope.editScraper = function (e) {
+        var target = $(e.target);
+        $("#twitterPin").value = "";
+        var guid = target.parent().parent().siblings(".guid").text().trim();
+        $http({
+            method: 'get',
+            url: '/api/scraper/twitter/' + guid
+        })
+        .success(function (response) {
+            $("#twitterPinBody").empty();
+            $('<a target="_blank" href= "' + response + '">Twitter Auth</a>').appendTo("#twitterPinBody");
+            $("#twitterAuth").modal('show');
+            $("#submitPin").click(function () {
+                var tPin = $("#twitterPin").val().trim();
+                $http({
+                    method: 'get',
+                    url: '/api/scraper/twitter/' + tPin + "/" + guid
+                })
+                .success(function (response) {
+                    console.log(response);
+                })
+                .error(function () {
+
+                });
+            });
+        })
+        .error(function () {
+
+        });
     }
 
     $scope.deleteScraper = function (e) {
         var target = $(e.target);
-        target.parent().parent().hide("slow");
-        var guid = target.parent().siblings(".guid").text();
+        target.parent().parent().parent().hide();
+        var guid = target.parent().parent().siblings(".guid").text().trim();
+        console.log(guid);
         $http({
             method: 'delete',
             url: '/api/scraper/' + guid
@@ -67,7 +96,7 @@ workflowApp.controller('ScraperController', ['$scope', '$http', 'factoryWebsites
 
     $scope.stopScraper = function (e) {
         var target = $(e.target);
-        var guid = target.parent().siblings(".guid").text();
+        var guid = target.parent().parent().siblings(".guid").text().trim();
         $http({
             method: 'post',
             url: '/api/scraper/' + guid + '/pause'
@@ -83,10 +112,12 @@ workflowApp.controller('ScraperController', ['$scope', '$http', 'factoryWebsites
 
     $scope.startScraper = function (e) {
         var target = $(e.target);
-        var guid = target.parent().siblings(".guid").text();
+        var guid = target.parent().parent().siblings(".guid").text().trim();
+        var url = '/api/scraper/' + guid + '/start';
+        console.log(url);
         $http({
             method: 'post',
-            url: '/api/scraper/' + guid + '/start'
+            url: url
         })
         .success(function (response) {
             console.log(response);
@@ -99,14 +130,25 @@ workflowApp.controller('ScraperController', ['$scope', '$http', 'factoryWebsites
 
     $scope.createScraper = function () {
         var sitesToScrape = [];
-        var scraperType = "";
-        var scraperName = "";
-        scraperName = $("#scrapers").find(":selected").val();
-        var scraperExplicit = types[scraperName]["type"];
+        var scraperType = $("#scrapers").find(":selected").val();
+        var scraperName = $("#scraperName").val();
+        var scraperExplicit = types[scraperType]["type"];
+        var tempProperties = types[scraperType]["properties"];
+        var data = {
+            "status": "init",
+            "progress": 0,
+            "priority": 0,
+            "properties": []
+        }
+        for (var i = 0; i < tempProperties.length; i++) {
+            var tempProps = tempProperties[i];
+            data["properties"].push({ "key": tempProps["key"], "type": tempProps["type"], "value" : $("#" + tempProps["key"]).val() });
+        }
+        console.log(data);
         $http({
             method: 'post',
-            url: '/api/scraper/',
-            data: JSON.stringify(scraperExplicit)
+            url: '/api/scraper/' + scraperExplicit,
+            data: data
         })
         .success(function (response) {
             console.log(response);
@@ -176,7 +218,7 @@ workflowApp.controller('ScraperController', ['$scope', '$http', 'factoryWebsites
                 $("#scraperProperties").empty();
                 properties = types[selected]["properties"];
                 for (var i = 0; i < properties.length; i++) {
-                    build += '<label>' + properties[i]["key"] + "(" + properties[i]["type"] + "): " + '</label><input type="text" class="form-control" placeholder="' + properties[i]["value"] + '"><hr />';
+                    build += '<label>' + properties[i]["key"] + "(" + properties[i]["type"] + "): " + '</label><input type="text" class="form-control" id="' + properties[i]["key"] + '" placeholder="' + properties[i]["value"] + '"><hr />';
                 }
                 $(build).appendTo("#scraperProperties");
             }
@@ -195,6 +237,7 @@ workflowApp.controller('ScraperController', ['$scope', '$http', 'factoryWebsites
             }
             setupTable();
         })
+
         .error(function (response) {
             console.log(response);
         });
@@ -202,20 +245,33 @@ workflowApp.controller('ScraperController', ['$scope', '$http', 'factoryWebsites
 
     function setupTable() {
         $("#scraperEdit").show();
-        $("#editTBody").empty();
-        var $build = "";
+        var localSC = [];
+        var sc = {}
         for (var key in existingScrapers) {
-            $build += '<tr><p><th scope="row"><span class="glyphicon glyphicon-file" ng-click="setupEdit($event)"></span>'
-                    + '<span class="glyphicon glyphicon-trash" ng-click="deleteScraper($event)"></span>'
-                    + '<span class="glyphicon glyphicon-stop" ng-click="stopScraper($event)"></span>'
-                    + '<span class="glyphicon glyphicon-play" ng-click="startScraper($event)"></span></p></th>'
-                    + '<th scope="row" class="guid">' + existingScrapers[key]["Guid"] + '</th>'
-                    + '<th scope="row">' + existingScrapers[key]["Status"] + '</th>'
-                    + '<th scope="row">' + "name" + '</th>'
-                    + '<th scope="row">' + "type" + '</th>'
-                    + '<th scope="row">' + "description" + '</th>';
+            sc = {}
+            sc.guid = existingScrapers[key]["Guid"];
+            sc.status = existingScrapers[key]["Status"];
+            sc.name = "name";
+            sc.type = "type";
+            sc.desc = "description";
+            localSC.push(sc);
         }
-        $("#editTBody").append($compile($build)($scope));
+        $scope.currentScraperList = localSC;
+    }
+
+    function getScraperByGuid(guid) {
+        $http({
+            method: 'get',
+            url: '/api/scraper/',
+            data: JSON.stringify(guid)
+        })
+        .success(function (response) {
+            console.log(response);
+        })
+
+        .error(function (response) {
+            console.log(response);
+        });
     }
 }]);
 

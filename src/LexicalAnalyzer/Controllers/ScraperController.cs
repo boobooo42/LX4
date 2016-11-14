@@ -345,5 +345,45 @@ namespace LexicalAnalyzer.Controllers
             return "";
         }
         */
+        /// <summary>
+        /// Set parameters of a scraper
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// </p>
+        /// </remarks>
+        [HttpGet("api/scraper/twitter/{guid}")]
+        public string getURL(string guid)
+        {
+            IScraper scraper = m_scraperService.GetScraper(guid);
+            if (scraper == null)
+            {
+                var error = new LexicalAnalyzer.Models.Error();
+                error.Message = "Could not find Scraper with the given GUID";
+                return JsonConvert.SerializeObject(error);
+            }
+            
+            return ((Scrapers.TwitterScraper)scraper).TwitterTest();
+        }
+        /// <summary>
+        /// Set parameters of a scraper
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// </p>
+        /// </remarks>
+        [HttpGet("api/scraper/twitter/{pin}/{guid}")]
+        public string setPin(string pin, string guid)
+        {
+            IScraper scraper = m_scraperService.GetScraper(guid);
+            if (scraper == null)
+            {
+                var error = new LexicalAnalyzer.Models.Error();
+                error.Message = "Could not find Scraper with the given GUID";
+                return JsonConvert.SerializeObject(error);
+            }
+            ((Scrapers.TwitterScraper)scraper).FinishUserAuthentication(pin);
+            return JsonConvert.SerializeObject(scraper);
+        }
     }
 }

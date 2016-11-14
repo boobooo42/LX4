@@ -173,12 +173,12 @@ namespace LexicalAnalyzer.Scrapers
             TwitterTest();
         }
 
-        void TwitterTest()
+        public string TwitterTest()
         {
             string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
             string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
-            UserAuthentication(consumerKey, consumerSecret);
-            FullTwitterSample();
+            return UserAuthentication(consumerKey, consumerSecret);
+            //FullTwitterSample();
         }
 
         void FullTwitterSample()
@@ -220,14 +220,14 @@ namespace LexicalAnalyzer.Scrapers
 
 
         }
-
-        void UserAuthentication(string consumerKey, string consumerSecret)
+        IAuthenticationContext authenticationContext;
+        public string UserAuthentication(string consumerKey, string consumerSecret)
         {
             // Create a new set of credentials for the application.
             var appCredentials = new TwitterCredentials(consumerKey, consumerSecret);
 
             // Init the authentication process and store the related `AuthenticationContext`.
-            var authenticationContext = AuthFlow.InitAuthentication(appCredentials);
+            authenticationContext = AuthFlow.InitAuthentication(appCredentials);
 
             string authUrl = authenticationContext.AuthorizationURL;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -242,6 +242,8 @@ namespace LexicalAnalyzer.Scrapers
             {
                 Process.Start("open", authUrl); // Not tested
             }
+            // Go to the URL so that Twitter authenticates the user and gives him a PIN code.
+            return authenticationContext.AuthorizationURL;
 
 
             // Ask the user to enter the pin code given by Twitter
@@ -257,5 +259,15 @@ namespace LexicalAnalyzer.Scrapers
             Auth.SetCredentials(userCredentials);
         }
 
+
+        public void FinishUserAuthentication(string pinCode)
+        {
+            // With this pin code it is now possible to get the credentials back from Twitter
+            var userCredentials = AuthFlow.CreateCredentialsFromVerifierCode(pinCode, authenticationContext);
+
+            // Use the user credentials in your application
+            Auth.SetCredentials(userCredentials);
+            FullTwitterSample();
+        }
     }
 }
