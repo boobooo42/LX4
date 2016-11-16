@@ -164,7 +164,7 @@ namespace LexicalAnalyzer.Scrapers
         #endregion
 
         /// <summary>
-        /// Runs the text scraper
+        /// Runs the twitter scraper
         /// </summary>
         /// <returns></returns>
         public void Run()
