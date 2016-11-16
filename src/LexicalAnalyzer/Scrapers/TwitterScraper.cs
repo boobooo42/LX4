@@ -198,8 +198,8 @@ namespace LexicalAnalyzer.Scrapers
                 // Do what you want with the Tweet.
 
                 ITweet tweet = args.Tweet;
-              //  try
-              //  {
+           //     try
+             //   {
                     //  tweetList.Add(tweet);
                     Debug.WriteLine(tweet);
                     Console.WriteLine(tweet);
@@ -211,9 +211,9 @@ namespace LexicalAnalyzer.Scrapers
                             ScraperUtilities.addCorpusContent("tweet", "tweet", this.Guid, 
                                 this.GetType().FullName, tweet, this.m_context);
                    // }
-              //  }
+             //    }
 
-              //  catch { }
+            //    catch { }
 
             };
             stream.StartStream();
@@ -245,11 +245,11 @@ namespace LexicalAnalyzer.Scrapers
 
 
             // Ask the user to enter the pin code given by Twitter
-            //Debug.WriteLine("enter pin");
-            //Console.WriteLine("enter pin");
+        //    Debug.WriteLine("enter pin");
+          //  Console.WriteLine("enter pin");
               var pinCode = "1"; //Now change pincode in immediate window
-           // var pinCode = Console.ReadLine();
-            // Debug.Assert(false); 
+            // var pinCode = Console.ReadLine();
+          //   Debug.Assert(false); 
             // With this pin code it is now possible to get the credentials back from Twitter
             var userCredentials = AuthFlow.CreateCredentialsFromVerifierCode(pinCode, authenticationContext);
 

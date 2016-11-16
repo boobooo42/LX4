@@ -1,10 +1,13 @@
 using Dapper;
 using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace LexicalAnalyzer.DataAccess
 {
@@ -58,6 +61,33 @@ namespace LexicalAnalyzer.DataAccess
                 conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.ContentBlob WHERE Hash =@Hash)
                             INSERT INTO la.ContentBlob (Hash, Contents) VALUES (@Hash, @Contents)",
                         new { Hash = content.Hash, Contents = content.Content });
+                /// creates a CorpusBlob In merkleNode
+                conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.MerkleNode WHERE Type =@Type)
+                        INSERT INTO la.MerkleNode (Hash,Type,Pinned) VALUES (@Hash,@Type,@Pinned)",
+                    new { Hash = "000000", Type = "CorpusBlobOne", Pinned = 0 });
+                ////pulls all the hash from the contentblob and computes the hash for the corpus blob
+                string stringContent = "";
+                string hashResult = "";
+                SHA256 mySha = SHA256.Create();
+                CorpusRepository corpRepo = new CorpusRepository(m_connectionFactory);
+                List<ContentBlob> contBlob = corpRepo.GetAll();
+                foreach (ContentBlob b in contBlob)
+                {
+                    stringContent = stringContent + b.Hash;
+
+                }
+                //// Converts the string to bytes
+                byte[] byteData = Encoding.UTF8.GetBytes(stringContent);
+                //// hash data computed by SHA256
+                byte[] hashData = mySha.ComputeHash(byteData);
+                //// puts the bytes into a single readable string with the format
+                foreach (byte v in hashData)
+                {
+                    hashResult = hashResult + String.Format("{0:x2}", v);
+                }
+                conn.Execute(@"IF EXISTS (SELECT * FROM la.MerkleNode WHERE Type = @Type) 
+                            UPDATE la.MerkleNode SET Hash = @Hash WHERE Type = @Type",
+                            new { Hash = hashResult, Type = "CorpusBlobOne" });
 
 
 

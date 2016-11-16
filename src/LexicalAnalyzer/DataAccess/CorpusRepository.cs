@@ -12,10 +12,17 @@ namespace LexicalAnalyzer.DataAccess {
         private IDbConnectionFactory m_connectionFactory;
 
         /* Constructors */
-        public CorpusRepository(
-                IDbConnectionFactory connectionFactory)
+        public CorpusRepository(IDbConnectionFactory connectionFactory)
         {
             m_connectionFactory = connectionFactory;
+        }
+        public List<ContentBlob> GetAll()
+        {
+            using (IDbConnection cn = this.Connection())
+            {
+                return cn.Query<ContentBlob>("SELECT Hash FROM la.ContentBlob").ToList();
+            }
+
         }
 
         /* Private methods */
