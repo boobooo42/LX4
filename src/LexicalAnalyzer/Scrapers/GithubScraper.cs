@@ -172,10 +172,10 @@ namespace LexicalAnalyzer.Scrapers
         {
             // Create an implementation of that interface
             // We'll pass in the base URL for the API
-            IGitHubApi api = RestClient.For<IGitHubApi>("http://api.github.com/repositories");
+            IGitHubApi api = RestClient.For<IGitHubApi>("https://api.github.com");
 
             // Now we can simply call methods on it
-            // Sends a GET request to http://api.github.com/repositories
+            // Sends a GET request to https://api.github.com
             List<Repos> repositories = await api.GetReposAsync();
         }
     }

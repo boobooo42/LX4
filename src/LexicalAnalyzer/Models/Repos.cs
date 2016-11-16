@@ -10,27 +10,8 @@ namespace LexicalAnalyzer.Models
         public int id { get; set; }
         public string name { get; set; }
         public string full_name { get; set; }
-        public class owner
-        {
-            public string login { get; set; }
-            public int id { get; set; }
-            public string avatar_url { get; set; }
-            public string gravatar_id { get; set; }
-            public string url { get; set; }
-            public string html_url { get; set; }
-            public string followers_url { get; set; }
-            public string following_url { get; set; }
-            public string gists_url { get; set; }
-            public string starred_url { get; set; }
-            public string subscriptions_url { get; set; }
-            public string organizations_url { get; set; }
-            public string repos_url { get; set; }
-            public string events_url { get; set; }
-            public string received_events_url { get; set; }
-            public string type { get; set; } //not sure on this one
-            public bool site_admin { get; set; }
-        }
-        public bool _private { get; set; } //needs to be private
+        public Owner owner { get; set; }
+        public bool Private { get; set; } //needs to be private
         public string html_url { get; set; }
         public string description { get; set; }
         public string fork { get; set; }
@@ -71,5 +52,25 @@ namespace LexicalAnalyzer.Models
         public string labels_url { get; set; }
         public string releases_url { get; set; }
         public string deployments_url { get; set; }
+    }
+    public class Owner
+    {
+        public string login { get; set; }
+        public int id { get; set; }
+        public string avatar_url { get; set; }
+        public string gravatar_id { get; set; }
+        public string url { get; set; }
+        public string html_url { get; set; }
+        public string followers_url { get; set; }
+        public string following_url { get; set; }
+        public string gists_url { get; set; }
+        public string starred_url { get; set; }
+        public string subscriptions_url { get; set; }
+        public string organizations_url { get; set; }
+        public string repos_url { get; set; }
+        public string events_url { get; set; }
+        public string received_events_url { get; set; }
+        public string type { get; set; } //not sure on this one
+        public bool site_admin { get; set; }
     }
 }
