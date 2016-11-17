@@ -20,7 +20,7 @@ namespace LexicalAnalyzer.Scrapers
     /// <summary>
     /// Scraper for the Debian website
     /// </summary>
-    public class DebianScraper : IScraper
+    public class DebianScraper //: IScraper
     {
         public DebianScraper(ICorpusContext context) {
             m_guid = System.Guid.NewGuid();

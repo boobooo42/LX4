@@ -14,7 +14,7 @@ using Tweetinvi.Models.Entities;
 
 namespace LexicalAnalyzer.Scrapers
 {
-    public class TwitterScraper : IScraper
+    public class TwitterScraper //: IScraper
     {
         private Guid m_guid;
         private string m_status;

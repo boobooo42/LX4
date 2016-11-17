@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using System.Diagnostics;
 
 namespace LexicalAnalyzer.Scrapers
 {
@@ -17,6 +18,11 @@ namespace LexicalAnalyzer.Scrapers
         private float m_progress;
         private int m_priority;
         private ICorpusContext m_context;
+        private int m_downloadCount;
+        private int m_downloadLimit;
+        private Stopwatch m_timer;
+        private int m_timeLimit;
+
 
         public TestScraper(ICorpusContext context) {
             m_guid = System.Guid.NewGuid();
@@ -24,6 +30,10 @@ namespace LexicalAnalyzer.Scrapers
             m_progress = 0.0f;
             m_priority = 0;
             m_context = context;
+            m_downloadCount = 0;
+            m_downloadLimit = 0;
+            m_timer = new Stopwatch();
+            m_timeLimit = 0;
         }
 
         /* Public Interface */
@@ -73,6 +83,50 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        public int downloadCount
+        {
+            get
+            {
+                return m_downloadCount;
+            }
+            set
+            {
+                m_downloadCount = value;
+            }
+        }
+
+        public int downloadLimit
+        {
+            get
+            {
+                return m_downloadLimit;
+            }
+            set
+            {
+                m_downloadLimit = value;
+            }
+        }
+
+        public Stopwatch timer
+        {
+            get
+            {
+                return m_timer;
+            }
+        }
+
+        public int timeLimit
+        {
+            get
+            {
+                return m_timeLimit;
+            }
+            set
+            {
+                m_timeLimit = value;
+            }
+        }
+
         public static IEnumerable<KeyValueProperty> DefaultProperties {
             get {
                 var properties = new List<KeyValueProperty>();
@@ -97,12 +151,23 @@ namespace LexicalAnalyzer.Scrapers
         }
 
         public void Run() {
+            timer.Reset();
+            timer.Start();
             /* Implement a fake scraper that simply waits for a while and
              * periodically increments the progress */
-            while (m_progress < 1.0f) {
+            while (!stop()) {
                 Thread.Sleep(5000);
-                m_progress += 0.1f;
+                downloadCount++;
+                m_progress = downloadCount / downloadLimit;
             }
+        }
+
+        public bool stop()
+        {
+            if (downloadCount >= downloadLimit || timer.ElapsedMilliseconds >= timeLimit * 1000)
+                return true;
+            else
+                return false;
         }
     }
 }
