@@ -31,20 +31,15 @@ namespace LexicalAnalyzer.DataAccess
         public void Add(CorpusContent content)
         {
             Debug.Assert(content.Id == -1);
-            try
-            {
+
                 using (var conn = this.Connection())
                 {
-                    using (var tran = conn.BeginTransaction())
-                    {
-                        try
-                        {
                             conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.CorpusContent WHERE Hash =@Hash)
                         INSERT INTO la.CorpusContent
                             (CorpusId, Hash, Name, Type,
-                             DownloadURL )
+                             DownloadURL, Long, Lat )
                             VALUES ( @CorpusId, @Hash, @Name, @Type,
-                                @DownloadURL )
+                                @DownloadURL, @Long, @Lat )
                             ", new
                             {
 
@@ -52,22 +47,12 @@ namespace LexicalAnalyzer.DataAccess
                                 Hash = content.Hash,
                                 Name = content.Name,
                                 Type = content.Type,
-                                DownloadUrl = content.DownloadURL
+                                DownloadUrl = content.URL,
+                                Long = content.Long,
+                                Lat = content.Lat
                             });
-                            tran.Commit();
-                        }
-                        catch (System.Exception e)
-                        {
-                            tran.Rollback();
-                            throw new System.Exception(" Error in commiting");
-                        }
-                    }
                 }
-            }
-            catch (System.Exception e)
-            {
-                throw new System.Exception(" Inserting error");
-            }
+            
                 /* TODO: Check for flyweight CorpusContent objects */
                 /* TODO: Make sure the contents are somehow added to the Merkle
                  * tree as a ContentBlob */

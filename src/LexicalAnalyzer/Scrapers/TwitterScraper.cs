@@ -4,6 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Tweetinvi;
 using Tweetinvi.Models;
@@ -170,16 +173,19 @@ namespace LexicalAnalyzer.Scrapers
             TwitterTest();
         }
 
-        void TwitterTest()
+        public string TwitterTest()
         {
             string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
             string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
-            UserAuthentication(consumerKey, consumerSecret);
-            FullTwitterSample();
+            return UserAuthentication(consumerKey, consumerSecret);
+            //FullTwitterSample();
         }
 
         void FullTwitterSample()
         {
+
+
+            List<ITweet> tweetList = new List<ITweet>();
 
             // Enable Automatic RateLimit handling
             RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
@@ -190,25 +196,21 @@ namespace LexicalAnalyzer.Scrapers
             stream.TweetReceived += (sender, args) =>
             {
                 // Do what you want with the Tweet.
-                
-                var tweet = args.Tweet;
-                string text = tweet.Text;
-                //string text = tweet.FullText;  //We may want this instead
-                ICoordinates location = tweet.Coordinates;              
-                DateTime timeCreated = tweet.CreatedAt;
-                long id = tweet.Id;
-                string authorName = tweet.CreatedBy.Name;
-                List<string> hashtags = new List<string>();
-                foreach(IHashtagEntity h in tweet.Hashtags)                
-                    hashtags.Add(h.Text);               
-                string url = tweet.Url;
-                string language = tweet.Language.ToString();
-                string source = tweet.Source; // not sure what this is
 
+                ITweet tweet = args.Tweet;
                 try
                 {
-                    
+                    //  tweetList.Add(tweet);
+                    Debug.WriteLine(tweet);
                     Console.WriteLine(tweet);
+
+                    //if (tweetList.Count > 10)
+                    //{
+                    //    stream.StopStream();
+                     //   foreach (ITweet tweet2 in tweetList)
+                            ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid, 
+                                this.GetType().FullName, tweet, this.m_context);
+                   // }
                 }
 
                 catch { }
@@ -218,24 +220,38 @@ namespace LexicalAnalyzer.Scrapers
 
 
         }
-
-        void UserAuthentication(string consumerKey, string consumerSecret)
+        IAuthenticationContext authenticationContext;
+        public string UserAuthentication(string consumerKey, string consumerSecret)
         {
             // Create a new set of credentials for the application.
             var appCredentials = new TwitterCredentials(consumerKey, consumerSecret);
 
             // Init the authentication process and store the related `AuthenticationContext`.
-            var authenticationContext = AuthFlow.InitAuthentication(appCredentials);
+            authenticationContext = AuthFlow.InitAuthentication(appCredentials);
 
+            string authUrl = authenticationContext.AuthorizationURL;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start(new ProcessStartInfo("cmd", $"/c start {authUrl}")); // Works ok on windows
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Process.Start("xdg-open", authUrl);  // Works ok on linux
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", authUrl); // Not tested
+            }
             // Go to the URL so that Twitter authenticates the user and gives him a PIN code.
-            Console.WriteLine(authenticationContext.AuthorizationURL);
+            return authenticationContext.AuthorizationURL;
 
-            //Process.Start(authenticationContext.AuthorizationURL);
 
             // Ask the user to enter the pin code given by Twitter
+            Debug.WriteLine("enter pin");
             Console.WriteLine("enter pin");
+            //  var pinCode = "1"; //Now change pincode in immediate window
             var pinCode = Console.ReadLine();
-
+            // Debug.Assert(false); 
             // With this pin code it is now possible to get the credentials back from Twitter
             var userCredentials = AuthFlow.CreateCredentialsFromVerifierCode(pinCode, authenticationContext);
 
@@ -243,5 +259,15 @@ namespace LexicalAnalyzer.Scrapers
             Auth.SetCredentials(userCredentials);
         }
 
+
+        public void FinishUserAuthentication(string pinCode)
+        {
+            // With this pin code it is now possible to get the credentials back from Twitter
+            var userCredentials = AuthFlow.CreateCredentialsFromVerifierCode(pinCode, authenticationContext);
+
+            // Use the user credentials in your application
+            Auth.SetCredentials(userCredentials);
+            FullTwitterSample();
+        }
     }
 }

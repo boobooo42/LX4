@@ -12,6 +12,7 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Tweetinvi.Models;
 
 namespace LexicalAnalyzer.Scrapers
 {
@@ -400,56 +401,79 @@ namespace LexicalAnalyzer.Scrapers
             Database.DatabaseTools.createFile(System.Text.Encoding.UTF8.GetString(input));
         }
 
-        /// <summary>
-        /// creates a corpus content and adds it to the corpur content repository
-        /// </summary>
-        /// <param name="Id"></param>
-        /// <param name="Hash"></param>
-        /// <param name="Name"></param>
-        /// <param name="Type"></param>
-        /// <param name="ScraperGuid"></param>
-        /// <param name="ScraperType"></param>
-        /// <param name="DownloadDate"></param>
-        /// <param name="DownloadURL"></param>
-        /// <param name="Content"></param>
-        /// <param name="corpContent"></param>
-       public static void addCorpusContent(long Id, string Hash, string Name, string Type,
+
+       public static void addCorpusContent(string Name, string Type,
     Guid ScraperGuid, string ScraperType, DateTime DownloadDate, string DownloadURL,
     byte[] Content, ICorpusContext m_context)
         {
             CorpusContent corpContent = new CorpusContent();
 
-            /* creates hash of byte array*/
-            string hashResult = "";
-            SHA256 shaHash = SHA256.Create();
-            // Convert the input string to a byte array and compute the hash.
-            byte[] data = shaHash.ComputeHash(Content);
-            hashResult = "";
-
-            // Loop through each byte of the hashed data 
-            // and format each one as a hexadecimal string.
-            /* for (int i = 0; i < data.Length; i++)
-             {
-                 sBuilder.Append(data[i].ToString("x2"));
-             }*/
-            //// puts the bytes into a single readable string with the format
-            foreach (byte v in data)
-            {
-                hashResult = hashResult + String.Format("{0:x2}", v);
-            }
-            // Hash = sBuilder.ToString(); //change hash to real hash
-
-
-            //corpContent.Id = Id;
-            corpContent.Hash = hashResult;
+            corpContent.Hash = hashContent(corpContent.Content);
             corpContent.Name = Name;
             corpContent.Type = Type;
             corpContent.ScraperGuid = ScraperGuid;
             corpContent.ScraperType = ScraperType;
             corpContent.DownloadDate = DownloadDate;
-            corpContent.DownloadURL = DownloadURL;
+            corpContent.URL = DownloadURL;
             corpContent.Content = Content;
             m_context.CorpusContentRepository.Add(corpContent);
+        }
+
+        /// <summary>
+        /// creates a corpus content from a tweet
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="Type"></param>
+        /// <param name="ScraperGuid"></param>
+        /// <param name="ScraperType"></param>
+        /// <param name="tweet"></param>
+        /// <param name="m_context"></param>
+        public static void addCorpusContent(string Name, string Type,
+     Guid ScraperGuid, string ScraperType, ITweet tweet, ICorpusContext m_context)
+        {
+
+            CorpusContent corpContent = new CorpusContent();
+            corpContent.Name = Name;
+            corpContent.Type = Type;
+            corpContent.ScraperGuid = ScraperGuid;
+            corpContent.ScraperType = ScraperType;
+            corpContent.Content = Encoding.ASCII.GetBytes(tweet.Text);
+            corpContent.DownloadDate= tweet.CreatedAt;
+            corpContent.URL = tweet.Url;
+            if (tweet.Coordinates != null) //may be null if tweet does not have a location
+            {
+                corpContent.Lat = (float)tweet.Coordinates.Latitude;
+                corpContent.Long = (float)tweet.Coordinates.Longitude;
+            }
+            corpContent.TweetID = tweet.Id;
+            corpContent.AuthorName = tweet.CreatedBy.Name;
+            //corpContent.Hashtags = tweet.Hashtags;
+            corpContent.Language = tweet.Language.GetType().FullName;
+           // corpContent.Source = source;            
+
+            corpContent.Hash = hashContent(corpContent.Content);
+            m_context.CorpusContentRepository.Add(corpContent);
+        }
+
+        /// <summary>
+        /// makes a SHA256 hash of a byte array
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        static string hashContent(byte[] content)
+        {
+            /* creates hash of byte array*/
+            string hashResult = "";
+            SHA256 shaHash = SHA256.Create();
+            // Convert the input string to a byte array and compute the hash.
+            byte[] data = shaHash.ComputeHash(content);
+
+            //// puts the bytes into a single readable string with the format
+            foreach (byte v in data)
+            {
+                hashResult = hashResult + String.Format("{0:x2}", v);
+            }
+            return hashResult;
         }
     }
 }
