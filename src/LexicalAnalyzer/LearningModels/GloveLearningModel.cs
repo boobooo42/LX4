@@ -3,6 +3,7 @@ using LexicalAnalyzer.Models;
 using LexicalAnalyzer.Services;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
@@ -45,6 +46,7 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
         public void Run() {
+            test(2);
             /* Waits and does nothing */
             while (Progress < 1.0f) {
                 Thread.Sleep(5000);
@@ -67,6 +69,9 @@ namespace LexicalAnalyzer.Scrapers
                 return "vast knowledge";
             }
         }
+
+        [DllImport("deeplearning.dll")]
+        public static extern int test(int foo);
     }
 
     public class CooccurArgs {
