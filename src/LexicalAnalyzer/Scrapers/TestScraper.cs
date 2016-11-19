@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using System.Diagnostics;
 
 namespace LexicalAnalyzer.Scrapers
 {
@@ -17,6 +18,12 @@ namespace LexicalAnalyzer.Scrapers
         private float m_progress;
         private int m_priority;
         private ICorpusContext m_context;
+        private int m_downloadCount;
+        private int m_downloadLimit;
+        private Stopwatch m_timer;
+        private int m_timeLimit;
+        private List<KeyValueProperty> m_properties;
+
 
         public TestScraper(ICorpusContext context) {
             m_guid = System.Guid.NewGuid();
@@ -24,6 +31,10 @@ namespace LexicalAnalyzer.Scrapers
             m_progress = 0.0f;
             m_priority = 0;
             m_context = context;
+            m_downloadCount = 0;
+            m_downloadLimit = 0;
+            m_timer = new Stopwatch();
+            m_timeLimit = 0;
         }
 
         /* Public Interface */
@@ -73,14 +84,62 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        public int DownloadCount
+        {
+            get
+            {
+                return m_downloadCount;
+            }
+        }
+        public int DownloadLimit
+        {
+            get
+            {
+                return m_downloadLimit;
+            }
+
+            set
+            {
+                m_downloadLimit = value;
+            }
+        }
+
+        public Stopwatch Timer
+        {
+            get
+            {
+                return m_timer;
+            }
+        }
+
+        public int TimeLimit
+        {
+            get
+            {
+                return m_timeLimit;
+            }
+
+            set
+            {
+                m_timeLimit = value;
+            }
+        }
+
         public static IEnumerable<KeyValueProperty> DefaultProperties {
-            get {
+            get
+            {
                 var properties = new List<KeyValueProperty>();
                 properties.Add(
                         new KeyValueProperty(
-                            "timeout",  /* key */
+                            "timelimit",  /* key */
                             "30",  /* defaultValue */
                             "seconds"  /* type */
+                            ));
+                properties.Add(
+                        new KeyValueProperty(
+                            "downloadlimit",  /* key */
+                            "30",  /* defaultValue */
+                            "items"  /* type */
                             ));
                 properties.Add(
                         new KeyValueProperty(
@@ -93,16 +152,50 @@ namespace LexicalAnalyzer.Scrapers
         }
 
         public IEnumerable<KeyValueProperty> Properties {
-            get; set;
+            get { return m_properties;  }
+            set
+            {
+                foreach (var property in value)
+                {
+                    if (property.Key == "timeLimit")
+                        TimeLimit = int.Parse(property.Value);
+                    else if (property.Key == "downloadlimit")
+                        DownloadLimit = int.Parse(property.Value);
+                }
+                m_properties = new List<KeyValueProperty>(value);
+            }
         }
 
+
         public void Run() {
+            m_timer.Reset();
+            m_timer.Start();
             /* Implement a fake scraper that simply waits for a while and
              * periodically increments the progress */
-            while (m_progress < 1.0f) {
+            while (!downloadStop() && !timeStop()) {
                 Thread.Sleep(5000);
-                m_progress += 0.1f;
+                m_downloadCount++;
+                m_progress = m_downloadCount / m_downloadLimit;
             }
+        }
+
+        public bool downloadStop()
+        {
+            if (DownloadCount >= DownloadLimit)
+                return true;
+            else
+                return false;
+        }
+
+        public bool timeStop()
+        {
+            if (m_timer.ElapsedMilliseconds >= TimeLimit * 1000)
+            {
+                m_timer.Reset();
+                return true;
+            }
+            else
+                return false;
         }
     }
 }

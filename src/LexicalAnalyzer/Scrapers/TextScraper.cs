@@ -15,7 +15,7 @@ namespace LexicalAnalyzer.Scrapers
     /// <summary>
     /// Scraper for the Project Gutenberg website
     /// </summary>
-    public class TextScraper : IScraper
+    public class TextScraper //: IScraper
     {
         private Guid m_guid;
         private string m_status;

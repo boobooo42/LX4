@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace LexicalAnalyzer.Scrapers
 {
-    public class GithubScraper : IScraper
+    public class GithubScraper //: IScraper
     {
         private Guid m_guid;
         private string m_status;
