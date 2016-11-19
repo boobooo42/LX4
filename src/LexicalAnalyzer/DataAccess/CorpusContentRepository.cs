@@ -88,6 +88,11 @@ namespace LexicalAnalyzer.DataAccess
                 conn.Execute(@"IF EXISTS (SELECT * FROM la.MerkleNode WHERE Type = @Type) 
                             UPDATE la.MerkleNode SET Hash = @Hash WHERE Type = @Type",
                             new { Hash = hashResult, Type = "CorpusBlobOne" });
+                //// deletes corpusBlob table to be updated
+                conn.Execute(@"DELETE FROM la.CorpusBlob");
+                conn.Execute(@"INSERT INTO la.CorpusBLob (Hash) VALUES (@Hash)", new { Hash = hashResult });
+                //
+
 
 
 
