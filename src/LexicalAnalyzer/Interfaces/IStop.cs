@@ -8,11 +8,12 @@ namespace LexicalAnalyzer.Interfaces
 {
     public interface IStop
     {
-        int downloadCount { get; }
-        int downloadLimit { get; }
-        Stopwatch timer { get; }
-        int timeLimit { get; }
+        int DownloadCount { get; }
+        int DownloadLimit { get; set; }
+        Stopwatch Timer { get; }
+        int TimeLimit { get; set; }
 
-        bool stop();
+        bool downloadStop();
+        bool timeStop();
     }
 }
