@@ -70,6 +70,18 @@ namespace LexicalAnalyzer.Scrapers
         }
 
         /// <summary>
+        /// Gets the scraper type
+        /// </summary>
+        /// <returns></returns>
+        public string Type
+        {
+            get
+            {
+                return this.GetType().FullName;
+            }
+        }
+
+        /// <summary>
         /// Gets the display name
         /// </summary>
         /// <returns></returns>

@@ -37,6 +37,18 @@ namespace LexicalAnalyzer.Scrapers
 
         #region Properties
         /// <summary>
+        /// Gets the scraper type
+        /// </summary>
+        /// <returns></returns>
+        public string Type
+        {
+            get
+            {
+                return this.GetType().FullName;
+            }
+        }
+
+        /// <summary>
         /// Gets guid
         /// </summary>
         /// <returns></returns>

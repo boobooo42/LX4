@@ -25,6 +25,10 @@ namespace LexicalAnalyzer.Interfaces
             get;
         }
         */
+        string  Type
+        {
+            get;
+        }
 
         IEnumerable<KeyValueProperty> Properties {
             get; set;

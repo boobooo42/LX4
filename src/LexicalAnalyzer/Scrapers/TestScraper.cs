@@ -27,6 +27,17 @@ namespace LexicalAnalyzer.Scrapers
         }
 
         /* Public Interface */
+        /// <summary>
+        /// Gets the scraper type
+        /// </summary>
+        /// <returns></returns>
+        public string Type
+        {
+            get
+            {
+                return this.GetType().FullName;
+            }
+        }
         public Guid Guid {
             get {
                 return m_guid;
