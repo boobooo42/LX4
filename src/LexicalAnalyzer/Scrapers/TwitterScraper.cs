@@ -21,6 +21,7 @@ namespace LexicalAnalyzer.Scrapers
         private float m_progress;
         private int m_priority;
         private ICorpusContext m_context;
+        private bool m_authorized;
 
         /// <summary>
         /// Constructor
@@ -68,7 +69,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             get { return "Twitter Scraper"; }
         }
-
+        public string DName { get { return "Twitter Scraper"; } }
         /// <summary>
         /// Gets description--is hardcoded
         /// </summary>
@@ -81,6 +82,10 @@ namespace LexicalAnalyzer.Scrapers
                     @"A scraper used for scraping tweets from Twitter.";
             }
         }
+        public string Desc
+        {
+            get { return @"A scraper used for scraping tweets from Twitter."; }
+        }
 
         /// <summary>
         /// Gets content type --is hardcoded
@@ -92,6 +97,11 @@ namespace LexicalAnalyzer.Scrapers
             {
                 return "tweets";
             }
+        }
+
+        public bool Authorized
+        {
+            get { return m_authorized; }
         }
 
         /// <summary>
@@ -182,7 +192,7 @@ namespace LexicalAnalyzer.Scrapers
         public void Run()
         {
             Debug.Assert(false);
-            TwitterTest();
+            FullTwitterSample();
         }
 
         public string TwitterTest()
@@ -241,6 +251,8 @@ namespace LexicalAnalyzer.Scrapers
             // Init the authentication process and store the related `AuthenticationContext`.
             authenticationContext = AuthFlow.InitAuthentication(appCredentials);
 
+            return authenticationContext.AuthorizationURL;
+
             string authUrl = authenticationContext.AuthorizationURL;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -255,7 +267,6 @@ namespace LexicalAnalyzer.Scrapers
                 Process.Start("open", authUrl); // Not tested
             }
             // Go to the URL so that Twitter authenticates the user and gives him a PIN code.
-            return authenticationContext.AuthorizationURL;
 
 
             // Ask the user to enter the pin code given by Twitter
@@ -279,7 +290,7 @@ namespace LexicalAnalyzer.Scrapers
 
             // Use the user credentials in your application
             Auth.SetCredentials(userCredentials);
-            FullTwitterSample();
+            m_authorized = true;
         }
     }
 }

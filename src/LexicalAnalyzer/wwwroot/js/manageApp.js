@@ -2,7 +2,6 @@ var manageApp = angular.module("manageApp", ['ngRoute']);
 
 manageApp.controller("ManageController", function ($scope, $http) {
     $scope.init = function () {
-        getTypes();
         getExistingScrapers();
     }
     $scope.init();
@@ -12,13 +11,13 @@ manageApp.controller("ManageController", function ($scope, $http) {
     $scope.editScraper = function (e) {
         var target = $(e.target);
         var guid = target.parent().parent().siblings(".guid").text().trim();
-        var tempObj;
-        console.log(guid);
-        for(var key in existingScrapers) {
-            if(existingScrapers[key]["Guid"] == guid)
-                tempObj = existingScrapers[key]
-        }
-        localStorage.setItem("guid", JSON.stringify(tempObj));
+        //var tempObj;
+        //for(var key in existingScrapers) {
+        //    if(existingScrapers[key]["Guid"] == guid)
+        //        tempObj = existingScrapers[key]
+        //}
+        //console.log(tempObj);
+        localStorage.setItem("guid", guid);
         window.location.href = "Scraper";
     }
 
@@ -39,7 +38,7 @@ manageApp.controller("ManageController", function ($scope, $http) {
         });
     }
 
-    $scope.stopScraper = function (e) {
+    $scope.pauseScraper = function (e) {
         var target = $(e.target);
         var guid = target.parent().parent().siblings(".guid").text().trim();
         $http({
@@ -59,39 +58,40 @@ manageApp.controller("ManageController", function ($scope, $http) {
         var target = $(e.target);
         var guid = target.parent().parent().siblings(".guid").text().trim();
         var type = target.parent().parent().siblings(".type").text().trim();
-        $http({
-            method: 'post',
-            url: '/api/scraper/' + guid + '/start'
-        })
-        .success(function (response) {
-            console.log(response);
-            getExistingScrapers();
-        })
-        .error(function () {
+        if(isTwitterandAuth(type, guid)) {
+            getTwitterAuth(guid, e);
+        } else {
+            $http({
+                method: 'post',
+                url: '/api/scraper/' + guid + '/start'
+            })
+            .success(function (response) {
+                console.log(response);
+                getExistingScrapers();
+            })
+            .error(function () {
 
-        });
-    }
-
-    $scope.displayDesc = function (e) {
-        var target = $(e.target);
-        var guid = target.siblings(".guid").text().trim();
-        for (var key in existingScrapers) {
-            if (existingScrapers[key]["Guid"] == guid) {
-                alert(existingScrapers[key]["Description"]);
-            }
+            });
         }
     }
 
-    function getTwitterAuth(guid) {
-        var target = $(e.target);
+    function isTwitterandAuth(type, guid) {
+        if (type == "Twitter Scraper") {
+            twitScraper = getScraperByGuid(guid);
+            return !twitScraper["Authorized"];
+        } else
+            return false;
+    }
+
+    function getTwitterAuth(guid, e) {
         $("#twitterPin").value = "";
         $http({
             method: 'get',
             url: '/api/scraper/twitter/' + guid
         })
         .success(function (response) {
-            $("#twitterPinBody").empty();
-            $('<a target="_blank" href= "' + response + '">Twitter Auth</a>').appendTo("#twitterPinBody");
+            console.log(response);
+            $scope.twitterAuthURL = response;
             $("#twitterAuth").modal('show');
             $("#submitPin").click(function () {
                 var tPin = $("#twitterPin").val().trim();
@@ -101,83 +101,20 @@ manageApp.controller("ManageController", function ($scope, $http) {
                 })
                 .success(function (response) {
                     console.log(response);
+                    $("#twitterAuth").modal('hide');
+                    $scope.startScraper(e);
                 })
-                .error(function () {
-
+                .error(function (response) {
+                    $("#twitterAuth").modal('hide');
+                    alert("auth failed" + response);
                 });
             });
         })
-        .error(function () {
-
+        .error(function (response) {
+            console.log(response);
         });
     }
 
-    var types = {};
-
-    function getTypes() {
-        $http({
-            method: 'get',
-            url: '/api/scraper/types'
-        })
-            .success(function (response) {
-                if (response !== 'undefined') {
-                    for (var key in response) {
-                        types[response[key]["type"]] = response[key];
-                        types[response[key]["type"]] = {};
-                        for (var key2 in response[key]) {
-                            if (key2 !== "type") {
-                                types[response[key]["type"]][key2] = response[key][key2];
-                            }
-                        }
-                    }
-
-                    setupForm();
-                }
-            })
-            .error(function () {
-
-            });
-
-        function setupForm() {
-            // scrapers
-
-            var tempArr = {};
-            for (var key in types) {
-                tempArr[key] = key;
-            }
-            $scope.scrapers = tempArr;
-            $("#scrapers").change(updateDescription);
-        }
-
-        function updateDescription() {
-            $("#scraperContent").empty();
-            var selected = $("#scrapers").find(":selected").val();
-            if (selected) {
-                var localBuild = "";
-                for (var key in types[selected]) {
-                    if (key !== "properties") {
-                        localBuild += "<div><h4>" + key + "</h4>";
-                        localBuild += types[selected][key] + "<hr /></div>";
-                    }
-                }
-                $(localBuild).appendTo("#scraperContent");
-            }
-            listProperties();
-        }
-
-        function listProperties() {
-            build = "";
-            var selected = $("#scrapers").find(":selected").val();
-            if (selected) {
-                $("#scraperProperties").empty();
-                properties = types[selected]["properties"];
-                for (var i = 0; i < properties.length; i++) {
-                    build += '<label>' + properties[i]["key"] + "(" + properties[i]["type"] + "): " + '</label><input type="text" class="form-control" id="' + properties[i]["key"] + '" placeholder="' + properties[i]["value"] + '"><hr />';
-                }
-                $(build).appendTo("#scraperProperties");
-            }
-        }
-    }
 
     function getExistingScrapers() {
         existingScrapers = [];
@@ -206,10 +143,11 @@ manageApp.controller("ManageController", function ($scope, $http) {
                 url: '/api/scraper/' + existingScrapers[key]["Guid"]
             })
             .success(function (response) {
-                console.log(response);
-                console.log(existingScrapers);
                 incrementCount();
             })
+            .error(function (response) {
+                console.log("getScraperDetails() failed: " + response)
+            });
         }
     }
 
@@ -219,7 +157,7 @@ manageApp.controller("ManageController", function ($scope, $http) {
         if (current == count) {
             setupTable();
         }
-    } 
+    }
 
     function setupTable() {
         $("#scraperEdit").show();
@@ -232,26 +170,85 @@ manageApp.controller("ManageController", function ($scope, $http) {
             sc.priority = existingScrapers[key]["Priority"];
             sc.progress = existingScrapers[key]["Progress"];
             sc.name = "name";
-            sc.type = "type";
-            sc.desc = "description";
+            sc.type = existingScrapers[key]["DName"];
+            sc.desc = existingScrapers[key]["Desc"];
             localSC.push(sc);
         }
         $scope.currentScraperList = localSC;
     }
 
     function getScraperByGuid(guid) {
-        $http({
-            method: 'get',
-            url: '/api/scraper/',
-            data: JSON.stringify(guid)
-        })
-        .success(function (response) {
-            console.log(response);
-        })
-
-        .error(function (response) {
-            console.log(response);
-        });
+        for (var key in existingScrapers)
+            if (existingScrapers[key]["Guid"] == guid)
+                return existingScrapers[key];
+        return {};
     }
 
+
+    //var types = {};
+
+    //function getTypes() {
+    //    $http({
+    //        method: 'get',
+    //        url: '/api/scraper/types'
+    //    })
+    //        .success(function (response) {
+    //            if (response !== 'undefined') {
+    //                for (var key in response) {
+    //                    types[response[key]["type"]] = response[key];
+    //                    types[response[key]["type"]] = {};
+    //                    for (var key2 in response[key]) {
+    //                        if (key2 !== "type") {
+    //                            types[response[key]["type"]][key2] = response[key][key2];
+    //                        }
+    //                    }
+    //                }
+
+    //                setupForm();
+    //            }
+    //        })
+    //        .error(function () {
+
+    //        });
+
+    //    function setupForm() {
+    //        // scrapers
+
+    //        var tempArr = {};
+    //        for (var key in types) {
+    //            tempArr[key] = key;
+    //        }
+    //        $scope.scrapers = tempArr;
+    //        $("#scrapers").change(updateDescription);
+    //    }
+
+    //    function updateDescription() {
+    //        $("#scraperContent").empty();
+    //        var selected = $("#scrapers").find(":selected").val();
+    //        if (selected) {
+    //            var localBuild = "";
+    //            for (var key in types[selected]) {
+    //                if (key !== "properties") {
+    //                    localBuild += "<div><h4>" + key + "</h4>";
+    //                    localBuild += types[selected][key] + "<hr /></div>";
+    //                }
+    //            }
+    //            $(localBuild).appendTo("#scraperContent");
+    //        }
+    //        listProperties();
+    //    }
+
+    //    function listProperties() {
+    //        build = "";
+    //        var selected = $("#scrapers").find(":selected").val();
+    //        if (selected) {
+    //            $("#scraperProperties").empty();
+    //            properties = types[selected]["properties"];
+    //            for (var i = 0; i < properties.length; i++) {
+    //                build += '<label>' + properties[i]["key"] + "(" + properties[i]["type"] + "): " + '</label><input type="text" class="form-control" id="' + properties[i]["key"] + '" placeholder="' + properties[i]["value"] + '"><hr />';
+    //            }
+    //            $(build).appendTo("#scraperProperties");
+    //        }
+    //    }
+    //}
 });

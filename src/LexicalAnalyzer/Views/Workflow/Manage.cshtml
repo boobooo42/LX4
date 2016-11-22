@@ -14,10 +14,13 @@
                         <button type="button" class="close" data-dismiss="modal" data-toggle="collapse" data-target="#collapseArea" aria-expanded="true" aria-controls="collapseArea">&times;</button>
                         <h4 class="modal-title">Retrieve Pin</h4>
                     </div>
-                    <div class="modal-body" id="twitterPinBody"></div>
+                    <div class="modal-body" id="twitterPinBody">
+                        <p>Click to get PIN: <a target="_blank" href="{{twitterAuthURL}}">Twitter Authentication</a></p><br/>
+                        <p>Enter Pin:</p>
+                        <input type="text" class="form-control" id="twitterPin" placeholder="Twitter Pin" />
+                    </div>
                     <div class="modal-footer">
-                        <input type="text" class="form-control" id="twitterPin">
-                        <button type="button" class="btn btn-default" id="submitPin">acceptPin</button>
+                        <button type="button" class="btn btn-default" id="submitPin">Submit Pin</button>
                     </div>
                 </div>
             </div>
@@ -42,14 +45,14 @@
                             <p>
                                 <span class="glyphicon glyphicon-file" ng-click="editScraper($event)"></span>
                                 <span class="glyphicon glyphicon-trash" ng-click="deleteScraper($event)"></span>
-                                <span class="glyphicon glyphicon-pause" ng-click="stopScraper($event)"></span>
+                                <span class="glyphicon glyphicon-pause" ng-click="pauseScraper($event)"></span>
                                 <span class="glyphicon glyphicon-play" ng-click="startScraper($event)"></span>
                             </p>
                         </th>
                         <th scope="row" class="guid"> {{scraper.guid}} </th>
                         <th scope="row"> {{scraper.status}} </th>
                         <th scope="row"> {{scraper.name}} </th>
-                        <th scope="row" ng-mouseover="displayDesc($event)"> {{scraper.type}} </th>
+                        <th scope="row" title="{{scraper.desc}}" class="type"> {{scraper.type}} </th>
                         <th scope="row"> {{scraper.progress}} </th>
                         <th scope="row"> {{scraper.priority}} </th>
                     </tr>

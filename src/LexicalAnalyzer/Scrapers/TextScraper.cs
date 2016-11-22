@@ -68,7 +68,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             get { return "Text Scraper"; }
         }
-
+        public string DName { get { return "Test Scraper"; } }
         /// <summary>
         /// Gets description--is hardcoded
         /// </summary>
@@ -81,6 +81,10 @@ namespace LexicalAnalyzer.Scrapers
                     @"A scraper used for scraping the project
                     gutenberg website.";
             }
+        }
+        public string Desc
+        {
+            get { return @"A scraper used for scraping the project gutenberg website."; }
         }
 
         /// <summary>
