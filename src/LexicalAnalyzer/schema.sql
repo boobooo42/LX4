@@ -40,6 +40,8 @@ CREATE TABLE la.MerkleNode(
     CONSTRAINT PK_MerkleNode PRIMARY KEY (Hash)
     );
 
+
+
 CREATE TABLE la.MerkleEdge(
     ParentHash char(64) NOT NULL,
     ChildHash char(64) NOT NULL,
@@ -129,28 +131,36 @@ ALTER TABLE la.LearningModelBlob
 ALTER TABLE la.CorpusBlob
     WITH CHECK ADD CONSTRAINT FK_CorpusBlob_MerkleNode
         FOREIGN KEY (Hash)
-        REFERENCES la.MerkleNode (Hash);
+        REFERENCES la.MerkleNode (Hash)
+				ON UPDATE CASCADE
+		ON DELETE CASCADE;
 ALTER TABLE la.CorpusBlob
     CHECK CONSTRAINT FK_CorpusBlob_MerkleNode;
 
 ALTER TABLE la.ContentBlob
     WITH CHECK ADD CONSTRAINT FK_ContentBlob_MerkleNode
         FOREIGN KEY (Hash)
-        REFERENCES la.MerkleNode (Hash);
+        REFERENCES la.MerkleNode (Hash)
+				ON UPDATE CASCADE
+		ON DELETE CASCADE;
 ALTER TABLE la.ContentBlob
     CHECK CONSTRAINT [FK_ContentBlob_MerkleNode];
 
 ALTER TABLE la.MerkleEdge
     WITH CHECK ADD CONSTRAINT FK_MerkleNode_MerkleEdge_Parent
         FOREIGN KEY (ParentHash)
-        REFERENCES la.MerkleNode (Hash);
+        REFERENCES la.MerkleNode (Hash)
+		ON UPDATE CASCADE
+		ON DELETE CASCADE;
 ALTER TABLE la.[MerkleEdge]
     CHECK CONSTRAINT FK_MerkleNode_MerkleEdge_Parent;
 
 ALTER TABLE la.MerkleEdge
     WITH CHECK ADD CONSTRAINT FK_MerkleNode_MerkleEdge_Child
         FOREIGN KEY (ChildHash)
-        REFERENCES la.MerkleNode (Hash);
+        REFERENCES la.MerkleNode (Hash)
+				ON UPDATE CASCADE
+		ON DELETE CASCADE;
 ALTER TABLE la.[MerkleEdge]
     CHECK CONSTRAINT FK_MerkleNode_MerkleEdge_Child;
 
