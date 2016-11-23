@@ -12,10 +12,11 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AspNet.Security.OAuth.GitHub;
 
 namespace LexicalAnalyzer.Scrapers
 {
-    public class GithubScraper //: IScraper
+    public class GithubScraper : IScraper
     {
         private Guid m_guid;
         private string m_status;
@@ -181,6 +182,7 @@ namespace LexicalAnalyzer.Scrapers
         private void ScrapeGitHub()
         {
             //  string x = ScrapeRepo().Result;
+            GetAccessToken();
             Uri uri = new Uri("https://api.github.com/repos/LunarG/VulkanTools");
             var tags = GetRepoTags(uri).Result;
             Uri tagURI = new Uri(tags[0].zipball_url);
@@ -188,6 +190,22 @@ namespace LexicalAnalyzer.Scrapers
             var decompedA = Decompress(byteA);
         }
 
+        private async void GetAccessToken()
+        {
+
+            //var auth = AspNet.Security.OAuth.GitHub.GitHubAuthenticationDefaults.
+            Uri gitHubUri = new Uri("https://api.github.com");
+            // Create an implementation of that interface
+            // We'll pass in the base URL for the API
+            IGitHubApi api = RestClient.For<IGitHubApi>(gitHubUri.AbsoluteUri);
+
+            // Sends a GET request to https://api.github.com
+
+
+            var repositories = await api.GetTokenAsync();
+
+            string tokenString = "66d32909b6aafe5f7b311984f303b3df25e2d7fe";
+        }
         private async Task<string> ScrapeRepo()
         {
             Uri gitHubUri = new Uri("https://api.github.com");

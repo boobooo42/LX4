@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using RestEase;
 using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Models;
+using System.Net.Http;
 
 namespace LexicalAnalyzer.Interfaces
 {
@@ -22,5 +23,10 @@ namespace LexicalAnalyzer.Interfaces
 
         [Get("zipball_url")]
         Task<Response<byte[]>> GetByteAsync();
+
+        //[Header("client_id", "d5e39c35fd7972a88e6d")]
+        //[Header("client_secret", "7e8c71c521d17b259739423514bc33793a801ebe")]
+        [Post("authorizations")]
+        Task<HttpResponseMessage> GetTokenAsync();
     }
 }
