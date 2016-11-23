@@ -15,13 +15,18 @@ namespace LexicalAnalyzer.Scrapers
     /// <summary>
     /// Scraper for the Project Gutenberg website
     /// </summary>
-    public class TextScraper //: IScraper
+    public class TextScraper : IScraper
     {
         private Guid m_guid;
         private string m_status;
         private float m_progress;
         private int m_priority;
         private ICorpusContext m_context;
+        private int m_downloadCount;
+        private int m_downloadLimit;
+        private Stopwatch m_timer;
+        private int m_timeLimit;
+        private List<KeyValueProperty> m_properties;
 
         /// <summary>
         /// Constructor
@@ -34,6 +39,10 @@ namespace LexicalAnalyzer.Scrapers
             m_progress = 0.0f;
             m_priority = 0;
             m_context = context;
+            m_downloadCount = 0;
+            m_downloadLimit = 0;
+            m_timer = new Stopwatch();
+            m_timeLimit = 0;
         }
 
         /// <summary>
@@ -122,6 +131,46 @@ namespace LexicalAnalyzer.Scrapers
                 return m_priority;
             }
         }
+        public int DownloadCount
+        {
+            get
+            {
+                return m_downloadCount;
+            }
+        }
+        public int DownloadLimit
+        {
+            get
+            {
+                return m_downloadLimit;
+            }
+
+            set
+            {
+                m_downloadLimit = value;
+            }
+        }
+
+        public Stopwatch Timer
+        {
+            get
+            {
+                return m_timer;
+            }
+        }
+
+        public int TimeLimit
+        {
+            get
+            {
+                return m_timeLimit;
+            }
+
+            set
+            {
+                m_timeLimit = value;
+            }
+        }
 
         /// <summary>
         /// List of properties supported by TextScraper and their respective
@@ -134,23 +183,23 @@ namespace LexicalAnalyzer.Scrapers
                 var properties = new List<KeyValueProperty>();
                 properties.Add(
                         new KeyValueProperty(
-                            "timeout",  /* key */
+                            "timelimit",  /* key */
                             "30",  /* defaultValue */
                             "seconds"  /* type */
                             ));
                 properties.Add(
                         new KeyValueProperty(
-                            "website",  /* key */
-                            "http://www.gutenberg.org/robot/harvest",  /* defaultValue */
-                            "url"  /* type */
+                            "downloadlimit",  /* key */
+                            "30",  /* defaultValue */
+                            "items"  /* type */
                             ));
                 properties.Add(
                         new KeyValueProperty(
-                            "filesToDownload", /* key */
-                            "", /* defaultValue */
-                            "urls" /* type */
+                            "website",  /* key */
+                            "http://example.com",  /* defaultValue */
+                            "url"  /* type */
                             ));
-                return properties;
+                return new List<KeyValueProperty>();
             }
         }
 
@@ -160,7 +209,18 @@ namespace LexicalAnalyzer.Scrapers
         /// <returns></returns>
         public IEnumerable<KeyValueProperty> Properties
         {
-            get ; set;
+            get { return m_properties; }
+            set
+            {
+                foreach (var property in value)
+                {
+                    if (property.Key == "timeLimit")
+                        TimeLimit = int.Parse(property.Value);
+                    else if (property.Key == "downloadlimit")
+                        DownloadLimit = int.Parse(property.Value);
+                }
+                m_properties = new List<KeyValueProperty>(value);
+            }
         }
 
         #region linkScraper
@@ -375,7 +435,7 @@ namespace LexicalAnalyzer.Scrapers
             foreach (KeyValueProperty i in DefaultProperties)
                 if (i.Key.Equals("website"))
                     rootURL = i.Value;
-            scrapePG(rootURL, 10);
+            scrapePG(rootURL);
         }
 
         /// <summary>
@@ -383,16 +443,50 @@ namespace LexicalAnalyzer.Scrapers
         /// </summary>
         /// <param name="currentURL"></param>
         /// <param name="pagesToGet"></param>
-        public void scrapePG(string currentURL, int pagesToGet)
+        public void scrapePG(string currentURL)
         {
-            for (int i = 0; i < pagesToGet; i++)
+            m_downloadCount = 0;
+            m_timer.Reset();
+            bool downloadLimitReached = downloadStop();
+            bool timeLimitReached = timeStop();
+            m_timer.Start();
+            while (!downloadLimitReached && !timeLimitReached)
             {
                 List<string> tempLinkList = GetLinksFromPage(currentURL, "//a[@href]");
                 var dlList = getListOfDownloadsForPage(tempLinkList, ".zip");
                 downloadZipFilesFromLinks(dlList);
                 currentURL = getNextPage(tempLinkList);
+                m_downloadCount += 100;
+                m_progress = m_downloadCount / m_downloadLimit;
+                downloadLimitReached = downloadStop();
+                timeLimitReached = timeStop();
             }
+            m_status = "stopped on ";
+            if (downloadLimitReached && timeLimitReached)
+                m_status += "downloads, time";
+            else if (downloadLimitReached)
+                m_status += "downloads";
+            else if (timeLimitReached)
+                m_status += "time";
+        }
 
+        public bool downloadStop()
+        {
+            if (DownloadCount >= DownloadLimit)
+                return true;
+            else
+                return false;
+        }
+
+        public bool timeStop()
+        {
+            if (m_timer.ElapsedMilliseconds >= TimeLimit * 1000)
+            {
+                m_timer.Reset();
+                return true;
+            }
+            else
+                return false;
         }
 
         #endregion
