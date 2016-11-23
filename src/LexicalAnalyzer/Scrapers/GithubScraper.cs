@@ -12,7 +12,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using AspNet.Security.OAuth.GitHub;
 
 namespace LexicalAnalyzer.Scrapers
 {
@@ -23,6 +22,11 @@ namespace LexicalAnalyzer.Scrapers
         private float m_progress;
         private int m_priority;
         private ICorpusContext m_context;
+        private int m_downloadCount;
+        private int m_downloadLimit;
+        private Stopwatch m_timer;
+        private int m_timeLimit;
+        private List<KeyValueProperty> m_properties;
 
         /// <summary>
         /// Constructor
@@ -35,6 +39,10 @@ namespace LexicalAnalyzer.Scrapers
             m_progress = 0.0f;
             m_priority = 0;
             m_context = context;
+            m_downloadCount = 0;
+            m_downloadLimit = 0;
+            m_timer = new Stopwatch();
+            m_timeLimit = 0;
         }
 
         #region Properties
@@ -123,6 +131,46 @@ namespace LexicalAnalyzer.Scrapers
                 return m_priority;
             }
         }
+        public int DownloadCount
+        {
+            get
+            {
+                return m_downloadCount;
+            }
+        }
+        public int DownloadLimit
+        {
+            get
+            {
+                return m_downloadLimit;
+            }
+
+            set
+            {
+                m_downloadLimit = value;
+            }
+        }
+
+        public Stopwatch Timer
+        {
+            get
+            {
+                return m_timer;
+            }
+        }
+
+        public int TimeLimit
+        {
+            get
+            {
+                return m_timeLimit;
+            }
+
+            set
+            {
+                m_timeLimit = value;
+            }
+        }
 
         /// <summary>
         /// List of properties supported by TextScraper and their respective
@@ -135,9 +183,15 @@ namespace LexicalAnalyzer.Scrapers
                 var properties = new List<KeyValueProperty>();
                 properties.Add(
                         new KeyValueProperty(
-                            "timeout",  /* key */
+                            "timelimit",  /* key */
                             "30",  /* defaultValue */
                             "seconds"  /* type */
+                            ));
+                properties.Add(
+                        new KeyValueProperty(
+                            "downloadlimit",  /* key */
+                            "30",  /* defaultValue */
+                            "items"  /* type */
                             ));
                 properties.Add(
                         new KeyValueProperty(
@@ -145,24 +199,27 @@ namespace LexicalAnalyzer.Scrapers
                             "https://github.com",  /* defaultValue */
                             "url"  /* type */
                             ));
-                properties.Add(
-                        new KeyValueProperty(
-                            "gitsToScrape", /* key */
-                            "", /* defaultValue */
-                            "urls" /* type */
-                            ));
-                return properties;
+                return new List<KeyValueProperty>();
             }
         }
-
         /// <summary>
         /// Gets properties
         /// </summary>
         /// <returns></returns>
         public IEnumerable<KeyValueProperty> Properties
         {
-            get; set;
-
+            get { return m_properties; }
+            set
+            {
+                foreach (var property in value)
+                {
+                    if (property.Key == "timeLimit")
+                        TimeLimit = int.Parse(property.Value);
+                    else if (property.Key == "downloadlimit")
+                        DownloadLimit = int.Parse(property.Value);
+                }
+                m_properties = new List<KeyValueProperty>(value);
+            }
         }
         #endregion
 
@@ -181,13 +238,31 @@ namespace LexicalAnalyzer.Scrapers
         /// </summary>
         private void ScrapeGitHub()
         {
-            //  string x = ScrapeRepo().Result;
-            GetAccessToken();
-            Uri uri = new Uri("https://api.github.com/repos/LunarG/VulkanTools");
-            var tags = GetRepoTags(uri).Result;
-            Uri tagURI = new Uri(tags[0].zipball_url);
-            var byteA = ExtractFromUrl(tagURI).Result;
-            var decompedA = Decompress(byteA);
+            m_downloadCount = 0;
+            m_timer.Reset();
+            bool downloadLimitReached = downloadStop();
+            bool timeLimitReached = timeStop();
+            m_timer.Start();
+            while (!downloadLimitReached && !timeLimitReached)
+            {
+                //  string x = ScrapeRepo().Result;
+                Uri uri = new Uri("https://api.github.com/repos/LunarG/VulkanTools");
+                var tags = GetRepoTags(uri).Result;
+                Uri tagURI = new Uri(tags[0].zipball_url);
+                var byteA = ExtractFromUrl(tagURI).Result;
+                var decompedA = Decompress(byteA);
+                m_downloadCount++;
+                m_progress = m_downloadCount / m_downloadLimit;
+                downloadLimitReached = downloadStop();
+                timeLimitReached = timeStop();
+            }
+            m_status = "stopped on ";
+            if (downloadLimitReached && timeLimitReached)
+                m_status += "downloads, time";
+            else if (downloadLimitReached)
+                m_status += "downloads";
+            else if (timeLimitReached)
+                m_status += "time";
         }
 
         private async void GetAccessToken()
@@ -340,6 +415,24 @@ namespace LexicalAnalyzer.Scrapers
             baseUri.Path = Uri.AbsolutePath + "/" + pathFragment;
             Uri finalUrl = baseUri.Uri;
             return finalUrl;
+        }
+        public bool downloadStop()
+        {
+            if (DownloadCount >= DownloadLimit)
+                return true;
+            else
+                return false;
+        }
+
+        public bool timeStop()
+        {
+            if (m_timer.ElapsedMilliseconds >= TimeLimit * 1000)
+            {
+                m_timer.Reset();
+                return true;
+            }
+            else
+                return false;
         }
     }
 }

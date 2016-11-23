@@ -14,13 +14,18 @@ using Tweetinvi.Models.Entities;
 
 namespace LexicalAnalyzer.Scrapers
 {
-    public class TwitterScraper //: IScraper
+    public class TwitterScraper : IScraper
     {
         private Guid m_guid;
         private string m_status;
         private float m_progress;
         private int m_priority;
         private ICorpusContext m_context;
+        private int m_downloadCount;
+        private int m_downloadLimit;
+        private Stopwatch m_timer;
+        private int m_timeLimit;
+        private List<KeyValueProperty> m_properties;
 
         /// <summary>
         /// Constructor
@@ -33,6 +38,10 @@ namespace LexicalAnalyzer.Scrapers
             m_progress = 0.0f;
             m_priority = 0;
             m_context = context;
+            m_downloadCount = 0;
+            m_downloadLimit = 0;
+            m_timer = new Stopwatch();
+            m_timeLimit = 0;
         }
 
         #region Properties
@@ -122,6 +131,47 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        public int DownloadCount
+        {
+            get
+            {
+                return m_downloadCount;
+            }
+        }
+        public int DownloadLimit
+        {
+            get
+            {
+                return m_downloadLimit;
+            }
+
+            set
+            {
+                m_downloadLimit = value;
+            }
+        }
+
+        public Stopwatch Timer
+        {
+            get
+            {
+                return m_timer;
+            }
+        }
+
+        public int TimeLimit
+        {
+            get
+            {
+                return m_timeLimit;
+            }
+
+            set
+            {
+                m_timeLimit = value;
+            }
+        }
+
         /// <summary>
         /// List of properties supported by TextScraper and their respective
         /// default values.
@@ -133,9 +183,15 @@ namespace LexicalAnalyzer.Scrapers
                 var properties = new List<KeyValueProperty>();
                 properties.Add(
                         new KeyValueProperty(
-                            "timeout",  /* key */
+                            "timelimit",  /* key */
                             "30",  /* defaultValue */
                             "seconds"  /* type */
+                            ));
+                properties.Add(
+                        new KeyValueProperty(
+                            "downloadlimit",  /* key */
+                            "30",  /* defaultValue */
+                            "items"  /* type */
                             ));
                 properties.Add(
                         new KeyValueProperty(
@@ -143,13 +199,7 @@ namespace LexicalAnalyzer.Scrapers
                             "https://twitter.com",  /* defaultValue */
                             "url"  /* type */
                             ));
-                properties.Add(
-                        new KeyValueProperty(
-                            "tweetsToDownload", /* key */
-                            "", /* defaultValue */
-                            "urls" /* type */
-                            ));
-                return properties;
+                return new List<KeyValueProperty>();
             }
         }
 
@@ -159,7 +209,18 @@ namespace LexicalAnalyzer.Scrapers
         /// <returns></returns>
         public IEnumerable<KeyValueProperty> Properties
         {
-            get; set;
+            get { return m_properties; }
+            set
+            {
+                foreach (var property in value)
+                {
+                    if (property.Key == "timeLimit")
+                        TimeLimit = int.Parse(property.Value);
+                    else if (property.Key == "downloadlimit")
+                        DownloadLimit = int.Parse(property.Value);
+                }
+                m_properties = new List<KeyValueProperty>(value);
+            }
         }
         #endregion
 
@@ -169,7 +230,8 @@ namespace LexicalAnalyzer.Scrapers
         /// <returns></returns>
         public void Run()
         {
-            Debug.Assert(false);
+            m_timer.Reset();
+            m_timer.Start();
             TwitterTest();
         }
 
@@ -193,33 +255,50 @@ namespace LexicalAnalyzer.Scrapers
             stream.StallWarnings = true;
             stream.AddTweetLanguageFilter(LanguageFilter.English);
             stream.FilterLevel = Tweetinvi.Streaming.Parameters.StreamFilterLevel.Low;
-            stream.TweetReceived += (sender, args) =>
-            {
-                // Do what you want with the Tweet.
-
-                ITweet tweet = args.Tweet;
-                try
-                {
-                    //  tweetList.Add(tweet);
-                    Debug.WriteLine(tweet);
-                    Console.WriteLine(tweet);
-
-                    //if (tweetList.Count > 10)
-                    //{
-                    //    stream.StopStream();
-                     //   foreach (ITweet tweet2 in tweetList)
-                            ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid, 
-                                this.GetType().FullName, tweet, this.m_context);
-                   // }
-                }
-
-                catch { }
-
-            };
             stream.StartStream();
+            m_downloadCount = 0;
+            m_timer.Reset();
+            bool downloadLimitReached = downloadStop();
+            bool timeLimitReached = timeStop();
+            m_timer.Start();
+            while (!downloadLimitReached && !timeLimitReached)
+            {
+                stream.TweetReceived += (sender, args) =>
+                {
+                    // Do what you want with the Tweet.
 
+                    ITweet tweet = args.Tweet;
+                    try
+                    {
+                        //  tweetList.Add(tweet);
+                        Debug.WriteLine(tweet);
+                        Console.WriteLine(tweet);
 
+                        //if (tweetList.Count > 10)
+                        //{
+                        //    stream.StopStream();
+                        //   foreach (ITweet tweet2 in tweetList)
+                        ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid,
+                            this.GetType().FullName, tweet, this.m_context);
+                        // }
+                        m_downloadCount++;
+                        m_progress = m_downloadCount / m_downloadLimit;
+                    }
+                    catch { }
+                };
+                downloadLimitReached = downloadStop();
+                timeLimitReached = timeStop();
+            }
+            m_status = "stopped on ";
+            if (downloadLimitReached && timeLimitReached)
+                m_status += "downloads, time";
+            else if (downloadLimitReached)
+                m_status += "downloads";
+            else if (timeLimitReached)
+                m_status += "time";
         }
+
+
         IAuthenticationContext authenticationContext;
         public string UserAuthentication(string consumerKey, string consumerSecret)
         {
@@ -268,6 +347,25 @@ namespace LexicalAnalyzer.Scrapers
             // Use the user credentials in your application
             Auth.SetCredentials(userCredentials);
             FullTwitterSample();
+        }
+
+        public bool downloadStop()
+        {
+            if (DownloadCount >= DownloadLimit)
+                return true;
+            else
+                return false;
+        }
+
+        public bool timeStop()
+        {
+            if (m_timer.ElapsedMilliseconds >= TimeLimit * 1000)
+            {
+                m_timer.Reset();
+                return true;
+            }
+            else
+                return false;
         }
     }
 }

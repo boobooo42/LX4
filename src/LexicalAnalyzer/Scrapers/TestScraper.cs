@@ -32,9 +32,9 @@ namespace LexicalAnalyzer.Scrapers
             m_priority = 0;
             m_context = context;
             m_downloadCount = 0;
-            m_downloadLimit = 0;
+            m_downloadLimit = 2;
             m_timer = new Stopwatch();
-            m_timeLimit = 0;
+            m_timeLimit = 3;
         }
 
         /* Public Interface */
@@ -168,15 +168,27 @@ namespace LexicalAnalyzer.Scrapers
 
 
         public void Run() {
-            m_timer.Reset();
-            m_timer.Start();
             /* Implement a fake scraper that simply waits for a while and
-             * periodically increments the progress */
-            while (!downloadStop() && !timeStop()) {
+ * periodically increments the progress */
+            m_downloadCount = 0;
+            m_timer.Reset();            
+            bool downloadLimitReached = downloadStop();
+            bool timeLimitReached = timeStop();
+            m_timer.Start();
+            while (!downloadLimitReached && !timeLimitReached) {
                 Thread.Sleep(5000);
                 m_downloadCount++;
                 m_progress = m_downloadCount / m_downloadLimit;
+                downloadLimitReached = downloadStop();
+                timeLimitReached = timeStop();
             }
+            m_status = "stopped on ";
+            if(downloadLimitReached && timeLimitReached)
+                m_status += "downloads, time";
+            else if (downloadLimitReached)
+                m_status += "downloads";
+            else if(timeLimitReached)
+                m_status += "time";
         }
 
         public bool downloadStop()
