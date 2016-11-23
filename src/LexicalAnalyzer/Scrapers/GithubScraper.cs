@@ -66,6 +66,14 @@ namespace LexicalAnalyzer.Scrapers
         {
             get { return "Github Scraper"; }
         }
+        /// <summary>
+        /// Gets display name--is hardcoded
+        /// </summary>
+        /// <returns></returns>
+        public string DName
+        {
+            get { return "Github Scraper"; }
+        }
 
         /// <summary>
         /// Gets description--is hardcoded
@@ -79,12 +87,35 @@ namespace LexicalAnalyzer.Scrapers
                     @"A scraper used for scraping repositories from Github.";
             }
         }
+        /// <summary>
+        /// Gets description--is hardcoded
+        /// </summary>
+        /// <returns></returns>
+        public string Desc
+        {
+            get
+            {
+                return
+                    @"A scraper used for scraping repositories from Github.";
+            }
+        }
 
         /// <summary>
         /// Gets content type --is hardcoded
         /// </summary>
         /// <returns></returns>
         public static string ContentType
+        {
+            get
+            {
+                return "Repositories";
+            }
+        }
+        /// <summary>
+        /// Gets content type --is hardcoded
+        /// </summary>
+        /// <returns></returns>
+        public string Type
         {
             get
             {
