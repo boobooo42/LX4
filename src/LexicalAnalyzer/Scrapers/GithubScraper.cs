@@ -1,20 +1,21 @@
 ﻿using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Models;
+using RestEase;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Tweetinvi;
-using Tweetinvi.Models;
-using Tweetinvi.Models.Entities;
 
 namespace LexicalAnalyzer.Scrapers
 {
-    public class TwitterScraper : IScraper
+    public class GithubScraper : IScraper
     {
         private Guid m_guid;
         private string m_status;
@@ -26,13 +27,12 @@ namespace LexicalAnalyzer.Scrapers
         private Stopwatch m_timer;
         private int m_timeLimit;
         private List<KeyValueProperty> m_properties;
-        private bool m_authorized;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <returns></returns>
-        public TwitterScraper(ICorpusContext context)
+        public GithubScraper(ICorpusContext context)
         {
             m_guid = System.Guid.NewGuid();
             m_status = "init";
@@ -46,18 +46,6 @@ namespace LexicalAnalyzer.Scrapers
         }
 
         #region Properties
-        /// <summary>
-        /// Gets the scraper type
-        /// </summary>
-        /// <returns></returns>
-        public string Type
-        {
-            get
-            {
-                return this.GetType().FullName;
-            }
-        }
-
         /// <summary>
         /// Gets guid
         /// </summary>
@@ -76,9 +64,9 @@ namespace LexicalAnalyzer.Scrapers
         /// <returns></returns>
         public static string DisplayName
         {
-            get { return "Twitter Scraper"; }
+            get { return "Github Scraper"; }
         }
-        public string DName { get { return "Twitter Scraper"; } }
+
         /// <summary>
         /// Gets description--is hardcoded
         /// </summary>
@@ -88,12 +76,8 @@ namespace LexicalAnalyzer.Scrapers
             get
             {
                 return
-                    @"A scraper used for scraping tweets from Twitter.";
+                    @"A scraper used for scraping repositories from Github.";
             }
-        }
-        public string Desc
-        {
-            get { return @"A scraper used for scraping tweets from Twitter."; }
         }
 
         /// <summary>
@@ -104,13 +88,8 @@ namespace LexicalAnalyzer.Scrapers
         {
             get
             {
-                return "tweets";
+                return "Repositories";
             }
-        }
-
-        public bool Authorized
-        {
-            get { return m_authorized; }
         }
 
         /// <summary>
@@ -152,7 +131,6 @@ namespace LexicalAnalyzer.Scrapers
                 return m_priority;
             }
         }
-
         public int DownloadCount
         {
             get
@@ -218,13 +196,12 @@ namespace LexicalAnalyzer.Scrapers
                 properties.Add(
                         new KeyValueProperty(
                             "website",  /* key */
-                            "https://twitter.com",  /* defaultValue */
+                            "https://github.com",  /* defaultValue */
                             "url"  /* type */
                             ));
                 return new List<KeyValueProperty>();
             }
         }
-
         /// <summary>
         /// Gets properties
         /// </summary>
@@ -247,37 +224,20 @@ namespace LexicalAnalyzer.Scrapers
         #endregion
 
         /// <summary>
-        /// Runs the twitter scraper
+        /// Runs the github scraper
         /// </summary>
         /// <returns></returns>
         public void Run()
         {
-            m_timer.Reset();
-            m_timer.Start();
-            TwitterTest();
+            Debug.Assert(false);
+            ScrapeGitHub();
         }
 
-        public string TwitterTest()
+        /// <summary>
+        /// wrapper for GitHubScraper
+        /// </summary>
+        private void ScrapeGitHub()
         {
-            string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
-            string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
-            return UserAuthentication(consumerKey, consumerSecret);
-            //FullTwitterSample();
-        }
-
-        void FullTwitterSample()
-        {
-
-
-            List<ITweet> tweetList = new List<ITweet>();
-
-            // Enable Automatic RateLimit handling
-            RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
-            var stream = Stream.CreateSampleStream();
-            stream.StallWarnings = true;
-            stream.AddTweetLanguageFilter(LanguageFilter.English);
-            stream.FilterLevel = Tweetinvi.Streaming.Parameters.StreamFilterLevel.Low;
-            stream.StartStream();
             m_downloadCount = 0;
             m_timer.Reset();
             bool downloadLimitReached = downloadStop();
@@ -285,29 +245,14 @@ namespace LexicalAnalyzer.Scrapers
             m_timer.Start();
             while (!downloadLimitReached && !timeLimitReached)
             {
-                stream.TweetReceived += (sender, args) =>
-                {
-                    // Do what you want with the Tweet.
-
-                    ITweet tweet = args.Tweet;
-                    try
-                    {
-                        //  tweetList.Add(tweet);
-                        Debug.WriteLine(tweet);
-                        Console.WriteLine(tweet);
-
-                        //if (tweetList.Count > 10)
-                        //{
-                        //    stream.StopStream();
-                        //   foreach (ITweet tweet2 in tweetList)
-                        ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid,
-                            this.GetType().FullName, tweet, this.m_context);
-                        // }
-                        m_downloadCount++;
-                        m_progress = m_downloadCount / m_downloadLimit;
-                    }
-                    catch { }
-                };
+                //  string x = ScrapeRepo().Result;
+                Uri uri = new Uri("https://api.github.com/repos/LunarG/VulkanTools");
+                var tags = GetRepoTags(uri).Result;
+                Uri tagURI = new Uri(tags[0].zipball_url);
+                var byteA = ExtractFromUrl(tagURI).Result;
+                var decompedA = Decompress(byteA);
+                m_downloadCount++;
+                m_progress = m_downloadCount / m_downloadLimit;
                 downloadLimitReached = downloadStop();
                 timeLimitReached = timeStop();
             }
@@ -320,58 +265,157 @@ namespace LexicalAnalyzer.Scrapers
                 m_status += "time";
         }
 
-
-        IAuthenticationContext authenticationContext;
-        public string UserAuthentication(string consumerKey, string consumerSecret)
+        private async void GetAccessToken()
         {
-            // Create a new set of credentials for the application.
-            var appCredentials = new TwitterCredentials(consumerKey, consumerSecret);
 
-            // Init the authentication process and store the related `AuthenticationContext`.
-            authenticationContext = AuthFlow.InitAuthentication(appCredentials);
+            //var auth = AspNet.Security.OAuth.GitHub.GitHubAuthenticationDefaults.
+            Uri gitHubUri = new Uri("https://api.github.com");
+            // Create an implementation of that interface
+            // We'll pass in the base URL for the API
+            IGitHubApi api = RestClient.For<IGitHubApi>(gitHubUri.AbsoluteUri);
 
-            return authenticationContext.AuthorizationURL;
+            // Sends a GET request to https://api.github.com
 
-            string authUrl = authenticationContext.AuthorizationURL;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+
+            var repositories = await api.GetTokenAsync();
+
+            string tokenString = "66d32909b6aafe5f7b311984f303b3df25e2d7fe";
+        }
+        private async Task<string> ScrapeRepo()
+        {
+            Uri gitHubUri = new Uri("https://api.github.com");
+            // Create an implementation of that interface
+            // We'll pass in the base URL for the API
+            IGitHubApi api = RestClient.For<IGitHubApi>(gitHubUri.AbsoluteUri);
+
+            // Sends a GET request to https://api.github.com
+            var repositories = await api.GetReposAsync();
+
+            //get the response header
+            var headers = repositories.ResponseMessage.Headers;
+            string nextRepoList = "";
+            IEnumerable<string> headerValues;
+            if (headers.TryGetValues("link", out headerValues)) //find the link field in response header
             {
-                Process.Start(new ProcessStartInfo("cmd", $"/c start {authUrl}")); // Works ok on windows
+                nextRepoList = headerValues.First();
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+
+            //here we are getting the link to the next page using  a regex split
+            string nextPageLink = "";
+            foreach (string pair in nextRepoList.Split(','))
             {
-                Process.Start("xdg-open", authUrl);  // Works ok on linux
+                var splitPair = pair.Split(';');
+                var re = new Regex("<(.*)>");
+                string URI = re.Match(splitPair[0]).Groups[1].Value;
+                if (splitPair[1].Contains("next"))
+                    nextPageLink = URI;
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+
+            //getting a list of tags from each repository
+            List<Repos> repoList = repositories.GetContent();
+            List<string> tagList = new List<string>();
+            foreach (Repos repo in repoList)
             {
-                Process.Start("open", authUrl); // Not tested
+                tagList.Add(repo.url);
+                Uri tagUri = new Uri(repo.url);
+                var tags = await GetRepoTags(tagUri);
             }
-            // Go to the URL so that Twitter authenticates the user and gives him a PIN code.
 
 
-            // Ask the user to enter the pin code given by Twitter
-            Debug.WriteLine("enter pin");
-            Console.WriteLine("enter pin");
-            //  var pinCode = "1"; //Now change pincode in immediate window
-            var pinCode = Console.ReadLine();
-            // Debug.Assert(false); 
-            // With this pin code it is now possible to get the credentials back from Twitter
-            var userCredentials = AuthFlow.CreateCredentialsFromVerifierCode(pinCode, authenticationContext);
-
-            // Use the user credentials in your application
-            Auth.SetCredentials(userCredentials);
+            return nextPageLink;
         }
 
-
-        public void FinishUserAuthentication(string pinCode)
+        private async Task<List<Tags>> GetRepoTags(Uri repoTagUrl)
         {
-            // With this pin code it is now possible to get the credentials back from Twitter
-            var userCredentials = AuthFlow.CreateCredentialsFromVerifierCode(pinCode, authenticationContext);
+            // Create an implementation of that interface
+            // We'll pass in the base URL for the API
+            IGitHubApi api = RestClient.For<IGitHubApi>(repoTagUrl.AbsoluteUri);
 
-            // Use the user credentials in your application
-            Auth.SetCredentials(userCredentials);
-            m_authorized = true;
+            // Now we can simply call methods on it
+            var response = await api.GetTagsAsync();
+
+            if (response.ResponseMessage.IsSuccessStatusCode)
+                return response.GetContent();
+            else return null;
+
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        private async Task<byte[]> ExtractFromUrl(Uri uri)
+        {
+
+            //using (HttpClient client = new HttpClient())
+            //{
+            //    //var y = await client.GetByteArrayAsync(uri);
+
+            //    client.BaseAddress = uri;
+            //    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/zip"));
+            //    var response = await client.GetAsync(uri);
+            //    if (response.IsSuccessStatusCode)
+            //        return response.Content.ReadAsByteArrayAsync().Result;
+            //    else return null;
+            //}
+            // Create an implementation of that interface
+            // We'll pass in the base URL for the API
+            IGitHubApi api = RestClient.For<IGitHubApi>(uri.AbsoluteUri);
+
+            // Now we can simply call methods on it
+            var response = await api.GetByteAsync();
+
+            if (response.ResponseMessage.IsSuccessStatusCode)
+                return response.GetContent();
+            else return null;
+
+        }
+
+        private static byte[] Decompress(byte[] gzip)
+        {
+            // Create a GZIP stream with decompression mode.
+            // ... Then create a buffer and write into while reading from the GZIP stream.
+            using (GZipStream stream = new GZipStream(new MemoryStream(gzip),
+                CompressionMode.Decompress))
+            {
+                const int size = 4096;
+                byte[] buffer = new byte[size];
+                using (MemoryStream memory = new MemoryStream())
+                {
+                    int count = 0;
+                    do
+                    {
+                        count = stream.Read(buffer, 0, size);
+                        if (count > 0)
+                        {
+                            memory.Write(buffer, 0, count);
+                        }
+                    }
+                    while (count > 0);
+                    return memory.ToArray();
+                }
+            }
+        }
+        private async void DownloadTagList(List<Tags> tagList)
+        {
+
+        }
+
+        /// <summary>
+        /// appends a path to a given URL
+        /// </summary>
+        /// <param name="URL"></param>
+        /// <param name="pathFragment"></param>
+        /// <returns></returns>
+        private Uri buildURLPath(string URL, string pathFragment)
+        {
+            Uri Uri = new Uri(URL);
+            UriBuilder baseUri = new UriBuilder(Uri);
+            baseUri.Path = Uri.AbsolutePath + "/" + pathFragment;
+            Uri finalUrl = baseUri.Uri;
+            return finalUrl;
+        }
         public bool downloadStop()
         {
             if (DownloadCount >= DownloadLimit)
