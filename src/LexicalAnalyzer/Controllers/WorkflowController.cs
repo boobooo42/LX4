@@ -10,7 +10,17 @@ namespace LexicalAnalyzer.Controllers
 {
     public class WorkflowController : Controller
     {
-        public IActionResult Workflow()
+        public IActionResult Manage()
+        {
+            return View();
+        }
+
+        public IActionResult Scraper()
+        {
+            return View();
+        }
+
+        public IActionResult TrainNet()
         {
             return View();
         }
