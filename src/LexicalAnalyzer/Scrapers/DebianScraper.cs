@@ -238,7 +238,7 @@ namespace LexicalAnalyzer.Scrapers
                 //work being done here
                 //downLoadTypes = GetDownloads(downLoadTypes, urlList);
                 m_downloadCount++;
-                // m_progress = m_downloadCount / m_downloadLimit;
+               // m_progress = (float)m_downloadCount / m_downloadLimit;
                 downloadLimitReached = downloadStop();
                 timeLimitReached = timeStop();
             }

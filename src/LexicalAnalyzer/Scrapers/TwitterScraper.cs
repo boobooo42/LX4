@@ -206,13 +206,13 @@ namespace LexicalAnalyzer.Scrapers
                 properties.Add(
                         new KeyValueProperty(
                             "timelimit",  /* key */
-                            "30",  /* defaultValue */
+                            "",  /* defaultValue */
                             "seconds"  /* type */
                             ));
                 properties.Add(
                         new KeyValueProperty(
                             "downloadlimit",  /* key */
-                            "30",  /* defaultValue */
+                            "",  /* defaultValue */
                             "items"  /* type */
                             ));
                 properties.Add(
@@ -221,7 +221,7 @@ namespace LexicalAnalyzer.Scrapers
                             "https://twitter.com",  /* defaultValue */
                             "url"  /* type */
                             ));
-                return new List<KeyValueProperty>();
+                return properties;
             }
         }
 
@@ -236,7 +236,7 @@ namespace LexicalAnalyzer.Scrapers
             {
                 foreach (var property in value)
                 {
-                    if (property.Key == "timeLimit")
+                    if (property.Key == "timelimit")
                         TimeLimit = int.Parse(property.Value);
                     else if (property.Key == "downloadlimit")
                         DownloadLimit = int.Parse(property.Value);
@@ -259,10 +259,12 @@ namespace LexicalAnalyzer.Scrapers
 
         public string TwitterTest()
         {
+            Debug.Assert(false);
             string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
             string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
+            FullTwitterSample();
             return UserAuthentication(consumerKey, consumerSecret);
-            //FullTwitterSample();
+            
         }
 
         void FullTwitterSample()
@@ -304,7 +306,7 @@ namespace LexicalAnalyzer.Scrapers
                             this.GetType().FullName, tweet, this.m_context);
                         // }
                         m_downloadCount++;
-                        m_progress = m_downloadCount / m_downloadLimit;
+                        m_progress = (float)m_downloadCount / m_downloadLimit;
                     }
                     catch { }
                 };

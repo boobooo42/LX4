@@ -46,18 +46,6 @@ namespace LexicalAnalyzer.Scrapers
         }
 
         /// <summary>
-        /// Gets the scraper type
-        /// </summary>
-        /// <returns></returns>
-        public string Type
-        {
-            get
-            {
-                return this.GetType().FullName;
-            }
-        }
-
-        /// <summary>
         /// Gets guid
         /// </summary>
         /// <returns></returns>
@@ -77,7 +65,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             get { return "Text Scraper"; }
         }
-        public string DName { get { return "Test Scraper"; } }
+        public string DName { get { return "Text Scraper"; } }
         /// <summary>
         /// Gets description--is hardcoded
         /// </summary>
@@ -105,6 +93,17 @@ namespace LexicalAnalyzer.Scrapers
             get
             {
                 return "text";
+            }
+        }
+        /// <summary>
+        /// Gets the scraper type
+        /// </summary>
+        /// <returns></returns>
+        public string Type
+        {
+            get
+            {
+                return this.GetType().FullName;
             }
         }
 
@@ -200,22 +199,22 @@ namespace LexicalAnalyzer.Scrapers
                 properties.Add(
                         new KeyValueProperty(
                             "timelimit",  /* key */
-                            "30",  /* defaultValue */
+                            "",  /* defaultValue */
                             "seconds"  /* type */
                             ));
                 properties.Add(
                         new KeyValueProperty(
                             "downloadlimit",  /* key */
-                            "30",  /* defaultValue */
+                            "",  /* defaultValue */
                             "items"  /* type */
                             ));
                 properties.Add(
                         new KeyValueProperty(
                             "website",  /* key */
-                            "http://example.com",  /* defaultValue */
+                            "http://www.gutenberg.org/robot/",  /* defaultValue */
                             "url"  /* type */
                             ));
-                return new List<KeyValueProperty>();
+                return properties;
             }
         }
 
@@ -230,7 +229,7 @@ namespace LexicalAnalyzer.Scrapers
             {
                 foreach (var property in value)
                 {
-                    if (property.Key == "timeLimit")
+                    if (property.Key == "timelimit")
                         TimeLimit = int.Parse(property.Value);
                     else if (property.Key == "downloadlimit")
                         DownloadLimit = int.Parse(property.Value);
@@ -473,7 +472,7 @@ namespace LexicalAnalyzer.Scrapers
                 downloadZipFilesFromLinks(dlList);
                 currentURL = getNextPage(tempLinkList);
                 m_downloadCount += 100;
-                m_progress = m_downloadCount / m_downloadLimit;
+                m_progress = (float)m_downloadCount / m_downloadLimit;
                 downloadLimitReached = downloadStop();
                 timeLimitReached = timeStop();
             }

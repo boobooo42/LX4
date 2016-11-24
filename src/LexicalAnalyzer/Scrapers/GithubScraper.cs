@@ -215,13 +215,13 @@ namespace LexicalAnalyzer.Scrapers
                 properties.Add(
                         new KeyValueProperty(
                             "timelimit",  /* key */
-                            "30",  /* defaultValue */
+                            "",  /* defaultValue */
                             "seconds"  /* type */
                             ));
                 properties.Add(
                         new KeyValueProperty(
                             "downloadlimit",  /* key */
-                            "30",  /* defaultValue */
+                            "",  /* defaultValue */
                             "items"  /* type */
                             ));
                 properties.Add(
@@ -230,7 +230,7 @@ namespace LexicalAnalyzer.Scrapers
                             "https://github.com",  /* defaultValue */
                             "url"  /* type */
                             ));
-                return new List<KeyValueProperty>();
+                return properties;
             }
         }
         /// <summary>
@@ -244,7 +244,7 @@ namespace LexicalAnalyzer.Scrapers
             {
                 foreach (var property in value)
                 {
-                    if (property.Key == "timeLimit")
+                    if (property.Key == "timelimit")
                         TimeLimit = int.Parse(property.Value);
                     else if (property.Key == "downloadlimit")
                         DownloadLimit = int.Parse(property.Value);
@@ -283,7 +283,7 @@ namespace LexicalAnalyzer.Scrapers
                 var byteA = ExtractFromUrl(tagURI).Result;
                 var decompedA = Decompress(byteA);
                 m_downloadCount++;
-                m_progress = m_downloadCount / m_downloadLimit;
+                m_progress = (float)m_downloadCount / m_downloadLimit;
                 downloadLimitReached = downloadStop();
                 timeLimitReached = timeStop();
             }
