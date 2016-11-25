@@ -38,15 +38,22 @@ namespace LexicalAnalyzer.DataAccess {
             } catch {
                 /* The database does not appear to have our Info table; we
                  * assume that it is empty and that we must provision tables */
-                string sql = ReadAssemblyResource(
-                        "LexicalAnalyzer.schema.sql");
-                Debug.Assert(sql != null);
-                /* Provision the database by executing the SQL code in the
-                 * schema */
-                /* TODO: Support more than one database provider */
                 using (var cn = new SqlConnection(connectionString)) {
                     cn.Open();
-                    RunSqlBatch(sql, cn);
+                    /* Create the schema */
+                    cn.Execute(@"CREATE SCHEMA la");
+                    /* Iterate over each resource used for the schema */
+                    foreach (string resourceString in new string[] {
+                            "LexicalAnalyzer.schema.sql",
+                            "LexicalAnalyzer.constraints.sql"})
+                    {
+                        string sql = ReadAssemblyResource(resourceString);
+                        Debug.Assert(sql != null);
+                        /* Provision the database by executing the SQL code in the
+                         * schema */
+                        /* TODO: Support more than one database provider */
+                        RunSqlBatch(sql, cn);
+                    }
                     /* Insert a record of the database version */
                     cn.Execute(@"
                             INSERT INTO la.Info
