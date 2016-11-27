@@ -70,12 +70,25 @@ namespace LexicalAnalyzer.Scrapers
         }
 
         /// <summary>
+        /// Gets the scraper type
+        /// </summary>
+        /// <returns></returns>
+        public string Type
+        {
+            get
+            {
+                return this.GetType().FullName;
+            }
+        }
+
+        /// <summary>
         /// Gets the display name
         /// </summary>
         /// <returns></returns>
         public static string DisplayName {
             get { return "Debian Scraper"; }
         }
+        public string DName { get { return "Debian Scraper"; } }
 
         /// <summary>
         /// Gets the description
@@ -88,6 +101,13 @@ namespace LexicalAnalyzer.Scrapers
                     mirrors. Files can be scraped for a variety of different
                     architectures, including x86 and x86_64.";
             }
+        }
+
+        public string Desc
+        {
+            get { return @"Useful for scraping .deb files from the Debian archive
+                    mirrors. Files can be scraped for a variety of different
+                    architectures, including x86 and x86_64."; }
         }
 
         /// <summary>

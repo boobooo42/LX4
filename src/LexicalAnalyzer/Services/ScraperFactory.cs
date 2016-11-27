@@ -73,14 +73,12 @@ namespace LexicalAnalyzer.Services
 
         public IScraper BuildScraper(string type) {
             Type t = m_scraperTypes.Find(elem => { return elem.FullName == type; });
-            if (t == null) {
+            if (t == null)
                 return null;
-            }
-            if (t.GetInterfaces().Contains(typeof(IScraper))) {
-                object[] arguments = new object[] { m_context };
-                return (IScraper)Activator.CreateInstance(t, arguments);
-            }
-            return null;
+            if (!t.GetInterfaces().Contains(typeof(IScraper)))
+                return null;
+            object[] arguments = new object[] { m_context };
+            return (IScraper)Activator.CreateInstance(t, arguments);
         }
     }
 }

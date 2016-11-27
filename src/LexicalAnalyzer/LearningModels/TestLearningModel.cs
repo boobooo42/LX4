@@ -22,6 +22,13 @@ namespace LexicalAnalyzer.Scrapers
         public float Progress { get; set; } = 0.0f;
         public int Priority { get; set; }   = 0;
         public IEnumerable<KeyValueProperty> Properties { get; set; } = DefaultProperties;
+        public string Type
+        {
+            get
+            {
+                return this.GetType().FullName;
+            }
+        }
 
         private static IEnumerable<KeyValueProperty> DefaultProperties {
             get {

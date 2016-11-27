@@ -27,6 +27,17 @@ namespace LexicalAnalyzer.Scrapers
         }
 
         /* Public Interface */
+        /// <summary>
+        /// Gets the scraper type
+        /// </summary>
+        /// <returns></returns>
+        public string Type
+        {
+            get
+            {
+                return this.GetType().FullName;
+            }
+        }
         public Guid Guid {
             get {
                 return m_guid;
@@ -36,6 +47,7 @@ namespace LexicalAnalyzer.Scrapers
         public static string DisplayName {
             get { return "Test Scraper"; }
         }
+        public string DName { get { return "Test Scraper"; } }
 
         public static string Description {
             get {
@@ -44,6 +56,12 @@ namespace LexicalAnalyzer.Scrapers
                     not actually scrape any content; it simply pretends to
                     scrape content.";
             }
+        }
+        public string Desc
+        {
+            get { return @"A scraper used for testing purposes. This scraper does
+                    not actually scrape any content; it simply pretends to
+                    scrape content."; }
         }
 
         public static string ContentType {
