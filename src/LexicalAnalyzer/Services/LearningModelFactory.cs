@@ -41,6 +41,9 @@ namespace LexicalAnalyzer.Services {
 
                 foreach (Type t in m_learningModelTypes) {
                     LearningModelType lmt = new LearningModelType();
+                    /* Store the fully qualified name of the implementing
+                     * class */
+                    lmt.Type = t.FullName;
                     /* Invoke the respective static methods for this type */
                     lmt.DisplayName = (string)t
                         .GetProperty("DisplayName",
