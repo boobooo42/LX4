@@ -1,27 +1,31 @@
-﻿<style>
+﻿<script src="~/js/angular.min.js"></script>
+<script src="~/js/angular-route.min.js"></script>
+<script src="~/js/neuralNetApp.js"></script>
+
+<style>
     .overlay {
         fill: none;
         pointer-events: all;
     }
 
-    #neural-net{
+    #neural-net {
         //border-radius: 10px;
         box-shadow: inset 0px 0px 20px 3px rgba(0,0,0,.25);
     }
 
-    .sidebar{
-        display:none;
+    .sidebar {
+        display: none;
     }
 </style>
 
 <script src="https://d3js.org/d3.v3.min.js"></script>
 
-<div class="container">
+<div class="container" ng-app="neuralNetApp" ng-controller="NeuralNetController">
     <div class="row row-margin">
         <h3><span>Neural Net</span></h3><hr />
         <div class="form-group">
             <label for="">Select a Neural Net</label>
-            <select class="form-control" id="corpusList" onchange="displayTestNet()">
+            <select class="form-control" id="corpusList" ng-model="selectedNet" ng-change="display(selectedNet)">
                 <option>Neural Net 1</option>
                 <option>Neural Net 2</option>
                 <option>Neural Net 3</option>
@@ -29,10 +33,7 @@
                 <option>Test Neural Net</option>
             </select>
         </div>
-
-
     </div>
-
     <div class="row">
         <div class="col-md-9">
             <section id="neural-net"></section>
@@ -40,7 +41,6 @@
         <div class="col-md-3 sidebar">
             <h4>Test Neural Net</h4>
             <hr />
-
             <div>
                 <p><strong>Description:</strong> This is a description of the test neural net you see to the left. This can give detail to what the intentions of the neural net are.</p>
 
@@ -76,62 +76,3 @@
         </div>
     </div>
 </div>
-
-
-
-    <script>
-
-        function displayTestNet() {
-            $(".sidebar").show();
-            $("#neural-net").empty();
-
-            var width = 847,
-                height = 665;
-
-            var randomX = d3.random.normal(width / 2, 80),
-                randomY = d3.random.normal(height / 2, 80);
-
-            var data = d3.range(1000).map(function () {
-                return [
-                  randomX(),
-                  randomY()
-                ];
-            });
-
-            var x = d3.scale.linear()
-                .domain([0, width])
-                .range([0, width]);
-
-            var y = d3.scale.linear()
-                .domain([0, height])
-                .range([height, 0]);
-
-            var canvas = d3.select("section").append("canvas")
-                .attr("width", width)
-                .attr("height", height)
-                .call(d3.behavior.zoom().x(x).y(y).scaleExtent([1, 100]).on("zoom", zoom))
-              .node().getContext("2d");
-
-            draw();
-
-            function zoom() {
-                canvas.clearRect(0, 0, width, height);
-                draw();
-            }
-
-            function draw() {
-                var i = -1, n = data.length, d, cx, cy;
-                canvas.beginPath();
-                while (++i < n) {
-                    d = data[i];
-                    cx = x(d[0]);
-                    cy = y(d[1]);
-                    canvas.moveTo(cx, cy);
-                    canvas.arc(cx, cy, 2.5, 0, 2 * Math.PI);
-                    canvas.font = "7px Georgia";
-                    canvas.fillText("word", cx - 7, cy + 10);
-                }
-                canvas.fill();
-            }
-        }
-    </script>
