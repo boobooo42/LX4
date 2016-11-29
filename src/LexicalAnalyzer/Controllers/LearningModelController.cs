@@ -211,8 +211,8 @@ namespace LexicalAnalyzer.Controllers {
             }
         }
 
-        [HttpGet("api/learningmodel/{guid}/results")]
-        public string Results(string guid) {
+        [HttpGet("api/learningmodel/{guid}/result")]
+        public string Result(string guid) {
             ILearningModel learningModel =
                 m_learningService.GetLearningModel(guid);
             if (learningModel == null) {
