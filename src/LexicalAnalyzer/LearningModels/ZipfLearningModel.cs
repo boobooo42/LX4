@@ -133,7 +133,28 @@ namespace LexicalAnalyzer.LearningModels {
 
         public IResult Result {
             get {
-                ZipfResult result = new ZipfResult();
+                /* XXX: Replace this with real data */
+                var words = new List<RankFrequencyPair>();
+                words.Add(new RankFrequencyPair(
+                            "foo",  /* name */
+                            1,  /* rank */
+                            2935  /* frequency */
+                            ));
+                words.Add(new RankFrequencyPair(
+                            "bar",  /* name */
+                            2,  /* rank */
+                            235  /* frequency */
+                            ));
+                words.Add(new RankFrequencyPair(
+                            "baz",  /* name */
+                            3,  /* rank */
+                            20  /* frequency */
+                            ));
+                var characters = new List<RankFrequencyPair>();
+                ZipfResult result = new ZipfResult(
+                    words, /* words */
+                    characters  /* characters */
+                    );
                 return result;
             }
         }
