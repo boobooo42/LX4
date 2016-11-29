@@ -49,6 +49,46 @@ namespace LexicalAnalyzer.LearningModels
                 //            "[default val of selection]",  /* defaultValue */
                 //            "[units or type description]"  /* type */
                 //            ));
+                properties.Add(
+                    new KeyValueProperty(
+                        "cSymmetric", "1", "boolean"
+                        ));
+                properties.Add(
+                    new KeyValueProperty(
+                        "cWindowSize", "15", "integer"
+                        ));
+                properties.Add(
+                    new KeyValueProperty(
+                        "cMaxProduct", "-1", "integer"
+                        ));
+                properties.Add(
+                    new KeyValueProperty(
+                        "gVectorSize", "50", "integer"
+                        ));
+                properties.Add(
+                    new KeyValueProperty(
+                        "gIter", "15", "integer"
+                        ));
+                properties.Add(
+                    new KeyValueProperty(
+                        "gEta", "0.05", "float"
+                        ));
+                properties.Add(
+                    new KeyValueProperty(
+                        "gAlpha", "0.75", "float"
+                        ));
+                properties.Add(
+                    new KeyValueProperty(
+                        "gXMax", "100.0", "float"
+                        ));
+                properties.Add(
+                    new KeyValueProperty(
+                        "vMaxVocab", "-1", "integer"
+                        ));
+                properties.Add(
+                    new KeyValueProperty(
+                        "vMinVocab", "1", "integer"
+                        ));
                 return properties;
             }
         }
