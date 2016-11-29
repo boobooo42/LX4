@@ -119,6 +119,15 @@ namespace LexicalAnalyzer.LearningModels
 
         [DllImport("deeplearning.dll")]
         public static extern int test(int foo);
+
+
+        public IResult Result {
+            get {
+                /* TODO: Output Glove results */
+                TestResult result = new TestResult();
+                return result;
+            }
+        }
     }
 
     public class CooccurArgs {

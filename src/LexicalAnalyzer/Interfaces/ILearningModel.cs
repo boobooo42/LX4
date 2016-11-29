@@ -17,5 +17,10 @@ namespace LexicalAnalyzer.Interfaces
         {
             get; set;
         }
+
+        IResult Result
+        {
+            get;
+        }
     }
 }

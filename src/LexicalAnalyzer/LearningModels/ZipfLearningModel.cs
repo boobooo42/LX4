@@ -130,5 +130,12 @@ namespace LexicalAnalyzer.LearningModels {
             /* TODO: Read from the corpus */
             /* TODO: Calculate the frequency/rank of words/letters */
         }
+
+        public IResult Result {
+            get {
+                ZipfResult result = new ZipfResult();
+                return result;
+            }
+        }
     }
 }

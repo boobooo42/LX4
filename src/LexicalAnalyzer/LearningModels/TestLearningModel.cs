@@ -73,5 +73,12 @@ namespace LexicalAnalyzer.LearningModels
                 return "vast knowledge";
             }
         }
+
+        public IResult Result {
+            get {
+                TestResult result = new TestResult();
+                return result;
+            }
+        }
     }
 }

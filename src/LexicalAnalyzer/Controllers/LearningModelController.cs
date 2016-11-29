@@ -1,8 +1,13 @@
 using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System;
 
 namespace LexicalAnalyzer.Controllers {
     public class LearningModelController : Controller {
@@ -145,11 +150,84 @@ namespace LexicalAnalyzer.Controllers {
             return JsonConvert.SerializeObject(learningModel);
         }
 
-        /*
-        [HttpGet("api/learningmodel/results/{guid}")]
-        public string Results(string guid) {
-            return JsonConvert.SerializeObject();
+        public class RawJsonConverter : JsonConverter
+        {
+            public override bool CanConvert(
+                    Type objectType)
+            {
+                if (objectType == typeof(string))
+                    return true;
+                return false;
+            }
+
+            public override void WriteJson(
+                    JsonWriter writer,
+                    Object value,
+                    JsonSerializer serializer)
+            {
+                Debug.Assert(value.GetType() == typeof(string));
+                writer.WriteRaw((string)value);
+            }
+
+            public override Object ReadJson(
+                    JsonReader reader,
+                    Type objectType,
+                    Object existingValue,
+                    JsonSerializer serializer)
+            {
+                Debug.Assert(false);
+                return null;
+            }
         }
-        */
+
+        public class SerializeResultContractResolver : DefaultContractResolver
+        {
+            public new static readonly SerializeResultContractResolver Instance
+                = new SerializeResultContractResolver();
+
+            protected override JsonProperty CreateProperty(
+                    MemberInfo member,
+                    MemberSerialization memberSerialization)
+            {
+                JsonProperty property =
+                    base.CreateProperty(
+                            member,
+                            memberSerialization);
+                if (property.DeclaringType
+                        .GetInterfaces()
+                        .Contains(typeof(IResult)))
+                {
+                    if (property.PropertyName == "Data")
+                    {
+                        /* FIXME: I think it's pretty obvious that
+                         * ItemConverter is meant for collections, while we are
+                         * simply trying to convert a Result. We need to write
+                         * a ResultConverter object in order to do this
+                         * properly. */
+                        property.ItemConverter = new RawJsonConverter();
+                    }
+                }
+                return property;
+            }
+        }
+
+        [HttpGet("api/learningmodel/{guid}/results")]
+        public string Results(string guid) {
+            ILearningModel learningModel =
+                m_learningService.GetLearningModel(guid);
+            if (learningModel == null) {
+                Response.StatusCode = 404;  /* Not Found */
+                var error = new LexicalAnalyzer.Models.Error();
+                error.Message =
+                    "Could not find learning model with the given GUID";
+                return JsonConvert.SerializeObject(error);
+            }
+            return JsonConvert.SerializeObject(
+                    learningModel.Result,
+                    Formatting.Indented,
+                    new JsonSerializerSettings {
+                    ContractResolver = SerializeResultContractResolver.Instance
+                    });
+        }
     }
 }

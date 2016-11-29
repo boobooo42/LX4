@@ -1,4 +1,4 @@
-namespace LexicalAnalyzer {
+namespace LexicalAnalyzer.Interfaces {
     public interface IResult {
         /// <summary>
         /// The fully-qualified class name of this result type.
