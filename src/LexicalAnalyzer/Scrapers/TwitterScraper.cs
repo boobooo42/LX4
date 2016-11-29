@@ -21,6 +21,12 @@ namespace LexicalAnalyzer.Scrapers
         private float m_progress;
         private int m_priority;
         private ICorpusContext m_context;
+        private int m_downloadCount;
+        private int m_downloadLimit;
+        private Stopwatch m_timer;
+        private int m_timeLimit;
+        private List<KeyValueProperty> m_properties;
+        private bool m_authorized;
 
         /// <summary>
         /// Constructor
@@ -33,9 +39,25 @@ namespace LexicalAnalyzer.Scrapers
             m_progress = 0.0f;
             m_priority = 0;
             m_context = context;
+            m_downloadCount = 0;
+            m_downloadLimit = 0;
+            m_timer = new Stopwatch();
+            m_timeLimit = 0;
         }
 
         #region Properties
+        /// <summary>
+        /// Gets the scraper type
+        /// </summary>
+        /// <returns></returns>
+        public string Type
+        {
+            get
+            {
+                return this.GetType().FullName;
+            }
+        }
+
         /// <summary>
         /// Gets guid
         /// </summary>
@@ -56,7 +78,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             get { return "Twitter Scraper"; }
         }
-
+        public string DName { get { return "Twitter Scraper"; } }
         /// <summary>
         /// Gets description--is hardcoded
         /// </summary>
@@ -69,6 +91,10 @@ namespace LexicalAnalyzer.Scrapers
                     @"A scraper used for scraping tweets from Twitter.";
             }
         }
+        public string Desc
+        {
+            get { return @"A scraper used for scraping tweets from Twitter."; }
+        }
 
         /// <summary>
         /// Gets content type --is hardcoded
@@ -80,6 +106,11 @@ namespace LexicalAnalyzer.Scrapers
             {
                 return "tweets";
             }
+        }
+
+        public bool Authorized
+        {
+            get { return m_authorized; }
         }
 
         /// <summary>
@@ -122,6 +153,47 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        public int DownloadCount
+        {
+            get
+            {
+                return m_downloadCount;
+            }
+        }
+        public int DownloadLimit
+        {
+            get
+            {
+                return m_downloadLimit;
+            }
+
+            set
+            {
+                m_downloadLimit = value;
+            }
+        }
+
+        public Stopwatch Timer
+        {
+            get
+            {
+                return m_timer;
+            }
+        }
+
+        public int TimeLimit
+        {
+            get
+            {
+                return m_timeLimit;
+            }
+
+            set
+            {
+                m_timeLimit = value;
+            }
+        }
+
         /// <summary>
         /// List of properties supported by TextScraper and their respective
         /// default values.
@@ -133,21 +205,21 @@ namespace LexicalAnalyzer.Scrapers
                 var properties = new List<KeyValueProperty>();
                 properties.Add(
                         new KeyValueProperty(
-                            "timeout",  /* key */
-                            "30",  /* defaultValue */
+                            "timelimit",  /* key */
+                            "",  /* defaultValue */
                             "seconds"  /* type */
+                            ));
+                properties.Add(
+                        new KeyValueProperty(
+                            "downloadlimit",  /* key */
+                            "",  /* defaultValue */
+                            "items"  /* type */
                             ));
                 properties.Add(
                         new KeyValueProperty(
                             "website",  /* key */
                             "https://twitter.com",  /* defaultValue */
                             "url"  /* type */
-                            ));
-                properties.Add(
-                        new KeyValueProperty(
-                            "tweetsToDownload", /* key */
-                            "", /* defaultValue */
-                            "urls" /* type */
                             ));
                 return properties;
             }
@@ -159,26 +231,40 @@ namespace LexicalAnalyzer.Scrapers
         /// <returns></returns>
         public IEnumerable<KeyValueProperty> Properties
         {
-            get; set;
+            get { return m_properties; }
+            set
+            {
+                foreach (var property in value)
+                {
+                    if (property.Key == "timelimit")
+                        TimeLimit = int.Parse(property.Value);
+                    else if (property.Key == "downloadlimit")
+                        DownloadLimit = int.Parse(property.Value);
+                }
+                m_properties = new List<KeyValueProperty>(value);
+            }
         }
         #endregion
 
         /// <summary>
-        /// Runs the text scraper
+        /// Runs the twitter scraper
         /// </summary>
         /// <returns></returns>
         public void Run()
         {
-            Debug.Assert(false);
+            m_timer.Reset();
+            m_timer.Start();
             TwitterTest();
         }
 
         public string TwitterTest()
         {
+            Debug.Assert(false);
             string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
             string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
+            FullTwitterSample();
             return UserAuthentication(consumerKey, consumerSecret);
-            //FullTwitterSample();
+            
         }
 
         void FullTwitterSample()
@@ -193,33 +279,50 @@ namespace LexicalAnalyzer.Scrapers
             stream.StallWarnings = true;
             stream.AddTweetLanguageFilter(LanguageFilter.English);
             stream.FilterLevel = Tweetinvi.Streaming.Parameters.StreamFilterLevel.Low;
-            stream.TweetReceived += (sender, args) =>
-            {
-                // Do what you want with the Tweet.
-
-                ITweet tweet = args.Tweet;
-                try
-                {
-                    //  tweetList.Add(tweet);
-                    Debug.WriteLine(tweet);
-                    Console.WriteLine(tweet);
-
-                    //if (tweetList.Count > 10)
-                    //{
-                    //    stream.StopStream();
-                     //   foreach (ITweet tweet2 in tweetList)
-                            ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid, 
-                                this.GetType().FullName, tweet, this.m_context);
-                   // }
-                }
-
-                catch { }
-
-            };
             stream.StartStream();
+            m_downloadCount = 0;
+            m_timer.Reset();
+            bool downloadLimitReached = downloadStop();
+            bool timeLimitReached = timeStop();
+            m_timer.Start();
+            while (!downloadLimitReached && !timeLimitReached)
+            {
+                stream.TweetReceived += (sender, args) =>
+                {
+                    // Do what you want with the Tweet.
 
+                    ITweet tweet = args.Tweet;
+                    try
+                    {
+                        //  tweetList.Add(tweet);
+                        Debug.WriteLine(tweet);
+                        Console.WriteLine(tweet);
 
+                        //if (tweetList.Count > 10)
+                        //{
+                        //    stream.StopStream();
+                        //   foreach (ITweet tweet2 in tweetList)
+                        ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid,
+                            this.GetType().FullName, tweet, this.m_context);
+                        // }
+                        m_downloadCount++;
+                        m_progress = (float)m_downloadCount / m_downloadLimit;
+                    }
+                    catch { }
+                };
+                downloadLimitReached = downloadStop();
+                timeLimitReached = timeStop();
+            }
+            m_status = "stopped on ";
+            if (downloadLimitReached && timeLimitReached)
+                m_status += "downloads, time";
+            else if (downloadLimitReached)
+                m_status += "downloads";
+            else if (timeLimitReached)
+                m_status += "time";
         }
+
+
         IAuthenticationContext authenticationContext;
         public string UserAuthentication(string consumerKey, string consumerSecret)
         {
@@ -228,6 +331,8 @@ namespace LexicalAnalyzer.Scrapers
 
             // Init the authentication process and store the related `AuthenticationContext`.
             authenticationContext = AuthFlow.InitAuthentication(appCredentials);
+
+            return authenticationContext.AuthorizationURL;
 
             string authUrl = authenticationContext.AuthorizationURL;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -243,7 +348,6 @@ namespace LexicalAnalyzer.Scrapers
                 Process.Start("open", authUrl); // Not tested
             }
             // Go to the URL so that Twitter authenticates the user and gives him a PIN code.
-            return authenticationContext.AuthorizationURL;
 
 
             // Ask the user to enter the pin code given by Twitter
@@ -267,7 +371,26 @@ namespace LexicalAnalyzer.Scrapers
 
             // Use the user credentials in your application
             Auth.SetCredentials(userCredentials);
-            FullTwitterSample();
+            m_authorized = true;
+        }
+
+        public bool downloadStop()
+        {
+            if (DownloadCount >= DownloadLimit)
+                return true;
+            else
+                return false;
+        }
+
+        public bool timeStop()
+        {
+            if (m_timer.ElapsedMilliseconds >= TimeLimit * 1000)
+            {
+                m_timer.Reset();
+                return true;
+            }
+            else
+                return false;
         }
     }
 }

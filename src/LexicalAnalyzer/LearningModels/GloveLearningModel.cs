@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 
-namespace LexicalAnalyzer.Scrapers
+namespace LexicalAnalyzer.LearningModels
 {
     public class GloveLearningModel : ILearningModel
     {
@@ -31,8 +31,15 @@ namespace LexicalAnalyzer.Scrapers
         public float Progress { get; set; } = 0.0f;
         public int Priority { get; set; }   = 0;
         public IEnumerable<KeyValueProperty> Properties { get; set; } = DefaultProperties;
+        public string Type
+        {
+            get
+            {
+                return this.GetType().FullName;
+            }
+        }
 
-        private static IEnumerable<KeyValueProperty> DefaultProperties {
+        public static IEnumerable<KeyValueProperty> DefaultProperties {
             get {
                 var properties = new List<KeyValueProperty>();
                 // TODO: as many of these as we like:

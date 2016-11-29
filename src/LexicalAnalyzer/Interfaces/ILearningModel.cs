@@ -9,6 +9,10 @@ namespace LexicalAnalyzer.Interfaces
 {
     public interface ILearningModel : ITask, IGuid
     {
+        string Type {
+            get;
+        }
+
         IEnumerable<KeyValueProperty> Properties
         {
             get; set;

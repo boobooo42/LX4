@@ -56,6 +56,11 @@ namespace LexicalAnalyzer.Scrapers
         HtmlNodeCollection DownCollection;
         private Guid m_guid;
         private ICorpusContext m_context;
+        private int m_downloadCount;
+        private int m_downloadLimit;
+        private Stopwatch m_timer;
+        private int m_timeLimit;
+        private List<KeyValueProperty> m_properties;
         #endregion
 
         #region  Public Interface
@@ -70,12 +75,25 @@ namespace LexicalAnalyzer.Scrapers
         }
 
         /// <summary>
+        /// Gets the scraper type
+        /// </summary>
+        /// <returns></returns>
+        public string Type
+        {
+            get
+            {
+                return this.GetType().FullName;
+            }
+        }
+
+        /// <summary>
         /// Gets the display name
         /// </summary>
         /// <returns></returns>
         public static string DisplayName {
             get { return "Debian Scraper"; }
         }
+        public string DName { get { return "Debian Scraper"; } }
 
         /// <summary>
         /// Gets the description
@@ -88,6 +106,13 @@ namespace LexicalAnalyzer.Scrapers
                     mirrors. Files can be scraped for a variety of different
                     architectures, including x86 and x86_64.";
             }
+        }
+
+        public string Desc
+        {
+            get { return @"Useful for scraping .deb files from the Debian archive
+                    mirrors. Files can be scraped for a variety of different
+                    architectures, including x86 and x86_64."; }
         }
 
         /// <summary>
@@ -131,6 +156,46 @@ namespace LexicalAnalyzer.Scrapers
                 return 0;
             }
         }
+        public int DownloadCount
+        {
+            get
+            {
+                return m_downloadCount;
+            }
+        }
+        public int DownloadLimit
+        {
+            get
+            {
+                return m_downloadLimit;
+            }
+
+            set
+            {
+                m_downloadLimit = value;
+            }
+        }
+
+        public Stopwatch Timer
+        {
+            get
+            {
+                return m_timer;
+            }
+        }
+
+        public int TimeLimit
+        {
+            get
+            {
+                return m_timeLimit;
+            }
+
+            set
+            {
+                m_timeLimit = value;
+            }
+        }
 
         public static IEnumerable<KeyValueProperty> DefaultProperties {
             get {
@@ -162,14 +227,32 @@ namespace LexicalAnalyzer.Scrapers
             downLoadTypes.Add(".tar.gz");
 
             string debs = "";
-            
-            //work being done here
-            //downLoadTypes = GetDownloads(downLoadTypes, urlList);
 
+            m_downloadCount = 0;
+            m_timer.Reset();
+            bool downloadLimitReached = downloadStop();
+            bool timeLimitReached = timeStop();
+            m_timer.Start();
+            while (!downloadLimitReached && !timeLimitReached)
+            {
+                //work being done here
+                //downLoadTypes = GetDownloads(downLoadTypes, urlList);
+                m_downloadCount++;
+               // m_progress = (float)m_downloadCount / m_downloadLimit;
+                downloadLimitReached = downloadStop();
+                timeLimitReached = timeStop();
+            }
             foreach (string s in downLoadTypes)
             {
                 debs += s + "\n";
             }
+            m_status = "stopped on ";
+            if (downloadLimitReached && timeLimitReached)
+                m_status += "downloads, time";
+            else if (downloadLimitReached)
+                m_status += "downloads";
+            else if (timeLimitReached)
+                m_status += "time";
         }
 
         /// <summary>
@@ -206,5 +289,23 @@ namespace LexicalAnalyzer.Scrapers
             return result;
         }
         #endregion
+        public bool downloadStop()
+        {
+            if (DownloadCount >= DownloadLimit)
+                return true;
+            else
+                return false;
+        }
+
+        public bool timeStop()
+        {
+            if (m_timer.ElapsedMilliseconds >= TimeLimit * 1000)
+            {
+                m_timer.Reset();
+                return true;
+            }
+            else
+                return false;
+        }
     }
 }

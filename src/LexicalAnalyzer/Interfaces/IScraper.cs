@@ -7,7 +7,7 @@ using System;
 
 namespace LexicalAnalyzer.Interfaces
 {
-    public interface IScraper : ITask, IGuid
+    public interface IScraper : ITask, IGuid, IStop
     {
         /* NOTE: All IScraper implementors must implement these as static
          * properties */
@@ -25,6 +25,12 @@ namespace LexicalAnalyzer.Interfaces
             get;
         }
         */
+        string DName { get; }
+        string Desc { get; }
+        string Type
+        {
+            get;
+        }
 
         IEnumerable<KeyValueProperty> Properties {
             get; set;
