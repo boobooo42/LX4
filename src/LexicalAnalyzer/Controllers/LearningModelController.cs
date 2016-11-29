@@ -144,5 +144,12 @@ namespace LexicalAnalyzer.Controllers {
             }
             return JsonConvert.SerializeObject(learningModel);
         }
+
+        /*
+        [HttpGet("api/learningmodel/results/{guid}")]
+        public string Results(string guid) {
+            return JsonConvert.SerializeObject();
+        }
+        */
     }
 }

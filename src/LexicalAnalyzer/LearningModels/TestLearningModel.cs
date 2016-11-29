@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 
-namespace LexicalAnalyzer.Scrapers
+namespace LexicalAnalyzer.LearningModels
 {
     public class TestLearningModel : ILearningModel
     {
@@ -30,7 +30,7 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
-        private static IEnumerable<KeyValueProperty> DefaultProperties {
+        public static IEnumerable<KeyValueProperty> DefaultProperties {
             get {
                 var properties = new List<KeyValueProperty>();
                 //properties.Add(

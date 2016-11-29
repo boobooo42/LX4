@@ -20,7 +20,9 @@ namespace LexicalAnalyzer.Services {
 
             /* Fill our array of learning model types */
             // m_learningModelTypes.Add(typeof(TestLearningModel));
+            m_learningModelTypes.Add(typeof(TestLearningModel));
             m_learningModelTypes.Add(typeof(ZipfLearningModel));
+            m_learningModelTypes.Add(typeof(GloveLearningModel));
 
             /* TODO: Add learning models from DLL assemblies */
 
