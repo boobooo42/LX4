@@ -211,7 +211,7 @@ namespace LexicalAnalyzer.Scrapers
                 properties.Add(
                         new KeyValueProperty(
                             "website",  /* key */
-                            "http://www.gutenberg.org/robot/",  /* defaultValue */
+                            "http://www.gutenberg.org/robot/harvest",  /* defaultValue */
                             "url"  /* type */
                             ));
                 return properties;
