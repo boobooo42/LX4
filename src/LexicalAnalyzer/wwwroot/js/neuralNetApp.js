@@ -1,7 +1,8 @@
 ﻿var neuralNetApp = angular.module("neuralNetApp", ['ngRoute']);
 
 neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
-    $scope.tempData =
+    $scope.tempData;
+    $scope.tnseData =
             {
                 type: "tnse",
                 data: [{
@@ -28,13 +29,20 @@ neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
 
 
     //Display Graph
-    $scope.display = function () {
-        if ($scope.tempData.type == "tnse")
-            displayTestNet($scope.tempData);
+    $scope.display = function (selectedNet) {
+        var data;
+        if (selectedNet == "TNSE Demo") {
+            $scope.tempData = $scope.tnseData;
+            CreateTNSEPlot($scope.tempData);
+        }
+        else if (selectedNet == "Zipf Demo") {
+            $scope.tempData = collection;
+            CreateZipfsPlot(collection);
+        }
     }
 });
 
-function displayTestNet(temp) {
+function CreateTNSEPlot(temp) {
     $(".sidebar").show();
     $("#neural-net").empty();
 
