@@ -64,6 +64,11 @@
                 <p><strong>Created By:</strong> Khalil Hakim</p>
                 <p><strong>Date Created:</strong> N/A</p>
 
+                <hr />
+                <p>Element: {{ .Name}}</p>
+                <p>Rank: {{focus.Rank}}</p>
+                <p>Frequency: {{focus.Frequency}}</p>
+                <hr />
                 <button style="margin:5px" type="button" class="btn btn-success btn-sm" ng-click="display(selectedNet)">Refresh</button>
                 <button style="margin:5px" type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#DeleteNeuralNet">Delete Neural Net</button>
             </div>

@@ -82,8 +82,9 @@ function CreateZipfsPlot(collection) {
             d3.select(this).attr("r", 3).style("fill", "orange");
         })
         .on("click", function (d) {
-            $('[data-toggle="tooltip"]').tooltip();
-            console.log(d);
+            console.log(neuralNetApp.focus);
+            neuralNetApp.focus = d;
+            console.log(neuralNetApp.focus);
             console.log(this);
         });
 

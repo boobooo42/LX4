@@ -2,6 +2,7 @@
 
 neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
     $scope.tempData;
+    $scope.focus;
     $scope.tnseData =
             {
                 type: "tnse",
