@@ -58,7 +58,8 @@ manageApp.controller("ManageController", function ($scope, $http) {
         var target = $(e.target);
         var guid = target.parent().parent().siblings(".guid").text().trim();
         var type = target.parent().parent().siblings(".type").text().trim();
-        if(isTwitterandAuth(type, guid)) {
+        if (isTwitterandAuth(type, guid)) {
+            console.log("twitAuth");
             getTwitterAuth(guid, e);
         } else {
             $http({
@@ -78,9 +79,10 @@ manageApp.controller("ManageController", function ($scope, $http) {
     function isTwitterandAuth(type, guid) {
         if (type == "Twitter Scraper") {
             twitScraper = getScraperByGuid(guid);
+            console.log(twitScraper);
             return !twitScraper["Authorized"];
         } else
-            return false;
+            return true;
     }
 
     function getTwitterAuth(guid, e) {
@@ -95,14 +97,16 @@ manageApp.controller("ManageController", function ($scope, $http) {
             $("#twitterAuth").modal('show');
             $("#submitPin").click(function () {
                 var tPin = $("#twitterPin").val().trim();
+                console.log(tPin);
                 $http({
                     method: 'get',
-                    url: '/api/scraper/twitter/' + tPin + "/" + guid
+                    url: '/api/scraper/twitter/' + tPin + '/' + guid
                 })
                 .success(function (response) {
                     console.log(response);
                     $("#twitterAuth").modal('hide');
-                    $scope.startScraper(e);
+                    twitScraper["Authorized"] = true;
+                    //$scope.startScraper(e);
                 })
                 .error(function (response) {
                     $("#twitterAuth").modal('hide');
