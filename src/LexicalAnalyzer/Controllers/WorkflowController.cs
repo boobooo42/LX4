@@ -24,5 +24,9 @@ namespace LexicalAnalyzer.Controllers
         {
             return View();
         }
+        public IActionResult Learning()
+        {
+            return View();
+        }
     }
 }

@@ -21,6 +21,7 @@ manageApp.controller("ScraperController", function ($scope, $http) {
     function getTypes() {
         types = {};
         if (editScraper) {
+            
             types[editScraper["Type"]] = {
                 "displayName": editScraper["DName"],
                 "description": editScraper["Desc"],
@@ -33,15 +34,16 @@ manageApp.controller("ScraperController", function ($scope, $http) {
             var properties = [];
           
             for (var key in editScraper["Properties"]) {
-                properties.push( {"key" : editScraper["Properties"][key]["Key"],
-                 "type" : editScraper["Properties"][key]["Type"],
-                 "value": editScraper["Properties"][key]["Value"]
-                });
+                properties.push(
+                    {
+                        "key": editScraper["Properties"][key]["Key"],
+                        "type" : editScraper["Properties"][key]["Type"],
+                        "value": editScraper["Properties"][key]["Value"]
+                    });
             }
             types[editScraper["Type"]]["properties"] = properties;
             nameConversion[editScraper["Type"]] = editScraper["DName"];
             nameConversion[editScraper["DName"]] = editScraper["Type"];
-            console.log(types);
             setupForm();
         } else {
 
@@ -145,7 +147,10 @@ manageApp.controller("ScraperController", function ($scope, $http) {
         }
         for (var i = 0; i < tempProperties.length; i++) {
             var tempProps = tempProperties[i];
-            data["properties"].push({ "key": tempProps["key"], "type": tempProps["type"], "value": $("#" + tempProps["key"]).val() });
+            var val = ($("#" + tempProps["key"]).val());
+            if (val == "")
+                val = $("#" + tempProps["key"]).attr('placeholder');
+            data["properties"].push({ "key": tempProps["key"], "type": tempProps["type"], "value": val });
         }
         console.log(data);
         $http({
