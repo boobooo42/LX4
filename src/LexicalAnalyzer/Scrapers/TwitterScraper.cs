@@ -254,7 +254,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             m_timer.Reset();
             m_timer.Start();
-            TwitterTest();
+            FullTwitterSample();
         }
 
         public string TwitterTest()
@@ -262,15 +262,13 @@ namespace LexicalAnalyzer.Scrapers
             Debug.Assert(false);
             string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
             string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
-            FullTwitterSample();
+            //FullTwitterSample();
             return UserAuthentication(consumerKey, consumerSecret);
             
         }
 
         void FullTwitterSample()
         {
-
-
             List<ITweet> tweetList = new List<ITweet>();
 
             // Enable Automatic RateLimit handling
@@ -292,6 +290,7 @@ namespace LexicalAnalyzer.Scrapers
                     // Do what you want with the Tweet.
 
                     ITweet tweet = args.Tweet;
+                    Debug.Assert(false);
                     try
                     {
                         //  tweetList.Add(tweet);
@@ -310,6 +309,7 @@ namespace LexicalAnalyzer.Scrapers
                     }
                     catch { }
                 };
+                Debug.Assert(false);
                 downloadLimitReached = downloadStop();
                 timeLimitReached = timeStop();
             }
@@ -363,6 +363,18 @@ namespace LexicalAnalyzer.Scrapers
             Auth.SetCredentials(userCredentials);
         }
 
+        public string UserAuthentication()
+        {
+            string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
+            string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
+            // Create a new set of credentials for the application.
+            var appCredentials = new TwitterCredentials(consumerKey, consumerSecret);
+
+            // Init the authentication process and store the related `AuthenticationContext`.
+            authenticationContext = AuthFlow.InitAuthentication(appCredentials);
+            return authenticationContext.AuthorizationURL;
+        }
+
 
         public void FinishUserAuthentication(string pinCode)
         {
@@ -372,6 +384,7 @@ namespace LexicalAnalyzer.Scrapers
             // Use the user credentials in your application
             Auth.SetCredentials(userCredentials);
             m_authorized = true;
+            //FullTwitterSample();
         }
 
         public bool downloadStop()
