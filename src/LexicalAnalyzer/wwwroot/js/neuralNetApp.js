@@ -28,6 +28,10 @@ neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
                       }]
             }
 
+    //Update focus element.
+    $scope.updateFocus = function (d) {
+        $scope.focus = d; 
+    }
 
     //Display Graph
     $scope.display = function (selectedNet) {
@@ -35,13 +39,25 @@ neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
         if (selectedNet == "TNSE Demo") {
             $scope.tempData = $scope.tnseData;
             CreateTNSEPlot($scope.tempData);
+            $("#elementSelector").hide();
         }
         else if (selectedNet == "Zipf Demo") {
             $scope.tempData = collection;
             CreateZipfsPlot(collection);
+            $("#elementSelector").show();
+        } else {
+            $(".sidebar").hide();
+            $("#neural-net").empty();
         }
     }
 });
+
+function displayData(d) {
+    var scope = angular.element(document.getElementById("maincontroller")).scope();
+    scope.$apply(function () {
+        scope.updateFocus(d);
+    });
+}
 
 function CreateTNSEPlot(temp) {
     $(".sidebar").show();

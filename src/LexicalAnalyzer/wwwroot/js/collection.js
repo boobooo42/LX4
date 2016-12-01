@@ -161,7 +161,7 @@
           {
               "Name": "Tempsoft",
               "Rank": 32,
-              "Frequency": 9703
+              "Frequency": 8500
           },
           {
               "Name": "Fintone",
@@ -356,7 +356,7 @@
           {
               "Name": "Bitchip",
               "Rank": 71,
-              "Frequency": 9207
+              "Frequency": 9000
           },
           {
               "Name": "Zaam-Dox",
@@ -2171,7 +2171,7 @@
           {
               "Name": "Cardify",
               "Rank": 434,
-              "Frequency": 5503
+              "Frequency": 4000
           },
           {
               "Name": "Konklab",
