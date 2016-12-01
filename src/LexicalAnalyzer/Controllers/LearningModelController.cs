@@ -180,34 +180,42 @@ namespace LexicalAnalyzer.Controllers {
             }
         }
 
-        public class SerializeResultContractResolver : DefaultContractResolver
+        public class ResultConverter : JsonConverter
         {
-            public new static readonly SerializeResultContractResolver Instance
-                = new SerializeResultContractResolver();
-
-            protected override JsonProperty CreateProperty(
-                    MemberInfo member,
-                    MemberSerialization memberSerialization)
+            public override bool CanConvert(
+                    Type objectType)
             {
-                JsonProperty property =
-                    base.CreateProperty(
-                            member,
-                            memberSerialization);
-                if (property.DeclaringType
+                if (objectType.GetInterfaces().Contains(typeof(IResult)))
+                    return true;
+                return false;
+            }
+
+            public override void WriteJson(
+                    JsonWriter writer,
+                    Object value,
+                    JsonSerializer serializer)
+            {
+                Debug.Assert(value.GetType()
                         .GetInterfaces()
-                        .Contains(typeof(IResult)))
-                {
-                    if (property.PropertyName == "Data")
-                    {
-                        /* FIXME: I think it's pretty obvious that
-                         * ItemConverter is meant for collections, while we are
-                         * simply trying to convert a Result. We need to write
-                         * a ResultConverter object in order to do this
-                         * properly. */
-                        property.ItemConverter = new RawJsonConverter();
-                    }
-                }
-                return property;
+                        .Contains(typeof(IResult)));
+                var result = (IResult)value;
+                /* TODO: Write the result type as JSON */
+                writer.WriteStartObject();
+                writer.WritePropertyName("type");
+                writer.WriteValue(result.Type);
+                writer.WritePropertyName("data");
+                writer.WriteRawValue(result.Data);
+                writer.WriteEndObject();
+            }
+
+            public override Object ReadJson(
+                    JsonReader reader,
+                    Type objectType,
+                    Object existingValue,
+                    JsonSerializer serializer)
+            {
+                Debug.Assert(false);
+                return null;
             }
         }
 
@@ -224,10 +232,8 @@ namespace LexicalAnalyzer.Controllers {
             }
             return JsonConvert.SerializeObject(
                     learningModel.Result,
-                    Formatting.Indented,
-                    new JsonSerializerSettings {
-                    ContractResolver = SerializeResultContractResolver.Instance
-                    });
+                    new ResultConverter()
+                    );
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿<script src="~/js/angular.min.js"></script>
 <script src="~/js/angular-route.min.js"></script>
 <script src="~/js/neuralNetApp.js"></script>
+<script src="~/js/collection.js"></script>
+<script src="~/js/d3_Zipfs.js"></script>
 
 <style>
     .overlay {
@@ -8,14 +10,27 @@
         pointer-events: all;
     }
 
-    #neural-net {
-        //border-radius: 10px;
-        box-shadow: inset 0px 0px 20px 3px rgba(0,0,0,.25);
-    }
-
     .sidebar {
         display: none;
     }
+
+.axis path:hover {
+  stroke: #666;
+  display: none;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #999;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  //stroke: rgb(0,0,0);
+  //border: 1px orange;
+}
+
 </style>
 
 <script src="https://d3js.org/d3.v3.min.js"></script>
@@ -29,8 +44,8 @@
                 <option>Neural Net 1</option>
                 <option>Neural Net 2</option>
                 <option>Neural Net 3</option>
-                <option>Neural Net 4</option>
-                <option>Test Neural Net</option>
+                <option>TNSE Demo</option>
+                <option>Zipf Demo</option>
             </select>
         </div>
     </div>
@@ -39,7 +54,7 @@
             <section id="neural-net"></section>
         </div>
         <div class="col-md-3 sidebar">
-            <h4>Test Neural Net</h4>
+            <h4>{{tempData.type}}</h4>
             <hr />
             <div>
                 <p><strong>Description:</strong> This is a description of the test neural net you see to the left. This can give detail to what the intentions of the neural net are.</p>
@@ -49,7 +64,12 @@
                 <p><strong>Created By:</strong> Khalil Hakim</p>
                 <p><strong>Date Created:</strong> N/A</p>
 
-                <button style="margin:5px" type="button" class="btn btn-success btn-sm" ng-click="display(selectedCorpus)">Refresh</button>
+                <hr />
+                <p>Element: {{ .Name}}</p>
+                <p>Rank: {{focus.Rank}}</p>
+                <p>Frequency: {{focus.Frequency}}</p>
+                <hr />
+                <button style="margin:5px" type="button" class="btn btn-success btn-sm" ng-click="display(selectedNet)">Refresh</button>
                 <button style="margin:5px" type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#DeleteNeuralNet">Delete Neural Net</button>
             </div>
         </div>
