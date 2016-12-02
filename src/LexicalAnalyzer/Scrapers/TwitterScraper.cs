@@ -254,7 +254,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             m_timer.Reset();
             m_timer.Start();
-            FullTwitterSample();
+            StartTwitterStream();
         }
 
         public string TwitterTest()
@@ -264,10 +264,13 @@ namespace LexicalAnalyzer.Scrapers
             string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
             //FullTwitterSample();
             return UserAuthentication(consumerKey, consumerSecret);
-            
+
         }
 
-        void FullTwitterSample()
+        /// <summary>
+        /// sets up conditions for twitter stream and runs the stream
+        /// </summary>
+        void StartTwitterStream()
         {
             List<ITweet> tweetList = new List<ITweet>();
 
@@ -276,52 +279,63 @@ namespace LexicalAnalyzer.Scrapers
             var stream = Stream.CreateSampleStream();
             stream.StallWarnings = true;
             stream.AddTweetLanguageFilter(LanguageFilter.English);
-            stream.FilterLevel = Tweetinvi.Streaming.Parameters.StreamFilterLevel.Low;
-            stream.StartStream();
+            stream.FilterLevel = Tweetinvi.Streaming.Parameters.StreamFilterLevel.None;
+
             m_downloadCount = 0;
             m_timer.Reset();
-            bool downloadLimitReached = downloadStop();
-            bool timeLimitReached = timeStop();
+            //bool downloadLimitReached = downloadStop();
+            //bool timeLimitReached = timeStop();
             m_timer.Start();
-            while (!downloadLimitReached && !timeLimitReached)
+
+            //have to add this before startign the stream, tells us what to do
+            //each time we recieve a tweet
+            stream.TweetReceived += (sender, args) =>
             {
-                stream.TweetReceived += (sender, args) =>
-                {
-                    // Do what you want with the Tweet.
 
                     ITweet tweet = args.Tweet;
-                    Debug.Assert(false);
-                    try
-                    {
-                        //  tweetList.Add(tweet);
-                        Debug.WriteLine(tweet);
-                        Console.WriteLine(tweet);
+                //Debug.Assert(false);
+                try
+                {
 
-                        //if (tweetList.Count > 10)
-                        //{
-                        //    stream.StopStream();
-                        //   foreach (ITweet tweet2 in tweetList)
+                        Debug.WriteLine(tweet);
+                    Console.WriteLine(tweet);
                         ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid,
-                            this.GetType().FullName, tweet, this.m_context);
-                        // }
+                        this.GetType().FullName, tweet, this.m_context);
                         m_downloadCount++;
-                        m_progress = (float)m_downloadCount / m_downloadLimit;
-                    }
-                    catch { }
-                };
-                Debug.Assert(false);
-                downloadLimitReached = downloadStop();
-                timeLimitReached = timeStop();
-            }
-            m_status = "stopped on ";
-            if (downloadLimitReached && timeLimitReached)
-                m_status += "downloads, time";
-            else if (downloadLimitReached)
-                m_status += "downloads";
-            else if (timeLimitReached)
-                m_status += "time";
+                    m_progress = (float)m_downloadCount / m_downloadLimit;
+                    if (timeStop() || downloadStop()) 
+                            StopTwitterStream(stream);
+                }
+                catch
+                {
+                    StopTwitterStream(stream);
+                }
+            };
+
+            //start the stream, now that we know what to do with it
+            stream.StartStream();
         }
 
+        /// <summary>
+        /// stops the current twitter stream 
+        /// and produces and AAR
+        /// </summary>
+        /// <param name="stream"></param>
+        void StopTwitterStream(Tweetinvi.Streaming.ISampleStream stream)
+        {
+            stream.StopStream();
+            m_status = "stopped on ";
+            if (downloadStop() && timeStop())
+                m_status += "downloads, time";
+            else if (downloadStop())
+                m_status += "downloads";
+            else if (timeStop())
+            {
+                m_timer.Reset();
+                m_status += "time";
+            }
+            else m_status = "stopped due to application error";
+        }
 
         IAuthenticationContext authenticationContext;
         public string UserAuthentication(string consumerKey, string consumerSecret)
@@ -399,7 +413,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             if (m_timer.ElapsedMilliseconds >= TimeLimit * 1000)
             {
-                m_timer.Reset();
+              //  m_timer.Reset();
                 return true;
             }
             else
