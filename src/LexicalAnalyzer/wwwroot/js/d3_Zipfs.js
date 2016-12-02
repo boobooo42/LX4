@@ -76,15 +76,14 @@ function CreateZipfsPlot(collection) {
         .style("fill", function (d) { return "orange"; })
         .attr("data-toggle", "tooltip")
         .on("mouseover", function (d) {
+            displayData(d);
             d3.select(this).attr("r", 6).style("fill", "black");
         })
         .on("mouseout", function (d) {
             d3.select(this).attr("r", 3).style("fill", "orange");
         })
         .on("click", function (d) {
-            console.log(neuralNetApp.focus);
-            neuralNetApp.focus = d;
-            console.log(neuralNetApp.focus);
+            displayData(d);
             console.log(this);
         });
 
