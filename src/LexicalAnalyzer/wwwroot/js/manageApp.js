@@ -82,7 +82,7 @@ manageApp.controller("ManageController", function ($scope, $http) {
             console.log(twitScraper);
             return !twitScraper["Authorized"];
         } else
-            return true;
+            return false;
     }
 
     function getTwitterAuth(guid, e) {
