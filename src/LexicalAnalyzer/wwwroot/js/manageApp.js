@@ -82,7 +82,7 @@ manageApp.controller("ManageController", function ($scope, $http) {
             console.log(twitScraper);
             return !twitScraper["Authorized"];
         } else
-            return true;
+            return false;
     }
 
     function getTwitterAuth(guid, e) {
@@ -96,8 +96,7 @@ manageApp.controller("ManageController", function ($scope, $http) {
             $scope.twitterAuthURL = response;
             $("#twitterAuth").modal('show');
             $("#submitPin").click(function () {
-                var tPin = $("#twitterPin").val().trim();
-                console.log(tPin);
+                var tPin = $("#twitterPin").val().trim(); 
                 $http({
                     method: 'get',
                     url: '/api/scraper/twitter/' + tPin + '/' + guid
@@ -122,6 +121,7 @@ manageApp.controller("ManageController", function ($scope, $http) {
 
     function getExistingScrapers() {
         existingScrapers = [];
+        current = 0;
         $http({
             method: 'get',
             url: '/api/scraper/'
