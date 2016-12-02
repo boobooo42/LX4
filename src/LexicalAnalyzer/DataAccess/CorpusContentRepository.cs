@@ -3,6 +3,7 @@ using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Models;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 
@@ -32,33 +33,60 @@ namespace LexicalAnalyzer.DataAccess
         {
             Debug.Assert(content.Id == -1);
 
-                using (var conn = this.Connection())
+            using (var conn = this.Connection())
+            {
+                using (IDbTransaction tran = conn.BeginTransaction())
                 {
-                            conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.CorpusContent WHERE Hash =@Hash)
+                    try
+                    {
+                        //   conn.Execute(@"");
+                        conn.Execute(@" 
                         INSERT INTO la.CorpusContent
-                            (CorpusId, Hash, Name, Type,
+                            (CorpusId, Hash, Name, Type, ScraperGuid, ScraperType,
                              DownloadURL, Long, Lat )
-                            VALUES ( @CorpusId, @Hash, @Name, @Type,
+                            VALUES ( @CorpusId, @Hash, @Name, @Type, @ScraperGuid, @ScraperType,
                                 @DownloadURL, @Long, @Lat )
                             ", new
-                            {
+                        {
+                            CorpusId = 1,
+                            Hash = content.Hash,
+                            Name = content.Name,
+                            Type = content.Type,
+                            ScraperGuid = content.ScraperGuid.ToString(),
+                            ScraperType = content.ScraperType,
+                            DownloadUrl = content.URL,
+                            Long = content.Long,
+                            Lat = content.Lat
+                        }, transaction: tran);
+                        //conn.Execute(@"INSERT INTO la.ContentBlob
+                        //    (Hash, Contents)
+                        //     VALUES (@Hash, @Contents)",
+                        //     new
+                        //     {
+                        //         Hash = content.Hash,
+                        //         Contents = content.Content,
+                        //     }, transaction: tran);
+                        tran.Commit();
+                    }
+                    catch (SqlException e)
+                    {
+                        tran.Rollback();
+                        for (int i = 0; i < e.Errors.Count; ++i)
+                        {
+                            Debug.WriteLine("SQL Error: " + e.Errors[i].ToString());
+                        }
+                        throw;
 
-                                CorpusId = 1,
-                                Hash = content.Hash,
-                                Name = content.Name,
-                                Type = content.Type,
-                                DownloadUrl = content.URL,
-                                Long = content.Long,
-                                Lat = content.Lat
-                            });
+                    }
+
+                    /* TODO: Check for flyweight CorpusContent objects */
+                    /* TODO: Make sure the contents are somehow added to the Merkle
+                     * tree as a ContentBlob */
+                    /* TODO: If we also add a ContentBlob here, it would be nice to
+                     * do everything as a single transaction */
+
                 }
-            
-                /* TODO: Check for flyweight CorpusContent objects */
-                /* TODO: Make sure the contents are somehow added to the Merkle
-                 * tree as a ContentBlob */
-                /* TODO: If we also add a ContentBlob here, it would be nice to
-                 * do everything as a single transaction */
-            
+            }
         }
 
         public void Delete(CorpusContent content)
@@ -108,6 +136,7 @@ namespace LexicalAnalyzer.DataAccess
             }
             return content;
         }
+
 
         public IEnumerable<CorpusContent> List(int? corpusId)
         {

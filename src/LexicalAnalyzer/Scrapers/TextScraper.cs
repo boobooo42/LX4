@@ -318,7 +318,7 @@ namespace LexicalAnalyzer.Scrapers
 
             MemoryStream memoryStream = new MemoryStream(textArray);
             Random rand = new Random(DateTime.Now.Millisecond);
-            await Task.Delay(rand.Next(1000, 3000));//wait 5 seconds before trying next download
+            await Task.Delay(rand.Next(500, 1000));//wait 5 seconds before trying next download
 
             return memoryStream;
         }
