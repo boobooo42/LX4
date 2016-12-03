@@ -1,6 +1,6 @@
-﻿var neuralNetApp = angular.module("neuralNetApp", ['ngRoute']);
+﻿var neuralNetApp = angular.module("learningModelApp", ['ngRoute']);
 
-neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
+neuralNetApp.controller('learningModelController', function ($scope, $http) {
     $scope.learningModels;
     $scope.learningModelResult;
     $scope.learningModelTypes;
@@ -105,7 +105,7 @@ neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
         }
         else if ($scope.learningModelResult.type == "LexicalAnalyzer.Models.ZipfResult") {
             console.log($scope.learningModelResult);
-            CreateZipfsPlot($scope.learningModelResult);
+            CreateZipfLawPlot($scope.learningModelResult);
             $("#elementSelector").show();
         } else {
             $(".sidebar").hide();
