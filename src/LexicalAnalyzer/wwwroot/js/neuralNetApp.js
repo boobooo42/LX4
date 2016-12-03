@@ -3,8 +3,24 @@
 neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
     $scope.learningModels;
     $scope.learningModelResult;
-    $scope.tempData;
-    $scope.focus;
+    $scope.learningModelTypes;
+    $scope.focusModel;
+    $scope.focusModelType;
+    $scope.focusElement;
+
+    //Type of Learning models ajax call to get secription and name. 
+    $scope.getLearningModelTypes = function () {
+        $http({
+            method: 'get',
+            url: '/api/learningmodel/types',
+        }).success(function (response) {
+            $scope.learningModelTypes = response;
+            console.log($scope.learningModelTypes);
+        })
+           .error(function () {
+               console.log("Failed to get learning models.")
+           });
+    }
 
     //GET /api/learningmodel (Get all learning models currently instantiated).
     $scope.getLearningModels = function () {
@@ -21,18 +37,20 @@ neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
     }
 
     //Get Specific learning model [PARAM: guid]
-    $scope.getLearningModelResult = function (guid) {
-        var route = "api/learningmodel/" + guid + "/result";
+    $scope.getLearningModelResult = function (learningModel) {
+        $scope.focusModel = learningModel;
+        var route = "/api/learningmodel/" + learningModel.Guid + "/result";
 
         $http({
             method: 'get',
             url: route,
         }).success(function (response) {
+            console.log("Successfully retrieved learning model result.")
             $scope.learningModelResult = response;
-            console.log($scope.learningModelResult);
+            $scope.display();
         })
            .error(function () {
-               console.log("Failed to get learning model.")
+               console.log("Failed to get learning model result.")
            });
     }
 
@@ -63,25 +81,31 @@ neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
 
     //Update focus element.
     $scope.updateFocus = function (d) {
-        $scope.focus = d;
+        $scope.focusElement = d;
     }
 
     //Display Graph
-    $scope.display = function (learningModel) {
-        console.log(learningModel);
+    $scope.display = function () {
+        
+        //Display information about leaning model type.
+        for (var i = 0; i < $scope.learningModelTypes.length; i++) {
+            if ($scope.learningModelTypes[i].type == $scope.focusModel.Type) {
+                $scope.focusModelType = $scope.learningModelTypes[i];
+                console.log("Found learning model type.");
+            }
+        }
 
-        //Return specified learning model result based on guid. 
-        $scope.getLearningModelResult(learningModel.Guid);
+        console.log($scope.learningModelResult);
 
-        var data;
-        if (learningModel == "TNSE Demo") {
-            $scope.tempData = $scope.tnseData;
+        if ($scope.learningModelResult.type == "TNSE Demo") {
+            console.log($scope.learningModelResult);
+            $scope.focusModel = $scope.tnseData;
             CreateTNSEPlot($scope.tempData);
             $("#elementSelector").hide();
         }
-        else if ($scope.learningModelResult == "Zipf Demo") {
-            $scope.tempData = collection;
-            CreateZipfsPlot(collection);
+        else if ($scope.learningModelResult.type == "LexicalAnalyzer.Models.ZipfResult") {
+            console.log($scope.learningModelResult);
+            CreateZipfsPlot($scope.learningModelResult);
             $("#elementSelector").show();
         } else {
             $(".sidebar").hide();
@@ -91,6 +115,7 @@ neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
 
     //Initialize the scope.
     $scope.getLearningModels();
+    $scope.getLearningModelTypes();
 });
 
 function displayData(d) {
