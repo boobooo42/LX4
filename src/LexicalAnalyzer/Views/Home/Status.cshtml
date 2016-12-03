@@ -19,7 +19,7 @@
                 <br />
                 <span>Content Type: {{scrapper.ContentType}}</span>
                 <br />
-                <span>Guid: {{scrapper.Guid + " Index:" + $Index}}</span>
+                <span>Guid: {{scrapper.Guid}}</span>
 
                 <hr />
                 <div class="progress">
@@ -37,19 +37,21 @@
         <div class="col-md-7">
             <h4>Active Learning Models</h4>
 
-            <div class="scrapper-status">
+            <div class="scrapper-status" ng-repeat="lm in learningModels">
                 <span class="status-id">{{lm.id}}</span>
 
-                <span>Name: {{lm.name}}</span>
+                <span>Name: {{lm.name}} N/A</span>
                 <br />
-                <span>Date Started: {{lm.date}}</span>
+                <span>Status: {{lm.Status}}</span>
                 <br />
                 <span>Type: {{lm.Type}}</span>
+                <br />
+                <span>Guid: {{lm.Guid}}</span>
                 <hr />
                 <div class="progress">
-                    <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar"
-                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:47%">
-                        47% Complete
+                    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
+                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:{{lm.Progress}}%">
+                        {{lm.Progress}}% Complete
                     </div>
                 </div>
             </div>
