@@ -43,7 +43,7 @@ namespace LexicalAnalyzer.Controllers
             return View();
         }
 
-        public IActionResult NeuralNet()
+        public IActionResult LearningModel()
         {
             return View();
         }

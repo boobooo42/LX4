@@ -21,8 +21,8 @@ neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
     }
 
     //Get Specific learning model [PARAM: guid]
-    $scope.getLearningModel = function (guid) {
-        var route = "api/learningmodel/" + guid;
+    $scope.getLearningModelResult = function (guid) {
+        var route = "api/learningmodel/" + guid + "/result";
 
         $http({
             method: 'get',
@@ -70,8 +70,8 @@ neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
     $scope.display = function (learningModel) {
         console.log(learningModel);
 
-        //Return specified learning model based on input. 
-        $scope.getLearningModel(learningModel.Guid);
+        //Return specified learning model result based on guid. 
+        $scope.getLearningModelResult(learningModel.Guid);
 
         var data;
         if (learningModel == "TNSE Demo") {
