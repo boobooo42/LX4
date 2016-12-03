@@ -55,5 +55,73 @@ statusApp.controller("status", function ($scope, $http, $interval) {
         }
     }
 
+    //Starts or stop given scrapper.
+    $scope.toggleScrapper = function (scrapper) {
+
+        if (scrapper.Status == "init") {
+            var route = "/api/scraper/" + scrapper.Guid + "/start";
+
+            $http({
+                method: 'post',
+                url: route,
+            }).success(function (response) {
+                console.log("Successfully paused scrapper.");
+            })
+               .error(function () {
+                   console.log("Failed to pause scrapper")
+               });
+        }else if (scrapper.Status != "paused") {
+            var route = "/api/scraper/" + scrapper.Guid + "/pause";
+
+            $http({
+                method: 'post',
+                url: route,
+            }).success(function (response) {
+                console.log("Successfully paused scrapper.");
+            })
+               .error(function () {
+                   console.log("Failed to pause scrapper")
+               });
+
+        } else {
+            var route = "/api/scraper/" + scrapper.Guid + "/start";
+
+            $http({
+                method: 'post',
+                url: route,
+            }).success(function (response) {
+                console.log("Successfully paused scrapper.");
+            })
+               .error(function () {
+                   console.log("Failed to pause scrapper")
+               });
+        }
+    }
+
+    //Starts or stop given learning model.
+    $scope.togglelearningModel = function (lm) {
+        var route = "/api/learningmodel/" + lm.Guid;
+
+        if (lm.Status != "paused") {
+            lm.Status = "pause";
+            $http.put(route, lm)
+                .success(function (data, status, headers, config) {
+                    console.log("Successfully paused scrapper");
+                })
+                .error(function (data, status, header, config) {
+                    console.log("Failed to pause scrapper");
+                });
+        } else {
+            lm.Status = "start";
+            $http.put(route, lm)
+               .success(function (data, status, headers, config) {
+                   console.log("Successfully started scrapper");
+               })
+               .error(function (data, status, header, config) {
+                   console.log("Failed to start scrapper");
+               });
+        }
+    }
+
     $interval($scope.init, 2000);
 });

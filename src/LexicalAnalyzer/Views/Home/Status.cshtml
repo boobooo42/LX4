@@ -11,11 +11,11 @@
             <h4>Active Scrappers</h4>
 
             <div class="scrapper-status" ng-repeat="scrapper in scrappers">
-                <span class="status-pause" ng-click="pauseScrapper({{scrapper.Guid}})"><i class="glyphicon glyphicon-pause"></i></span>
+                <span class="status-pause" ng-click="toggleScrapper(scrapper)"><i class="glyphicon glyphicon-pause"></i></span>
 
                 <span>Name: {{scrapper.DName}}</span>
                 <br />
-                <span>Date Started: N/A {{scrapper.StartDate}}</span>
+                <span>Status: {{scrapper.Status}}</span>
                 <br />
                 <span>Content Type: {{scrapper.ContentType}}</span>
                 <br />
@@ -38,6 +38,8 @@
             <h4>Active Learning Models</h4>
 
             <div class="scrapper-status" ng-repeat="lm in learningModels">
+                <span class="status-pause" ng-click="togglelearningModel(lm)"><i class="glyphicon glyphicon-pause"></i></span>
+
                 <span class="status-id">{{lm.id}}</span>
 
                 <span>Name: {{lm.name}} N/A</span>
