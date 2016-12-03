@@ -1,4 +1,4 @@
-﻿function displayInfo(data){
+﻿function displayInfo(data) {
     $("body").append()
 }
 
@@ -6,9 +6,9 @@ function CreateZipfsPlot(collection) {
     $(".sidebar").show();
     $("#neural-net").empty();
 
-    var margin = { top: 100, right: 100, bottom: 100, left: 100 },
-        width = 650 - margin.left - margin.right,
-        height = 650 - margin.top - margin.bottom;
+    var margin = { top: 10, right: 100, bottom: 100, left: 100 },
+        width = 800 - margin.left - margin.right,
+        height = 700 - margin.top - margin.bottom;
 
     var x = d3.scale.log()
         .domain([0.1, 10])
@@ -40,8 +40,16 @@ function CreateZipfsPlot(collection) {
         d.Rank = +d.Rank;
     });
 
+    collection.data.Characters.forEach(function (d) {
+        d.Frequency = +d.Frequency;
+        d.Rank = +d.Rank;
+    });
+
     x.domain(d3.extent(collection.data.Words, function (d) { return d.Rank; })).nice();
     y.domain(d3.extent(collection.data.Words, function (d) { return d.Frequency; })).nice();
+
+    console.log(collection.data.Words);
+    console.log(collection.data.Characters);
 
     svg.append("g")
         .attr("class", "x axis")
@@ -49,7 +57,7 @@ function CreateZipfsPlot(collection) {
         .call(xAxis)
       .append("text")
         .attr("class", "label")
-        .attr("x", width/2 + 10)
+        .attr("x", width / 2 + 10)
         .attr("y", 50)
         .style("text-anchor", "end")
         .text("log(Rank)");
@@ -61,31 +69,52 @@ function CreateZipfsPlot(collection) {
         .attr("class", "label")
         .attr("transform", "rotate(-90)")
         .attr("y", -75)
-        .attr("x", -(width/2) + 40)
+        .attr("x", -(width / 2) + 40)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
         .text("log(Frequency)");
 
-    svg.selectAll(".dot")
+    svg.selectAll(".wdot")
         .data(collection.data.Words)
         .enter().append("circle")
-        .attr("class", "dot")
+        .attr("class", "wdot")
         .attr("r", 3)
         .attr("cx", function (d) { return x(d.Rank); })
         .attr("cy", function (d) { return y(d.Frequency); })
-        .style("fill", function (d) { return "orange"; })
+        .style("fill", function (d) { return color("Word"); })
         .attr("data-toggle", "tooltip")
         .on("mouseover", function (d) {
             displayData(d);
             d3.select(this).attr("r", 6).style("fill", "black");
         })
         .on("mouseout", function (d) {
-            d3.select(this).attr("r", 3).style("fill", "orange");
+            d3.select(this).attr("r", 3).style("fill", color("Word"));
         })
         .on("click", function (d) {
             displayData(d);
             console.log(this);
         });
+
+    svg.selectAll(".cdot")
+       .data(collection.data.Characters)
+       .enter().append("circle")
+       .attr("class", "cdot")
+       .attr("r", 3)
+       .attr("cx", function (d) { return x(d.Rank); })
+       .attr("cy", function (d) { return y(d.Frequency); })
+       .style("fill", function (d) { return color("Character"); })
+       .attr("data-toggle", "tooltip")
+       .on("mouseover", function (d) {
+           displayData(d);
+           d3.select(this).attr("r", 6).style("fill", "black");
+       })
+       .on("mouseout", function (d) {
+           d3.select(this).attr("r", 3).style("fill", color("Character"));
+       })
+       .on("click", function (d) {
+           displayData(d);
+           console.log(this);
+       });
 
     var legend = svg.selectAll(".legend")
         .data(color.domain())

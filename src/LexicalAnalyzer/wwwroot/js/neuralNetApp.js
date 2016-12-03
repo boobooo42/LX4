@@ -1,8 +1,41 @@
 ﻿var neuralNetApp = angular.module("neuralNetApp", ['ngRoute']);
 
 neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
+    $scope.learningModels;
+    $scope.learningModelResult;
     $scope.tempData;
     $scope.focus;
+
+    //GET /api/learningmodel (Get all learning models currently instantiated).
+    $scope.getLearningModels = function () {
+        $http({
+            method: 'get',
+            url: '/api/learningmodel',
+        }).success(function (response) {
+            $scope.learningModels = response;
+            console.log($scope.learningModels);
+        })
+           .error(function () {
+               console.log("Failed to get learning models.")
+           });
+    }
+
+    //Get Specific learning model [PARAM: guid]
+    $scope.getLearningModel = function (guid) {
+        var route = "api/learningmodel/" + guid;
+
+        $http({
+            method: 'get',
+            url: route,
+        }).success(function (response) {
+            $scope.learningModelResult = response;
+            console.log($scope.learningModelResult);
+        })
+           .error(function () {
+               console.log("Failed to get learning model.")
+           });
+    }
+
     $scope.tnseData =
             {
                 type: "tnse",
@@ -30,18 +63,23 @@ neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
 
     //Update focus element.
     $scope.updateFocus = function (d) {
-        $scope.focus = d; 
+        $scope.focus = d;
     }
 
     //Display Graph
-    $scope.display = function (selectedNet) {
+    $scope.display = function (learningModel) {
+        console.log(learningModel);
+
+        //Return specified learning model based on input. 
+        $scope.getLearningModel(learningModel.Guid);
+
         var data;
-        if (selectedNet == "TNSE Demo") {
+        if (learningModel == "TNSE Demo") {
             $scope.tempData = $scope.tnseData;
             CreateTNSEPlot($scope.tempData);
             $("#elementSelector").hide();
         }
-        else if (selectedNet == "Zipf Demo") {
+        else if ($scope.learningModelResult == "Zipf Demo") {
             $scope.tempData = collection;
             CreateZipfsPlot(collection);
             $("#elementSelector").show();
@@ -50,6 +88,9 @@ neuralNetApp.controller('NeuralNetController', function ($scope, $http) {
             $("#neural-net").empty();
         }
     }
+
+    //Initialize the scope.
+    $scope.getLearningModels();
 });
 
 function displayData(d) {

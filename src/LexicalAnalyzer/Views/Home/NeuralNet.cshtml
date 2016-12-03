@@ -14,23 +14,17 @@
         display: none;
     }
 
-.axis path:hover {
-  stroke: #666;
-  display: none;
-}
+    .axis path:hover {
+        stroke: #666;
+        display: none;
+    }
 
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #999;
-  shape-rendering: crispEdges;
-}
-
-.dot {
-  //stroke: rgb(0,0,0);
-  //border: 1px orange;
-}
-
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #999;
+        shape-rendering: crispEdges;
+    }
 </style>
 
 <script src="https://d3js.org/d3.v3.min.js"></script>
@@ -40,10 +34,8 @@
         <h3><span>Neural Net</span></h3><hr />
         <div class="form-group">
             <label for="">Select a Neural Net</label>
-            <select class="form-control" id="corpusList" ng-model="selectedNet" ng-change="display(selectedNet)">
-                <option>Neural Net 1</option>
-                <option>Neural Net 2</option>
-                <option>Neural Net 3</option>
+            <select class="form-control" id="learningModelList" ng-model="selectedNet" ng-change="display(selectedNet)" ng-options="lm as lm.Type for lm in learningModels">
+
                 <option>TNSE Demo</option>
                 <option>Zipf Demo</option>
             </select>
@@ -100,3 +92,15 @@
         </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
