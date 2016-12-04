@@ -1,6 +1,6 @@
 ﻿<script src="~/js/angular.min.js"></script>
 <script src="~/js/angular-route.min.js"></script>
-<script src="~/js/neuralNetApp.js"></script>
+<script src="~/js/learningModelApp.js"></script>
 <script src="~/js/collection.js"></script>
 <script src="~/js/d3_Zipfs.js"></script>
 
@@ -14,36 +14,35 @@
         display: none;
     }
 
-.axis path:hover {
-  stroke: #666;
-  display: none;
-}
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
 
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #999;
-  shape-rendering: crispEdges;
-}
+    .legend line,
+    .lines {
+      fill: none;
+      stroke-width: 1.5px;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
 
-.dot {
-  //stroke: rgb(0,0,0);
-  //border: 1px orange;
-}
-
+    .legend line:hover{
+      fill: orange;
+    }
 </style>
 
 <script src="https://d3js.org/d3.v3.min.js"></script>
 
-<div id="maincontroller" class="container" ng-app="neuralNetApp" ng-controller="NeuralNetController">
+<div id="maincontroller" class="container" ng-app="learningModelApp" ng-controller="learningModelController">
     <div class="row row-margin">
-        <h3><span>Neural Net</span></h3><hr />
+        <h3><span>Learning Model</span></h3><hr />
         <div class="form-group">
-            <label for="">Select a Neural Net</label>
-            <select class="form-control" id="corpusList" ng-model="selectedNet" ng-change="display(selectedNet)">
-                <option>Neural Net 1</option>
-                <option>Neural Net 2</option>
-                <option>Neural Net 3</option>
+            <label for="">Select a Learning Model</label>
+            <select class="form-control" id="learningModelList" ng-model="learningModel" ng-change="getLearningModelResult(learningModel)" ng-options="lm as lm.Type for lm in learningModels">
+
                 <option>TNSE Demo</option>
                 <option>Zipf Demo</option>
             </select>
@@ -54,27 +53,27 @@
             <section id="neural-net"></section>
         </div>
         <div class="col-md-3 sidebar">
-            <h4>{{tempData.type}}</h4>
+            <h4>{{focusModelType.displayName}}</h4>
             <hr />
             <div>
-                <p><strong>Description:</strong> This is a description of the test neural net you see to the left. This can give detail to what the intentions of the neural net are.</p>
+                <p><strong>Description:</strong>{{focusModelType.description}}</p>
 
-                <p><strong>Corpa Used:</strong> This can be a list of the corpa used to create the neural net.</p>
-
-                <p><strong>Created By:</strong> Khalil Hakim</p>
+                <p><strong>Corpa Used:</strong> N/A</p>
+                <p><strong>Created By:</strong> N/A</p>
                 <p><strong>Date Created:</strong> N/A</p>
+                <p><strong>Guid:</strong> {{focusModel.Guid}}</p>
 
                 <div id="elementSelector">
                     <hr />
                     <h4>Select Element to Study</h4>
-                    <p><strong>Element:</strong> {{focus.Name}}</p>
-                    <p><strong>Rank:</strong> {{focus.Rank}}</p>
-                    <p><strong>Frequency:</strong> {{focus.Frequency}}</p>
+                    <p><strong>Element:</strong> {{focusElement.Name}}</p>
+                    <p><strong>Rank:</strong> {{focusElement.Rank}}</p>
+                    <p><strong>Frequency:</strong> {{focusElement.Frequency}}</p>
                     <hr />
                 </div>
 
-                <button style="margin:5px" type="button" class="btn btn-success btn-sm" ng-click="display(selectedNet)">Refresh</button>
-                <button style="margin:5px" type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#DeleteNeuralNet">Delete Neural Net</button>
+                <button style="margin:5px" type="button" class="btn btn-success btn-sm" ng-click="getLearningModelResult(learningModel)">Refresh</button>
+                <button style="margin:5px" type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#DeleteNeuralNet">Delete Learning Model</button>
             </div>
         </div>
     </div>
@@ -91,7 +90,7 @@
                 <h2 class="modal-title">WARNING</h2>
             </div>
             <div class="modal-body">
-                <p>Are you absolutely positively sure you want to delete this Neural Net?</p>
+                <p>Are you absolutely positively sure you want to delete this Learning Model?</p>
             </div>
             <div class="modal-footer">
                 <div style="margin: 0 auto" type="button" class="btn btn-danger" data-dismiss="modal">Not too sure..</div>
@@ -100,3 +99,15 @@
         </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
