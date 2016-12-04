@@ -102,7 +102,6 @@ manageApp.controller("ScraperController", function ($scope, $http) {
     function listProperties() {
         build = "";
         var selected = $scope.selectedScraper;
-        console.log(selected);
         if (selected) {
             $("#scraperProperties").empty();
             properties = types[nameConversion[selected]]["properties"];
@@ -110,9 +109,6 @@ manageApp.controller("ScraperController", function ($scope, $http) {
                 build += '<label>' + properties[i]["key"] + "(" + properties[i]["type"] + "): " + '</label><input type="text" class="form-control" id="' + properties[i]["key"] + '" placeholder="' + properties[i]["value"] + '"><hr />';
             }
         }
-        //if (editScraper) {
-        //    build += '<label> Priority: </label><input type="text" class="form-control" id="Priority placehoder="' + editScraper["Priority"] + '"/></hr>"';
-        //}
         $(build).appendTo("#scraperProperties");
     }
 
@@ -160,6 +156,7 @@ manageApp.controller("ScraperController", function ($scope, $http) {
         })
         .success(function (response) {
             console.log(response);
+            $("#scraperNew").closest('form').find("input[type=text], textarea").val("");
         })
         .error(function () {
 

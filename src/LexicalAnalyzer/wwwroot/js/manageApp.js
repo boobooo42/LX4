@@ -118,7 +118,6 @@ manageApp.controller("ManageController", function ($scope, $http) {
         });
     }
 
-
     function getExistingScrapers() {
         existingScrapers = [];
         current = 0;
@@ -150,7 +149,7 @@ manageApp.controller("ManageController", function ($scope, $http) {
                 incrementCount();
             })
             .error(function (response) {
-                console.log("getScraperDetails() failed: " + response)
+                console.log("getScraperDetails failed: " + response)
             });
         }
     }

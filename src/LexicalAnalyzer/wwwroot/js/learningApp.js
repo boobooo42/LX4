@@ -21,7 +21,6 @@ manageApp.controller("LearningController", function ($scope, $http) {
                             }
                         }
                     }
-                    console.log(types);
                     setupForm();
                 }
             })
@@ -58,7 +57,6 @@ manageApp.controller("LearningController", function ($scope, $http) {
     function listProperties() {
         build = "";
         var selected = $scope.selectedLearningModel;
-        console.log(selected);
         if (selected) {
             $("#learningProperties").empty();
             properties = types[nameConversion[selected]]["properties"];
@@ -79,25 +77,33 @@ manageApp.controller("LearningController", function ($scope, $http) {
             "priority": 0,
             "properties": []
         }
+        var complete = true;
         for (var i = 0; i < tempProperties.length; i++) {
             var tempProps = tempProperties[i];
             var val = ($("#" + tempProps["key"]).val());
-            if (val == "")
+            if (val == "") {
+                console.log("inval");
                 val = $("#" + tempProps["key"]).attr('placeholder');
+                if (val == "") {
+                    complete = false;
+                }
+            }
             data["properties"].push({ "key": tempProps["key"], "type": tempProps["type"], "value": val });
         }
-        console.log(data);
-        $http({
-            method: 'post',
-            url: '/api/learningmodel/' + learningModel,
-            data: data
-        })
-        .success(function (response) {
-            console.log(response);
-        })
-        .error(function () {
-
-        });
+        console.log(complete);
+        if (complete) {
+            $http({
+                method: 'post',
+                url: '/api/learningmodel/' + learningModel,
+                data: data
+            })
+            .success(function (response) {
+                console.log(response);
+            })
+            .error(function () {
+                console.log(response);
+            });
+        }
     };
 
     getTypes()
