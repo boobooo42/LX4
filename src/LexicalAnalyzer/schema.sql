@@ -21,7 +21,7 @@ CREATE TABLE la.CorpusContent (
     Hash char(64) NOT NULL,
     Name varchar(2048) NOT NULL,
     Type varchar(64) NOT NULL,
-    ScraperGuid uniqueidentifier NULL,
+    ScraperGuid varchar(2048) NULL,
     ScraperType varchar(2048) NULL,
     DownloadDate datetime NULL,
     DownloadURL varchar(2048) NULL,

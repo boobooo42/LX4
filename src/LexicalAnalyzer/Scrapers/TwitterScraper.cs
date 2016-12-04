@@ -2,6 +2,7 @@
 using LexicalAnalyzer.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -306,7 +307,7 @@ namespace LexicalAnalyzer.Scrapers
                     if (timeStop() || downloadStop()) 
                             StopTwitterStream(stream);
                 }
-                catch
+                catch (SqlException e)
                 {
                     StopTwitterStream(stream);
                 }
