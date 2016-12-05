@@ -94,6 +94,10 @@ namespace LexicalAnalyzer
             // Scraper services
             services.AddSingleton<IScraperFactory, ScraperFactory>();
             services.AddSingleton<IScraperService, ScraperService>();
+
+            // Learning model services
+            services.AddSingleton<ILearningModelFactory, LearningModelFactory>();
+            services.AddSingleton<ILearningModelService, LearningModelService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

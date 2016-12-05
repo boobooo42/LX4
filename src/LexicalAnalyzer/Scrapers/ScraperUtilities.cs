@@ -408,7 +408,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             CorpusContent corpContent = new CorpusContent();
 
-            corpContent.Hash = hashContent(corpContent.Content);
+
             corpContent.Name = Name;
             corpContent.Type = Type;
             corpContent.ScraperGuid = ScraperGuid;
@@ -416,6 +416,7 @@ namespace LexicalAnalyzer.Scrapers
             corpContent.DownloadDate = DownloadDate;
             corpContent.URL = DownloadURL;
             corpContent.Content = Content;
+            corpContent.Hash = hashContent(Content);
             m_context.CorpusContentRepository.Add(corpContent);
         }
 
@@ -451,7 +452,7 @@ namespace LexicalAnalyzer.Scrapers
             corpContent.Language = tweet.Language.GetType().FullName;
            // corpContent.Source = source;            
 
-            corpContent.Hash = hashContent(corpContent.Content);
+            corpContent.Hash = hashContent(Encoding.ASCII.GetBytes(tweet.Text));
             m_context.CorpusContentRepository.Add(corpContent);
         }
 

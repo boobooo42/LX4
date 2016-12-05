@@ -11,15 +11,15 @@
             <h4>Active Scrappers</h4>
 
             <div class="scrapper-status" ng-repeat="scrapper in scrappers">
-                <span class="status-pause" ng-click="pauseScrapper({{scrapper.Guid}})"><i class="glyphicon glyphicon-pause"></i></span>
+                <span class="status-pause" ng-click="toggleScrapper(scrapper)"><i class="glyphicon glyphicon-pause"></i></span>
 
-                <span>Name: {{scrapper.DisplayName}}</span>
+                <span>Name: {{scrapper.DName}}</span>
                 <br />
-                <span>Date Started: N/A {{scrapper.StartDate}}</span>
+                <span>Status: {{scrapper.Status}}</span>
                 <br />
                 <span>Content Type: {{scrapper.ContentType}}</span>
                 <br />
-                <span>Guid: {{scrapper.Guid + " Index:" + $Index}}</span>
+                <span>Guid: {{scrapper.Guid}}</span>
 
                 <hr />
                 <div class="progress">
@@ -35,75 +35,29 @@
         <!-- END SCRAPPERS S-->
         <!-- USE ANGULAR JS TO RETRIEVE ACTIVE NEURAL NETWORKS IN TRAINING (USE NG_REPEAT TO DISPLAY DATA) -->
         <div class="col-md-7">
-            <h4>Neural Nets in Training</h4>
+            <h4>Active Learning Models</h4>
 
-            <div class="scrapper-status">
-                <span class="status-id">{{net.id}}</span>
+            <div class="scrapper-status" ng-repeat="lm in learningModels">
+                <span class="status-pause" ng-click="togglelearningModel(lm)"><i class="glyphicon glyphicon-pause"></i></span>
 
-                <span>Name: {{net.name}}</span>
+                <span class="status-id">{{lm.id}}</span>
+
+                <span>Name: {{lm.name}} N/A</span>
                 <br />
-                <span>Date Started: {{net.date}}</span>
+                <span>Status: {{lm.Status}}</span>
                 <br />
-                <span>Neural Net: {{net.obj}}</span>
+                <span>Type: {{lm.Type}}</span>
+                <br />
+                <span>Guid: {{lm.Guid}}</span>
                 <hr />
                 <div class="progress">
-                    <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar"
-                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:47%">
-                        47% Complete
+                    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
+                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:{{lm.Progress}}%">
+                        {{lm.Progress}}% Complete
                     </div>
                 </div>
             </div>
 
-            <div class="scrapper-status">
-                <span class="status-id">{{net.id}}</span>
-
-                <span>Name: {{net.name}}</span>
-                <br />
-                <span>Date Started: {{net.date}}</span>
-                <br />
-                <span>Neural Net: {{net.obj}}</span>
-                <hr />
-                <div class="progress">
-                    <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar"
-                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:90%">
-                        90% Complete
-                    </div>
-                </div>
-            </div>
-
-            <div class="scrapper-status">
-                <span class="status-id">{{net.id}}</span>
-
-                <span>Name: {{net.name}}</span>
-                <br />
-                <span>Date Started: {{net.date}}</span>
-                <br />
-                <span>Neural Net: {{net.obj}}</span>
-                <hr />
-                <div class="progress">
-                    <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar"
-                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:35%">
-                        35% Complete
-                    </div>
-                </div>
-            </div>
-
-            <div class="scrapper-status">
-                <span class="status-id">{{net.id}}</span>
-
-                <span>Name: {{net.name}}</span>
-                <br />
-                <span>Date Started: {{net.date}}</span>
-                <br />
-                <span>Neural Net: {{net.obj}}</span>
-                <hr />
-                <div class="progress">
-                    <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar"
-                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:0%">
-                        0% Complete
-                    </div>
-                </div>
-            </div>
         </div>
         <!-- END SCRAPPERS S-->
     </div>

@@ -21,6 +21,7 @@ manageApp.controller("ScraperController", function ($scope, $http) {
     function getTypes() {
         types = {};
         if (editScraper) {
+            
             types[editScraper["Type"]] = {
                 "displayName": editScraper["DName"],
                 "description": editScraper["Desc"],
@@ -33,15 +34,16 @@ manageApp.controller("ScraperController", function ($scope, $http) {
             var properties = [];
           
             for (var key in editScraper["Properties"]) {
-                properties.push( {"key" : editScraper["Properties"][key]["Key"],
-                 "type" : editScraper["Properties"][key]["Type"],
-                 "value": editScraper["Properties"][key]["Value"]
-                });
+                properties.push(
+                    {
+                        "key": editScraper["Properties"][key]["Key"],
+                        "type" : editScraper["Properties"][key]["Type"],
+                        "value": editScraper["Properties"][key]["Value"]
+                    });
             }
             types[editScraper["Type"]]["properties"] = properties;
             nameConversion[editScraper["Type"]] = editScraper["DName"];
             nameConversion[editScraper["DName"]] = editScraper["Type"];
-            console.log(types);
             setupForm();
         } else {
 
@@ -82,6 +84,7 @@ manageApp.controller("ScraperController", function ($scope, $http) {
     }
 
     function updateDescription() {
+        redInput = [];
         $("#scraperContent").empty();
         var selected = $scope.selectedScraper;
         if (selected) {
@@ -100,7 +103,6 @@ manageApp.controller("ScraperController", function ($scope, $http) {
     function listProperties() {
         build = "";
         var selected = $scope.selectedScraper;
-        console.log(selected);
         if (selected) {
             $("#scraperProperties").empty();
             properties = types[nameConversion[selected]]["properties"];
@@ -108,9 +110,6 @@ manageApp.controller("ScraperController", function ($scope, $http) {
                 build += '<label>' + properties[i]["key"] + "(" + properties[i]["type"] + "): " + '</label><input type="text" class="form-control" id="' + properties[i]["key"] + '" placeholder="' + properties[i]["value"] + '"><hr />';
             }
         }
-        //if (editScraper) {
-        //    build += '<label> Priority: </label><input type="text" class="form-control" id="Priority placehoder="' + editScraper["Priority"] + '"/></hr>"';
-        //}
         $(build).appendTo("#scraperProperties");
     }
 
@@ -131,10 +130,10 @@ manageApp.controller("ScraperController", function ($scope, $http) {
         });
     }
 
+    var redInput = [];
     $scope.createScraper = function () {
         var sitesToScrape = [];
         var scraperType = nameConversion[$scope.selectedScraper];
-        console.log(scraperType);
         var scraperName = $("#scraperName").val();
         var tempProperties = types[scraperType]["properties"];
         var data = {
@@ -143,21 +142,38 @@ manageApp.controller("ScraperController", function ($scope, $http) {
             "priority": 0,
             "properties": []
         }
+        var complete = true
         for (var i = 0; i < tempProperties.length; i++) {
             var tempProps = tempProperties[i];
-            data["properties"].push({ "key": tempProps["key"], "type": tempProps["type"], "value": $("#" + tempProps["key"]).val() });
+            var val = ($("#" + tempProps["key"]).val());
+            if (val == "") {
+                val = $("#" + tempProps["key"]).attr('placeholder');
+                if (!val) {
+                    $("#" + tempProps["key"]).css("border", "solid 1px red");
+                    redInput.push("#" + tempProps["key"]);
+                    complete = false;
+                }
+            }
+            data["properties"].push({ "key": tempProps["key"], "type": tempProps["type"], "value": val });
         }
-        console.log(data);
-        $http({
-            method: 'post',
-            url: '/api/scraper/' + scraperType,
-            data: data
-        })
-        .success(function (response) {
-            console.log(response);
-        })
-        .error(function () {
+        if (complete) {
+            if (redInput) {
+                for (var i = 0; i < redInput.length; i++) {
+                    $(redInput[i]).removeAttr("style");
+                }
+            }
+            $http({
+                method: 'post',
+                url: '/api/scraper/' + scraperType,
+                data: data
+            })
+            .success(function (response) {
+                $("#scraperNew").closest('form').find("input[type=text], textarea").val("");
+                console.log(response);
+            })
+            .error(function () {
 
-        });
+            });
+        }
     };
 });

@@ -11,12 +11,6 @@ manageApp.controller("ManageController", function ($scope, $http) {
     $scope.editScraper = function (e) {
         var target = $(e.target);
         var guid = target.parent().parent().siblings(".guid").text().trim();
-        //var tempObj;
-        //for(var key in existingScrapers) {
-        //    if(existingScrapers[key]["Guid"] == guid)
-        //        tempObj = existingScrapers[key]
-        //}
-        //console.log(tempObj);
         localStorage.setItem("guid", guid);
         window.location.href = "Scraper";
     }
@@ -58,7 +52,8 @@ manageApp.controller("ManageController", function ($scope, $http) {
         var target = $(e.target);
         var guid = target.parent().parent().siblings(".guid").text().trim();
         var type = target.parent().parent().siblings(".type").text().trim();
-        if(isTwitterandAuth(type, guid)) {
+        if (isTwitterandAuth(type, guid)) {
+            console.log("twitAuth");
             getTwitterAuth(guid, e);
         } else {
             $http({
@@ -78,6 +73,7 @@ manageApp.controller("ManageController", function ($scope, $http) {
     function isTwitterandAuth(type, guid) {
         if (type == "Twitter Scraper") {
             twitScraper = getScraperByGuid(guid);
+            console.log(twitScraper);
             return !twitScraper["Authorized"];
         } else
             return false;
@@ -94,15 +90,16 @@ manageApp.controller("ManageController", function ($scope, $http) {
             $scope.twitterAuthURL = response;
             $("#twitterAuth").modal('show');
             $("#submitPin").click(function () {
-                var tPin = $("#twitterPin").val().trim();
+                var tPin = $("#twitterPin").val().trim(); 
                 $http({
                     method: 'get',
-                    url: '/api/scraper/twitter/' + tPin + "/" + guid
+                    url: '/api/scraper/twitter/' + tPin + '/' + guid
                 })
                 .success(function (response) {
                     console.log(response);
                     $("#twitterAuth").modal('hide');
-                    $scope.startScraper(e);
+                    twitScraper["Authorized"] = true;
+                    //$scope.startScraper(e);
                 })
                 .error(function (response) {
                     $("#twitterAuth").modal('hide');
@@ -115,9 +112,9 @@ manageApp.controller("ManageController", function ($scope, $http) {
         });
     }
 
-
     function getExistingScrapers() {
         existingScrapers = [];
+        current = 0;
         $http({
             method: 'get',
             url: '/api/scraper/'
@@ -146,7 +143,7 @@ manageApp.controller("ManageController", function ($scope, $http) {
                 incrementCount();
             })
             .error(function (response) {
-                console.log("getScraperDetails() failed: " + response)
+                console.log("getScraperDetails failed: " + response)
             });
         }
     }

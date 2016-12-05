@@ -1,14 +1,13 @@
-using LexicalAnalyzer.Interfaces;
 using System.Collections.Generic;
 using System;
 
 namespace LexicalAnalyzer.Models {
-    public class Scraper /* : IScraper */ {
+    public class LearningModel /* : ILearningModel */ {
         /* Private members */
         List<KeyValueProperty> m_properties;
 
         /* Constructors */
-        public Scraper() {
+        public LearningModel() {
             m_properties = new List<KeyValueProperty>();
         }
 

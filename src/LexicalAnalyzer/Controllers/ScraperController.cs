@@ -362,8 +362,7 @@ namespace LexicalAnalyzer.Controllers
                 error.Message = "Could not find Scraper with the given GUID";
                 return JsonConvert.SerializeObject(error);
             }
-            
-            return ((Scrapers.TwitterScraper)scraper).TwitterTest();
+            return ((Scrapers.TwitterScraper)scraper).UserAuthentication();
         }
         /// <summary>
         /// Set parameters of a scraper

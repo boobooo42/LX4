@@ -2,6 +2,7 @@
 using LexicalAnalyzer.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -21,6 +22,11 @@ namespace LexicalAnalyzer.Scrapers
         private float m_progress;
         private int m_priority;
         private ICorpusContext m_context;
+        private int m_downloadCount;
+        private int m_downloadLimit;
+        private Stopwatch m_timer;
+        private int m_timeLimit;
+        private List<KeyValueProperty> m_properties;
         private bool m_authorized;
 
         /// <summary>
@@ -34,6 +40,10 @@ namespace LexicalAnalyzer.Scrapers
             m_progress = 0.0f;
             m_priority = 0;
             m_context = context;
+            m_downloadCount = 0;
+            m_downloadLimit = 0;
+            m_timer = new Stopwatch();
+            m_timeLimit = 0;
         }
 
         #region Properties
@@ -144,6 +154,47 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        public int DownloadCount
+        {
+            get
+            {
+                return m_downloadCount;
+            }
+        }
+        public int DownloadLimit
+        {
+            get
+            {
+                return m_downloadLimit;
+            }
+
+            set
+            {
+                m_downloadLimit = value;
+            }
+        }
+
+        public Stopwatch Timer
+        {
+            get
+            {
+                return m_timer;
+            }
+        }
+
+        public int TimeLimit
+        {
+            get
+            {
+                return m_timeLimit;
+            }
+
+            set
+            {
+                m_timeLimit = value;
+            }
+        }
+
         /// <summary>
         /// List of properties supported by TextScraper and their respective
         /// default values.
@@ -155,21 +206,21 @@ namespace LexicalAnalyzer.Scrapers
                 var properties = new List<KeyValueProperty>();
                 properties.Add(
                         new KeyValueProperty(
-                            "timeout",  /* key */
-                            "30",  /* defaultValue */
+                            "timelimit",  /* key */
+                            "",  /* defaultValue */
                             "seconds"  /* type */
+                            ));
+                properties.Add(
+                        new KeyValueProperty(
+                            "downloadlimit",  /* key */
+                            "",  /* defaultValue */
+                            "items"  /* type */
                             ));
                 properties.Add(
                         new KeyValueProperty(
                             "website",  /* key */
                             "https://twitter.com",  /* defaultValue */
                             "url"  /* type */
-                            ));
-                properties.Add(
-                        new KeyValueProperty(
-                            "tweetsToDownload", /* key */
-                            "", /* defaultValue */
-                            "urls" /* type */
                             ));
                 return properties;
             }
@@ -181,32 +232,47 @@ namespace LexicalAnalyzer.Scrapers
         /// <returns></returns>
         public IEnumerable<KeyValueProperty> Properties
         {
-            get; set;
+            get { return m_properties; }
+            set
+            {
+                foreach (var property in value)
+                {
+                    if (property.Key == "timelimit")
+                        TimeLimit = int.Parse(property.Value);
+                    else if (property.Key == "downloadlimit")
+                        DownloadLimit = int.Parse(property.Value);
+                }
+                m_properties = new List<KeyValueProperty>(value);
+            }
         }
         #endregion
 
         /// <summary>
-        /// Runs the text scraper
+        /// Runs the twitter scraper
         /// </summary>
         /// <returns></returns>
         public void Run()
         {
-            Debug.Assert(false);
-            FullTwitterSample();
+            m_timer.Reset();
+            m_timer.Start();
+            StartTwitterStream();
         }
 
         public string TwitterTest()
         {
+            Debug.Assert(false);
             string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
             string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
-            return UserAuthentication(consumerKey, consumerSecret);
             //FullTwitterSample();
+            return UserAuthentication(consumerKey, consumerSecret);
+
         }
 
-        void FullTwitterSample()
+        /// <summary>
+        /// sets up conditions for twitter stream and runs the stream
+        /// </summary>
+        void StartTwitterStream()
         {
-
-
             List<ITweet> tweetList = new List<ITweet>();
 
             // Enable Automatic RateLimit handling
@@ -214,34 +280,64 @@ namespace LexicalAnalyzer.Scrapers
             var stream = Stream.CreateSampleStream();
             stream.StallWarnings = true;
             stream.AddTweetLanguageFilter(LanguageFilter.English);
-            stream.FilterLevel = Tweetinvi.Streaming.Parameters.StreamFilterLevel.Low;
+            stream.FilterLevel = Tweetinvi.Streaming.Parameters.StreamFilterLevel.None;
+
+            m_downloadCount = 0;
+            m_timer.Reset();
+            //bool downloadLimitReached = downloadStop();
+            //bool timeLimitReached = timeStop();
+            m_timer.Start();
+
+            //have to add this before startign the stream, tells us what to do
+            //each time we recieve a tweet
             stream.TweetReceived += (sender, args) =>
             {
-                // Do what you want with the Tweet.
 
-                ITweet tweet = args.Tweet;
-           //     try
-             //   {
-                    //  tweetList.Add(tweet);
-                    Debug.WriteLine(tweet);
+                    ITweet tweet = args.Tweet;
+                //Debug.Assert(false);
+                try
+                {
+
+                        Debug.WriteLine(tweet);
                     Console.WriteLine(tweet);
-
-                    //if (tweetList.Count > 10)
-                    //{
-                    //    stream.StopStream();
-                     //   foreach (ITweet tweet2 in tweetList)
-                            ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid, 
-                                this.GetType().FullName, tweet, this.m_context);
-                   // }
-             //    }
-
-            //    catch { }
-
+                        ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid,
+                        this.GetType().FullName, tweet, this.m_context);
+                        m_downloadCount++;
+                    m_progress = (float)m_downloadCount / m_downloadLimit;
+                    if (timeStop() || downloadStop()) 
+                            StopTwitterStream(stream);
+                }
+                catch (SqlException e)
+                {
+                    StopTwitterStream(stream);
+                }
             };
+
+            //start the stream, now that we know what to do with it
             stream.StartStream();
-
-
         }
+
+        /// <summary>
+        /// stops the current twitter stream 
+        /// and produces and AAR
+        /// </summary>
+        /// <param name="stream"></param>
+        void StopTwitterStream(Tweetinvi.Streaming.ISampleStream stream)
+        {
+            stream.StopStream();
+            m_status = "stopped on ";
+            if (downloadStop() && timeStop())
+                m_status += "downloads, time";
+            else if (downloadStop())
+                m_status += "downloads";
+            else if (timeStop())
+            {
+                m_timer.Reset();
+                m_status += "time";
+            }
+            else m_status = "stopped due to application error";
+        }
+
         IAuthenticationContext authenticationContext;
         public string UserAuthentication(string consumerKey, string consumerSecret)
         {
@@ -270,16 +366,28 @@ namespace LexicalAnalyzer.Scrapers
 
 
             // Ask the user to enter the pin code given by Twitter
-        //    Debug.WriteLine("enter pin");
-          //  Console.WriteLine("enter pin");
-              var pinCode = "1"; //Now change pincode in immediate window
-            // var pinCode = Console.ReadLine();
-          //   Debug.Assert(false); 
+            Debug.WriteLine("enter pin");
+            Console.WriteLine("enter pin");
+            //  var pinCode = "1"; //Now change pincode in immediate window
+            var pinCode = Console.ReadLine();
+            // Debug.Assert(false); 
             // With this pin code it is now possible to get the credentials back from Twitter
             var userCredentials = AuthFlow.CreateCredentialsFromVerifierCode(pinCode, authenticationContext);
 
             // Use the user credentials in your application
             Auth.SetCredentials(userCredentials);
+        }
+
+        public string UserAuthentication()
+        {
+            string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
+            string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
+            // Create a new set of credentials for the application.
+            var appCredentials = new TwitterCredentials(consumerKey, consumerSecret);
+
+            // Init the authentication process and store the related `AuthenticationContext`.
+            authenticationContext = AuthFlow.InitAuthentication(appCredentials);
+            return authenticationContext.AuthorizationURL;
         }
 
 
@@ -291,6 +399,26 @@ namespace LexicalAnalyzer.Scrapers
             // Use the user credentials in your application
             Auth.SetCredentials(userCredentials);
             m_authorized = true;
+            //FullTwitterSample();
+        }
+
+        public bool downloadStop()
+        {
+            if (DownloadCount >= DownloadLimit)
+                return true;
+            else
+                return false;
+        }
+
+        public bool timeStop()
+        {
+            if (m_timer.ElapsedMilliseconds >= TimeLimit * 1000)
+            {
+              //  m_timer.Reset();
+                return true;
+            }
+            else
+                return false;
         }
     }
 }
