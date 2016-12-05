@@ -34,7 +34,7 @@ manageApp.controller("ManageLearningController", function ($scope, $http) {
         var target = $(e.target);
         var guid = target.parent().parent().siblings(".guid").text().trim();
         localStorage.setItem("guid", guid);
-        window.location.href = "Learning";
+        //window.location.href = "Learning";
     }
 
     $scope.deleteLearning = function (e) {
@@ -73,23 +73,17 @@ manageApp.controller("ManageLearningController", function ($scope, $http) {
     $scope.startLearning = function (e) {
         var target = $(e.target);
         var guid = target.parent().parent().siblings(".guid").text().trim();
-        var type = target.parent().parent().siblings(".type").text().trim();
-        if (isTwitterandAuth(type, guid)) {
-            console.log("twitAuth");
-            getTwitterAuth(guid, e);
-        } else {
-            $http({
-                method: 'post',
-                url: '/api/learningmodel/' + guid + '/start'
-            })
-            .success(function (response) {
-                console.log(response);
-                getExistingLearnings();
-            })
-            .error(function () {
+        $http({
+            method: 'post',
+            url: '/api/learningmodel/' + guid + '/start'
+        })
+        .success(function (response) {
+            console.log(response);
+            getExistingLearnings();
+        })
+        .error(function () {
 
-            });
-        }
+        });
     }
 
     function getExistingLearnings() {

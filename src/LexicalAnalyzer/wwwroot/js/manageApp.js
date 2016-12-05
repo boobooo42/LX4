@@ -11,12 +11,6 @@ manageApp.controller("ManageController", function ($scope, $http) {
     $scope.editScraper = function (e) {
         var target = $(e.target);
         var guid = target.parent().parent().siblings(".guid").text().trim();
-        //var tempObj;
-        //for(var key in existingScrapers) {
-        //    if(existingScrapers[key]["Guid"] == guid)
-        //        tempObj = existingScrapers[key]
-        //}
-        //console.log(tempObj);
         localStorage.setItem("guid", guid);
         window.location.href = "Scraper";
     }

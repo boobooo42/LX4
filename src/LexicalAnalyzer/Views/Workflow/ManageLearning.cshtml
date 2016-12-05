@@ -10,6 +10,7 @@
             <table class="table table-bordered table-hover">
                 <thead id="editTHead">
                     <tr>
+                        <th></th>
                         <th>GUID</th>
                         <th>Status</th>
                         <th>Type</th>
@@ -20,6 +21,14 @@
                 </thead>
                 <tbody id="editTBody" class="table">
                     <tr ng-repeat="learning in currentLearningList">
+                        <th scope="row">
+                            <p>
+                                <span class="glyphicon glyphicon-file" ng-click="editLearning($event)"></span>
+                                <span class="glyphicon glyphicon-trash" ng-click="deleteLearning($event)"></span>
+                                <span class="glyphicon glyphicon-pause" ng-click="pauseLearning($event)"></span>
+                                <span class="glyphicon glyphicon-play" ng-click="startLearning($event)"></span>
+                            </p>
+                        </th>
                         <th scope="row" class="guid"> {{learning.guid}} </th>
                         <th scope="row"> {{learning.status}} </th>
                         <th scope="row" title="{{learning.desc}}" class="type"> {{learning.type}} </th>

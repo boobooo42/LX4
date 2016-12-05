@@ -40,6 +40,7 @@ manageApp.controller("LearningController", function ($scope, $http) {
 
     function updateDescription() {
         $("#learningContent").empty();
+        redInput = [];
         var selected = $scope.selectedLearningModel;
         if (selected) {
             var localBuild = "";
@@ -67,9 +68,9 @@ manageApp.controller("LearningController", function ($scope, $http) {
         $(build).appendTo("#learningProperties");
     }
 
+    var redInput = [];
     $scope.createLearningModel = function () {
         var learningModel = nameConversion[$scope.selectedLearningModel];
-        console.log(learningModel);
         var tempProperties = types[learningModel]["properties"];
         var data = {
             "status": "init",
@@ -82,22 +83,28 @@ manageApp.controller("LearningController", function ($scope, $http) {
             var tempProps = tempProperties[i];
             var val = ($("#" + tempProps["key"]).val());
             if (val == "") {
-                console.log("inval");
                 val = $("#" + tempProps["key"]).attr('placeholder');
-                if (val == "") {
+                if (!val) {
+                    $("#" + tempProps["key"]).css("border", "solid 1px red");
+                    redInput.push("#" + tempProps["key"]);
                     complete = false;
                 }
             }
             data["properties"].push({ "key": tempProps["key"], "type": tempProps["type"], "value": val });
         }
-        console.log(complete);
         if (complete) {
+            if (redInput) {
+                for (var i = 0; i < redInput.length; i++) {
+                    $(redInput[i]).removeAttr("style");
+                }
+            }
             $http({
                 method: 'post',
                 url: '/api/learningmodel/' + learningModel,
                 data: data
             })
             .success(function (response) {
+                $("#learningForm").closest('form').find("input[type=text], textarea").val("");
                 console.log(response);
             })
             .error(function () {
