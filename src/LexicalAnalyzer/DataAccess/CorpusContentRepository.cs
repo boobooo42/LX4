@@ -1,10 +1,13 @@
 using Dapper;
 using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace LexicalAnalyzer.DataAccess
 {
@@ -12,7 +15,6 @@ namespace LexicalAnalyzer.DataAccess
     {
         /* Private members */
         private IDbConnectionFactory m_connectionFactory;
-
         /* Constructors */
         public CorpusContentRepository(
                 IDbConnectionFactory connectionFactory)
@@ -31,34 +33,90 @@ namespace LexicalAnalyzer.DataAccess
         public void Add(CorpusContent content)
         {
             Debug.Assert(content.Id == -1);
-
-                using (var conn = this.Connection())
-                {
-                            conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.CorpusContent WHERE Hash =@Hash)
+            using (var conn = this.Connection())
+            {
+                content.CorpusId = 1;
+                /// adds to the CorpusContentTable
+                conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.CorpusContent WHERE Hash =@Hash)
                         INSERT INTO la.CorpusContent
-                            (CorpusId, Hash, Name, Type,
+                            (CorpusId, Hash, Name, Type, ScraperGuid, ScraperType,
                              DownloadURL, Long, Lat )
-                            VALUES ( @CorpusId, @Hash, @Name, @Type,
+                            VALUES ( @CorpusId, @Hash, @Name, @Type, @ScraperGuid, @ScraperType,
                                 @DownloadURL, @Long, @Lat )
                             ", new
-                            {
+                {
 
-                                CorpusId = 1,
-                                Hash = content.Hash,
-                                Name = content.Name,
-                                Type = content.Type,
-                                DownloadUrl = content.URL,
-                                Long = content.Long,
-                                Lat = content.Lat
-                            });
+                    CorpusId = content.CorpusId,
+                    Hash = content.Hash,
+                    Name = content.Name,
+                    Type = content.Type,
+                    ScraperGuid = content.ScraperGuid,
+                    ScraperType = content.ScraperType,
+                    DownloadURL = content.URL,
+                    Long = content.Long,
+                    Lat = content.Lat
+                });
+                /// adds to the MerkleNodeTable
+                conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.MerkleNode WHERE Hash =@Hash)
+                        INSERT INTO la.MerkleNode (Hash,Type,Pinned) VALUES (@Hash,@Type,@Pinned)",
+                    new { Hash = content.Hash, Type = "ContentBlob", Pinned = 0 });
+                /// adds to the ContentBlobTable
+                conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.ContentBlob WHERE Hash =@Hash)
+                            INSERT INTO la.ContentBlob (Hash, Contents) VALUES (@Hash, @Contents)",
+                        new { Hash = content.Hash, Contents = content.Content });
+                /// creates a CorpusBlob In merkleNode  (Works but need  didn't get corpusBlob table working)
+               /*   conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.MerkleNode WHERE Type =@Type)
+                        INSERT INTO la.MerkleNode (Hash,Type,Pinned) VALUES (@Hash,@Type,@Pinned)",
+                    new { Hash = "000000", Type = "CorpusBlobOne", Pinned = 0 });
+                ////pulls all the hash from the contentblob and computes the hash for the corpus blob
+                string stringContent = "";
+                string hashResult = "";
+                SHA256 mySha = SHA256.Create();
+                CorpusRepository corpRepo = new CorpusRepository(m_connectionFactory);
+                List<ContentBlob> contBlob = corpRepo.GetAll();
+                foreach (ContentBlob b in contBlob)
+                {
+                    stringContent = stringContent + b.Hash;
+
                 }
-            
+                //// Converts the string to bytes
+                byte[] byteData = Encoding.UTF8.GetBytes(stringContent);
+                //// hash data computed by SHA256
+                byte[] hashData = mySha.ComputeHash(byteData);
+                //// puts the bytes into a single readable string with the format
+                foreach (byte v in hashData)
+                {
+                    hashResult = hashResult + String.Format("{0:x2}", v);
+                }*/
+
+
+            /////ERRORS
+                ///CorpusBlob code *Error fk constraint
+           //     conn.Execute(@"IF EXISTS (SELECT * FROM la.MerkleNode WHERE Type = @Type) 
+           //                 UPDATE la.MerkleNode SET Hash = @Hash WHERE Type = @Type",
+           //                 new { Hash = hashResult, Type = "CorpusBlobOne" });
+                //// deletes corpusBlob table to be updated
+          //      conn.Execute(@"DELETE FROM la.CorpusBlob");
+          //      conn.Execute(@"INSERT INTO la.CorpusBLob (Hash) VALUES (@Hash)", new { Hash = hashResult });
+                //
+
+
+
+
+                //// makes the contentBlob to add to contentBlobTable
+                //ContentBlob conBlob = new ContentBlob();
+                // ContentBlobRepository conRepo = new ContentBlobRepository(m_connectionFactory);
+                //conBlob.Hash = content.Hash;
+                // conBlob.Content = content.Content;
+                //conRepo.Add(conBlob);
+
                 /* TODO: Check for flyweight CorpusContent objects */
                 /* TODO: Make sure the contents are somehow added to the Merkle
                  * tree as a ContentBlob */
                 /* TODO: If we also add a ContentBlob here, it would be nice to
                  * do everything as a single transaction */
-            
+            }
+
         }
 
         public void Delete(CorpusContent content)
