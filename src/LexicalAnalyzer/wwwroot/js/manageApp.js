@@ -11,12 +11,6 @@ manageApp.controller("ManageController", function ($scope, $http) {
     $scope.editScraper = function (e) {
         var target = $(e.target);
         var guid = target.parent().parent().siblings(".guid").text().trim();
-        //var tempObj;
-        //for(var key in existingScrapers) {
-        //    if(existingScrapers[key]["Guid"] == guid)
-        //        tempObj = existingScrapers[key]
-        //}
-        //console.log(tempObj);
         localStorage.setItem("guid", guid);
         window.location.href = "Scraper";
     }
@@ -96,8 +90,7 @@ manageApp.controller("ManageController", function ($scope, $http) {
             $scope.twitterAuthURL = response;
             $("#twitterAuth").modal('show');
             $("#submitPin").click(function () {
-                var tPin = $("#twitterPin").val().trim();
-                console.log(tPin);
+                var tPin = $("#twitterPin").val().trim(); 
                 $http({
                     method: 'get',
                     url: '/api/scraper/twitter/' + tPin + '/' + guid
@@ -119,9 +112,9 @@ manageApp.controller("ManageController", function ($scope, $http) {
         });
     }
 
-
     function getExistingScrapers() {
         existingScrapers = [];
+        current = 0;
         $http({
             method: 'get',
             url: '/api/scraper/'
@@ -150,7 +143,7 @@ manageApp.controller("ManageController", function ($scope, $http) {
                 incrementCount();
             })
             .error(function (response) {
-                console.log("getScraperDetails() failed: " + response)
+                console.log("getScraperDetails failed: " + response)
             });
         }
     }

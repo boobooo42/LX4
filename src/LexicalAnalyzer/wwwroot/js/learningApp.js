@@ -21,7 +21,6 @@ manageApp.controller("LearningController", function ($scope, $http) {
                             }
                         }
                     }
-                    console.log(types);
                     setupForm();
                 }
             })
@@ -41,6 +40,7 @@ manageApp.controller("LearningController", function ($scope, $http) {
 
     function updateDescription() {
         $("#learningContent").empty();
+        redInput = [];
         var selected = $scope.selectedLearningModel;
         if (selected) {
             var localBuild = "";
@@ -58,7 +58,6 @@ manageApp.controller("LearningController", function ($scope, $http) {
     function listProperties() {
         build = "";
         var selected = $scope.selectedLearningModel;
-        console.log(selected);
         if (selected) {
             $("#learningProperties").empty();
             properties = types[nameConversion[selected]]["properties"];
@@ -69,9 +68,9 @@ manageApp.controller("LearningController", function ($scope, $http) {
         $(build).appendTo("#learningProperties");
     }
 
+    var redInput = [];
     $scope.createLearningModel = function () {
         var learningModel = nameConversion[$scope.selectedLearningModel];
-        console.log(learningModel);
         var tempProperties = types[learningModel]["properties"];
         var data = {
             "status": "init",
@@ -79,25 +78,39 @@ manageApp.controller("LearningController", function ($scope, $http) {
             "priority": 0,
             "properties": []
         }
+        var complete = true;
         for (var i = 0; i < tempProperties.length; i++) {
             var tempProps = tempProperties[i];
             var val = ($("#" + tempProps["key"]).val());
-            if (val == "")
+            if (val == "") {
                 val = $("#" + tempProps["key"]).attr('placeholder');
+                if (!val) {
+                    $("#" + tempProps["key"]).css("border", "solid 1px red");
+                    redInput.push("#" + tempProps["key"]);
+                    complete = false;
+                }
+            }
             data["properties"].push({ "key": tempProps["key"], "type": tempProps["type"], "value": val });
         }
-        console.log(data);
-        $http({
-            method: 'post',
-            url: '/api/learningmodel/' + learningModel,
-            data: data
-        })
-        .success(function (response) {
-            console.log(response);
-        })
-        .error(function () {
-
-        });
+        if (complete) {
+            if (redInput) {
+                for (var i = 0; i < redInput.length; i++) {
+                    $(redInput[i]).removeAttr("style");
+                }
+            }
+            $http({
+                method: 'post',
+                url: '/api/learningmodel/' + learningModel,
+                data: data
+            })
+            .success(function (response) {
+                $("#learningForm").closest('form').find("input[type=text], textarea").val("");
+                console.log(response);
+            })
+            .error(function () {
+                console.log(response);
+            });
+        }
     };
 
     getTypes()
