@@ -29,7 +29,6 @@ namespace LexicalAnalyzer.DataAccess {
 
         protected IDbConnection Connection() {
             var conn =  m_connectionFactory.CreateConnection();
-            conn.Open();
             return conn;
         }
 

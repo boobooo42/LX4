@@ -11,9 +11,9 @@ namespace LexicalAnalyzer.LearningModels
 {
     public class TestLearningModel : ILearningModel
     {
-        private ICorpusContext m_context;
+        private IMerkleTreeContext m_context;
 
-        public TestLearningModel(ICorpusContext context) {
+        public TestLearningModel(IMerkleTreeContext context) {
             m_context = context;
         }
 

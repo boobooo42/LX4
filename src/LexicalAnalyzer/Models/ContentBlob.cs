@@ -6,6 +6,5 @@ namespace LexicalAnalyzer.Models {
     /// </summary>
     public class ContentBlob : MerkleNode {
         public byte[] Content { get; set; }
-        public string Hash { get; set; }
     }
 }

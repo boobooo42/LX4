@@ -47,7 +47,7 @@ namespace LexicalAnalyzer.Controllers
 
         public class SerializeStatusContractResolver : DefaultContractResolver
         {
-            public new static readonly SerializeStatusContractResolver Instance
+            public static readonly SerializeStatusContractResolver Instance
                 = new SerializeStatusContractResolver();
 
             protected override JsonProperty CreateProperty(

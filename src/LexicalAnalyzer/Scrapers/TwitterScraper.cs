@@ -348,6 +348,7 @@ namespace LexicalAnalyzer.Scrapers
 
             return authenticationContext.AuthorizationURL;
 
+            /*
             string authUrl = authenticationContext.AuthorizationURL;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -375,6 +376,7 @@ namespace LexicalAnalyzer.Scrapers
 
             // Use the user credentials in your application
             Auth.SetCredentials(userCredentials);
+            */
         }
 
         public string UserAuthentication()

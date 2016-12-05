@@ -60,6 +60,9 @@ namespace LexicalAnalyzer.DataAccess {
                             ON (MerkleNode.Hash = ContentBlob.Hash)
                         WHERE ContentBlob.Hash=@Hash
                         ", new { Hash = hash });
+                /* FIXME: This is almost certainly broken. We need to use the
+                 * Dapper multi mapping facilities to make the list of child
+                 * nodes. */
                 if (result.Any()) {
                     content = result.First();
                 }
@@ -76,6 +79,9 @@ namespace LexicalAnalyzer.DataAccess {
                         LEFT OUTER JOIN MerkleNode
                             ON (MerkleNode.Hash = ContentBlob.Hash)
                         ");
+                /* FIXME: This is almost certainly broken. We need to use the
+                 * Dapper multi mapping facilities to make the list of child
+                 * nodes. */
             }
             return list;
         }

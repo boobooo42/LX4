@@ -12,6 +12,7 @@ CREATE TABLE la.Corpus (
     Name varchar(2048) NOT NULL,
     Description text NOT NULL,
     Locked bit DEFAULT '0',
+    Hash char(64),
     CONSTRAINT PK_Corpus PRIMARY KEY (Id)
     )
 
@@ -37,8 +38,6 @@ CREATE TABLE la.MerkleNode(
     Pinned bit NOT NULL,
     CONSTRAINT PK_MerkleNode PRIMARY KEY (Hash)
     );
-
-
 
 CREATE TABLE la.MerkleEdge(
     ParentHash char(64) NOT NULL,

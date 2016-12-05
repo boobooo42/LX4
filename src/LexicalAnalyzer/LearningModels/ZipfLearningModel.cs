@@ -1,3 +1,4 @@
+using LexicalAnalyzer.Exceptions;
 using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Models;
 using System.Collections.Generic;
@@ -7,13 +8,15 @@ namespace LexicalAnalyzer.LearningModels {
     public class ZipfLearningModel : ILearningModel {
         /* Private data members */
         private Guid m_guid;
-        private ICorpusContext m_context;
+        private IMerkleTreeContext m_context;
+        private List<KeyValueProperty> m_properties;
+        private long m_corpusID;
 
         /* Constructors */
-        public ZipfLearningModel(ICorpusContext context) {
+        public ZipfLearningModel(IMerkleTreeContext context) {
             m_guid = System.Guid.NewGuid();
-            // this.Status = "init";  /* FIXME */
             m_context = context;
+            // this.Status = "init";  /* FIXME */
         }
 
         /* Public static interface */
@@ -67,7 +70,11 @@ namespace LexicalAnalyzer.LearningModels {
         public static IEnumerable<KeyValueProperty> DefaultProperties {
             get {
                 var properties = new List<KeyValueProperty>();
-                /* TODO: Add properties (if they are even needed) */
+                properties.Add(new KeyValueProperty(
+                            "corpus",  /* Key */
+                            "",  /* DefaultValue */
+                            "corpus_id"  /* Type */
+                            ));
                 return properties;
             }
         }
@@ -122,12 +129,35 @@ namespace LexicalAnalyzer.LearningModels {
         }
 
         public IEnumerable<KeyValueProperty> Properties {
-            get;
-            set;
-        } = DefaultProperties;
+            get {
+                return m_properties;
+            }
+            set {
+                foreach (var property in value) {
+                    switch (property.Key.ToLower()) {
+                        case "corpus":
+                            /* FIXME: Check if this is a valid long */
+                            m_corpusID = Convert.ToInt64(property.Value);
+                            break;
+                        default:
+                            throw new LearningModelException(String.Format(
+                                "ZipfLearningModel does not recognize option '{1}'",
+                                property.Key));
+                    }
+                }
+                m_properties = new List<KeyValueProperty>(value);
+            }
+        }
 
         public void Run() {
             /* TODO: Read from the corpus */
+            var corpusBlob = m_context.CorpusBlobRepository
+                .GetByCorpusID(m_corpusID);
+
+            /* TODO: Iterate over all corpus content */
+            foreach (var content in corpusBlob.Content) {
+            }
+
             /* TODO: Calculate the frequency/rank of words/letters */
         }
 
@@ -152,7 +182,7 @@ namespace LexicalAnalyzer.LearningModels {
                             ));
                 var characters = new List<RankFrequencyPair>();
                 ZipfResult result = new ZipfResult(
-                    words, /* words */
+                    words,  /* words */
                     characters  /* characters */
                     );
                 return result;
