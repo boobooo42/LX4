@@ -35,21 +35,24 @@ namespace LexicalAnalyzer.DataAccess
             Debug.Assert(content.Id == -1);
             using (var conn = this.Connection())
             {
-                    /// adds to the CorpusContentTable
+                content.CorpusId = 1;
+                /// adds to the CorpusContentTable
                 conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.CorpusContent WHERE Hash =@Hash)
                         INSERT INTO la.CorpusContent
-                            (CorpusId, Hash, Name, Type,
+                            (CorpusId, Hash, Name, Type, ScraperGuid, ScraperType,
                              DownloadURL, Long, Lat )
-                            VALUES ( @CorpusId, @Hash, @Name, @Type,
+                            VALUES ( @CorpusId, @Hash, @Name, @Type, @ScraperGuid, @ScraperType,
                                 @DownloadURL, @Long, @Lat )
                             ", new
                 {
 
-                    CorpusId = 1,
+                    CorpusId = content.CorpusId,
                     Hash = content.Hash,
                     Name = content.Name,
                     Type = content.Type,
-                    DownloadUrl = content.URL,
+                    ScraperGuid = content.ScraperGuid,
+                    ScraperType = content.ScraperType,
+                    DownloadURL = content.URL,
                     Long = content.Long,
                     Lat = content.Lat
                 });
@@ -61,8 +64,8 @@ namespace LexicalAnalyzer.DataAccess
                 conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.ContentBlob WHERE Hash =@Hash)
                             INSERT INTO la.ContentBlob (Hash, Contents) VALUES (@Hash, @Contents)",
                         new { Hash = content.Hash, Contents = content.Content });
-                /// creates a CorpusBlob In merkleNode
-                conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.MerkleNode WHERE Type =@Type)
+                /// creates a CorpusBlob In merkleNode  (Works but need  didn't get corpusBlob table working)
+               /*   conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.MerkleNode WHERE Type =@Type)
                         INSERT INTO la.MerkleNode (Hash,Type,Pinned) VALUES (@Hash,@Type,@Pinned)",
                     new { Hash = "000000", Type = "CorpusBlobOne", Pinned = 0 });
                 ////pulls all the hash from the contentblob and computes the hash for the corpus blob
@@ -84,13 +87,17 @@ namespace LexicalAnalyzer.DataAccess
                 foreach (byte v in hashData)
                 {
                     hashResult = hashResult + String.Format("{0:x2}", v);
-                }
-                conn.Execute(@"IF EXISTS (SELECT * FROM la.MerkleNode WHERE Type = @Type) 
-                            UPDATE la.MerkleNode SET Hash = @Hash WHERE Type = @Type",
-                            new { Hash = hashResult, Type = "CorpusBlobOne" });
+                }*/
+
+
+            /////ERRORS
+                ///CorpusBlob code *Error fk constraint
+           //     conn.Execute(@"IF EXISTS (SELECT * FROM la.MerkleNode WHERE Type = @Type) 
+           //                 UPDATE la.MerkleNode SET Hash = @Hash WHERE Type = @Type",
+           //                 new { Hash = hashResult, Type = "CorpusBlobOne" });
                 //// deletes corpusBlob table to be updated
-                conn.Execute(@"DELETE FROM la.CorpusBlob");
-                conn.Execute(@"INSERT INTO la.CorpusBLob (Hash) VALUES (@Hash)", new { Hash = hashResult });
+          //      conn.Execute(@"DELETE FROM la.CorpusBlob");
+          //      conn.Execute(@"INSERT INTO la.CorpusBLob (Hash) VALUES (@Hash)", new { Hash = hashResult });
                 //
 
 
