@@ -6,7 +6,8 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
-
+using System.Data.SqlTypes;
+//using System.d
 namespace LexicalAnalyzer.DataAccess
 {
     public class CorpusContentRepository : ICorpusContentRepository
@@ -42,9 +43,9 @@ namespace LexicalAnalyzer.DataAccess
                         //   conn.Execute(@"");
                         conn.Execute(@" 
                         INSERT INTO la.CorpusContent
-                            (CorpusId, Hash, Name, Type, ScraperGuid, ScraperType,
+                            (CorpusId, Hash, Name, Type, ScraperGuid, ScraperType, DownloadDate,
                              DownloadURL, Long, Lat )
-                            VALUES ( @CorpusId, @Hash, @Name, @Type, @ScraperGuid, @ScraperType,
+                            VALUES ( @CorpusId, @Hash, @Name, @Type, @ScraperGuid, @ScraperType, @DownloadDate,
                                 @DownloadURL, @Long, @Lat )
                             ", new
                         {
@@ -54,18 +55,28 @@ namespace LexicalAnalyzer.DataAccess
                             Type = content.Type,
                             ScraperGuid = content.ScraperGuid.ToString(),
                             ScraperType = content.ScraperType,
+                            DownloadDate = content.DownloadDate.Value,
                             DownloadUrl = content.URL,
                             Long = content.Long,
                             Lat = content.Lat
                         }, transaction: tran);
-                        //conn.Execute(@"INSERT INTO la.ContentBlob
-                        //    (Hash, Contents)
-                        //     VALUES (@Hash, @Contents)",
-                        //     new
-                        //     {
-                        //         Hash = content.Hash,
-                        //         Contents = content.Content,
-                        //     }, transaction: tran);
+                        conn.Execute(@"INSERT INTO la.MerkleNode
+                          (Hash, Type, Pinned)
+                            VALUES(@Hash, @Type, @Pinned)", new
+                        {
+                             Hash = content.Hash,
+                             Type = content.Type,
+                             Pinned = false
+
+                        }, transaction: tran);
+                        conn.Execute(@"INSERT INTO la.ContentBlob
+                            (Hash, Contents)
+                             VALUES (@Hash, @Contents)",
+                             new
+                             {
+                                 Hash = content.Hash,
+                                 Contents = content.Content
+                             }, transaction: tran);
                         tran.Commit();
                     }
                     catch (SqlException e)
