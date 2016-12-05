@@ -318,24 +318,21 @@ namespace LexicalAnalyzer.Scrapers
 
             MemoryStream memoryStream = new MemoryStream(textArray);
             Random rand = new Random(DateTime.Now.Millisecond);
-            await Task.Delay(rand.Next(500, 1000));//wait 5 seconds before trying next download
+            await Task.Delay(rand.Next(250, 750));//waits between .25 and .75 seconds before trying next download
 
             return memoryStream;
         }
 
         /// <summary>
-        /// Downloads zip files from urls, extracts them, and loads their contents into the database
+        /// Downloads zip file from url, extracts it, and loads its content into the database
         /// to byte arrays
         /// </summary>
-        /// <param name="urls"></param>
-        void downloadZipFilesFromLinks(List<string> urls)
+        /// <param name="url"></param>
+        void downloadZipFilesFromLinks(string url)
         {
-            foreach (string downloadURL in urls)
+            using (MemoryStream download = (loadFileToStream(url).Result))
             {
-                using (MemoryStream download = (loadFileToStream(downloadURL).Result))
-                {
-                    extractAndLoadZipIntoDatabase(download, ".txt",downloadURL);
-                }
+                extractAndLoadZipIntoDatabase(download, ".txt", url);
             }
         }
 
@@ -469,12 +466,17 @@ namespace LexicalAnalyzer.Scrapers
             {
                 List<string> tempLinkList = GetLinksFromPage(currentURL, "//a[@href]");
                 var dlList = getListOfDownloadsForPage(tempLinkList, ".zip");
-                downloadZipFilesFromLinks(dlList);
+                foreach (string url in dlList)
+                {
+                    downloadZipFilesFromLinks(url);
+                    m_downloadCount++;
+                    m_progress = (float)m_downloadCount / m_downloadLimit;
+                    downloadLimitReached = downloadStop();
+                    timeLimitReached = timeStop();
+                    if (downloadLimitReached || timeLimitReached)
+                        break;
+                }
                 currentURL = getNextPage(tempLinkList);
-                m_downloadCount += 100;
-                m_progress = (float)m_downloadCount / m_downloadLimit;
-                downloadLimitReached = downloadStop();
-                timeLimitReached = timeStop();
             }
             m_status = "stopped on ";
             if (downloadLimitReached && timeLimitReached)
