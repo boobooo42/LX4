@@ -26,6 +26,7 @@ namespace LexicalAnalyzer.Scrapers
         private int m_downloadLimit;
         private Stopwatch m_timer;
         private int m_timeLimit;
+        private string m_userGivenName;
         private List<KeyValueProperty> m_properties;
 
         /// <summary>
@@ -70,7 +71,7 @@ namespace LexicalAnalyzer.Scrapers
         /// Gets display name--is hardcoded
         /// </summary>
         /// <returns></returns>
-        public string DName
+        public string TypeName
         {
             get { return "Github Scraper"; }
         }
@@ -202,6 +203,18 @@ namespace LexicalAnalyzer.Scrapers
                 m_timeLimit = value;
             }
         }
+        public string UserGivenName
+        {
+            get
+            {
+                return m_userGivenName;
+            }
+
+            set
+            {
+                m_userGivenName = value;
+            }
+        }
 
         /// <summary>
         /// List of properties supported by TextScraper and their respective
@@ -248,6 +261,8 @@ namespace LexicalAnalyzer.Scrapers
                         TimeLimit = int.Parse(property.Value);
                     else if (property.Key == "downloadlimit")
                         DownloadLimit = int.Parse(property.Value);
+                    else if (property.Key == "UserGivenName")
+                        UserGivenName = property.Value;
                 }
                 m_properties = new List<KeyValueProperty>(value);
             }

@@ -60,6 +60,7 @@ namespace LexicalAnalyzer.Scrapers
         private int m_downloadLimit;
         private Stopwatch m_timer;
         private int m_timeLimit;
+        private string m_userGivenName;
         private List<KeyValueProperty> m_properties;
         #endregion
 
@@ -93,7 +94,7 @@ namespace LexicalAnalyzer.Scrapers
         public static string DisplayName {
             get { return "Debian Scraper"; }
         }
-        public string DName { get { return "Debian Scraper"; } }
+        public string TypeName { get { return "Debian Scraper"; } }
 
         /// <summary>
         /// Gets the description
@@ -196,6 +197,18 @@ namespace LexicalAnalyzer.Scrapers
                 m_timeLimit = value;
             }
         }
+        public string UserGivenName
+        {
+            get
+            {
+                return m_userGivenName;
+            }
+
+            set
+            {
+                m_userGivenName = value;
+            }
+        }
 
         public static IEnumerable<KeyValueProperty> DefaultProperties {
             get {
@@ -205,7 +218,20 @@ namespace LexicalAnalyzer.Scrapers
         }
 
         public IEnumerable<KeyValueProperty> Properties {
-            get; set;
+            get { return m_properties; }
+            set
+            {
+                foreach (var property in value)
+                {
+                    if (property.Key == "timelimit")
+                        TimeLimit = int.Parse(property.Value);
+                    else if (property.Key == "downloadlimit")
+                        DownloadLimit = int.Parse(property.Value);
+                    else if (property.Key == "UserGivenName")
+                        UserGivenName = property.Value;
+                }
+                m_properties = new List<KeyValueProperty>(value);
+            }
         }
         #endregion
 
