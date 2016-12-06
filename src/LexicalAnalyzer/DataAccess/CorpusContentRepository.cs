@@ -1,11 +1,14 @@
 using Dapper;
 using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace LexicalAnalyzer.DataAccess
 {
@@ -13,7 +16,6 @@ namespace LexicalAnalyzer.DataAccess
     {
         /* Private members */
         private IDbConnectionFactory m_connectionFactory;
-
         /* Constructors */
         public CorpusContentRepository(
                 IDbConnectionFactory connectionFactory)
@@ -32,29 +34,34 @@ namespace LexicalAnalyzer.DataAccess
         public void Add(CorpusContent content)
         {
             Debug.Assert(content.Id == -1);
-
             using (var conn = this.Connection())
             {
                 using (IDbTransaction tran = conn.BeginTransaction())
                 {
+
+
+                    content.CorpusId = 1;
                     try
                     {
                         string contentText = System.Text.Encoding.UTF8.GetString(content.Content);
                         //   conn.Execute(@"");
-                        conn.Execute(@" 
+                        conn.Execute(@"IF NOT EXISTS
+                        (SELECT 1 FROM la.CorpusContent
+                            WHERE Hash = @Hash)BEGIN 
                         INSERT INTO la.CorpusContent
-                            (CorpusId, Hash, Name, Type, ScraperGuid, ScraperType,
+                            (CorpusId, Hash, Name, Type, ScraperGuid, ScraperType, DownloadDate,
                              DownloadURL, Long, Lat )
-                            VALUES ( @CorpusId, @Hash, @Name, @Type, @ScraperGuid, @ScraperType,
+                            VALUES ( @CorpusId, @Hash, @Name, @Type, @ScraperGuid, @ScraperType, @DownloadDate,
                                 @DownloadURL, @Long, @Lat )
                             ", new
                         {
-                            CorpusId = 1,
+                            CorpusId = content.CorpusId,
                             Hash = content.Hash,
                             Name = content.Name,
                             Type = content.Type,
                             ScraperGuid = content.ScraperGuid.ToString(),
                             ScraperType = content.ScraperType,
+                            DownloadDate = content.DownloadDate.Value,
                             DownloadUrl = content.URL,
                             Long = content.Long,
                             Lat = content.Lat
@@ -102,9 +109,9 @@ namespace LexicalAnalyzer.DataAccess
                      * tree as a ContentBlob */
                     /* TODO: If we also add a ContentBlob here, it would be nice to
                      * do everything as a single transaction */
-
                 }
             }
+
         }
 
         public void Delete(CorpusContent content)
@@ -155,24 +162,25 @@ namespace LexicalAnalyzer.DataAccess
             return content;
         }
 
-
         public IEnumerable<CorpusContent> List(int? corpusId)
         {
             IEnumerable<CorpusContent> list = null;
             using (var conn = this.Connection())
             {
-                /* NOTE: It would be a bad idea to fetch a heavyweight list of
-                 * all of the corpus content in the database, so we fetch
-                 * flyweight objects here */
-                list = conn.Query<CorpusContent>(@"
+                using (IDbTransaction tran = conn.BeginTransaction())
+                {
+                    /* NOTE: It would be a bad idea to fetch a heavyweight list of
+                     * all of the corpus content in the database, so we fetch
+                     * flyweight objects here */
+                    list = conn.Query<CorpusContent>(@"
                     SELECT Id, Hash, Name, Type,
-                        ScraperGuid,
                         ScraperType,
                         DownloadDate,
                         DownloadURL
                     FROM la.CorpusContent
                     WHERE CorpusId=@CorpusId
-                        ", new { CorpusId = corpusId });
+                        ", new { CorpusId = corpusId }, transaction: tran);
+                }
 
             }
             return list;

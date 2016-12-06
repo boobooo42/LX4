@@ -58,7 +58,7 @@ namespace LexicalAnalyzer.Controllers {
         /// Learning models must be given an initial status value of "init".
         /// Created learning models are initially idle and must be started by
         /// changing this status value to "start" through a call to PUT
-        /// /api/scraper/{guid}.
+        /// /api/learningmodel/{guid}.
         /// </p>
         /// </remarks>
         [HttpPost("api/learningmodel/{type}")]
@@ -95,7 +95,7 @@ namespace LexicalAnalyzer.Controllers {
         /// </summary>
         /// <remarks>
         /// <p>
-        /// This method returns a list of all of the scrapers currently
+        /// This method returns a list of all of the learning models currently
         /// instantiated, as currently known by the LearningModelSubsystem.
         /// </p>
         /// </remarks>
@@ -148,6 +148,103 @@ namespace LexicalAnalyzer.Controllers {
                 return JsonConvert.SerializeObject(error);
             }
             return JsonConvert.SerializeObject(learningModel);
+        }
+
+        /// <summary>
+        /// Deletes the learning model instance with the given GUID
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// This method removes the learning model instance with the given GUID, if
+        /// such a learning model instance exists. If the learning model task is currently
+        /// running, it is killed immediately.
+        /// </p>
+        /// <p>
+        /// If no learning model instance with the given GUID exists, then this call
+        /// does nothing.
+        /// </p>
+        /// </remarks>
+        [HttpDelete("api/learningmodel/{guid}")]
+        public void Delete(string guid)
+        {
+            /* Remove the learning model with the given guid */
+            /* TODO: Return success or failure status ? */
+            m_learningService.RemoveLearningModel(guid);
+        }
+
+        /// <summary>
+        /// Starts the learning model task with the given GUID
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// This method starts the learning model task with the given GUID. If the
+        /// learning model with the given GUID is not yet running, it is added to the
+        /// learning model task queue. Depending on the relative priority of this
+        /// learning model task, it is run as soon as a task worker becomes available.
+        /// </p>
+        /// <p>
+        /// If the learning model task with the given GUID has already been added to
+        /// the learning model task queue, then this method has no effect.
+        /// </p>
+        /// <p>
+        /// If the given GUID does not correspond to any known learning model tasks,
+        /// then this method does nothing.
+        /// </p>
+        /// </remarks>
+        [HttpPost("api/learningmodel/{guid}/start")]
+        public string Start(string guid)
+        {
+            m_learningService.StartLearningModel(guid);
+            return "We're starting something!";
+        }
+
+        /// <summary>
+        /// Start all learning model tasks.
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// This method starts all learning model tasks that have not yet been
+        /// started. If there are not enough worker threads to start all
+        /// learning model tasks immediately, then the remaining tasks are queued up
+        /// </p>
+        /// <p>
+        /// If all learning model tasks have already been started, then this call has
+        /// no effect.
+        /// </p>
+        /// </remarks>
+        [HttpPost("api/learningmodel/start")]
+        public void StartAll()
+        {
+            foreach (ILearningModel learn in m_learningService.LearningModels)
+            {
+                m_learningService.StartLearningModel(learn.Guid);
+            }
+        }
+
+        // GET api/learningmodel/pause
+        /// <summary>
+        /// Pauses the learning model task with the given GUID, if it exists.
+        /// </summary>
+        /// <remarks>
+        /// <p>
+        /// This method pauses the learning model task with the given GUID. The net
+        /// effect is that if the learning model task is currently running, a pause
+        /// command is sent to the Worker object that is running the task. If
+        /// the learning model task is not running, it is removed from the task queue.
+        /// </p>
+        /// <p>
+        /// If the given GUID does not correspond to any known learning model tasks,
+        /// then this method does nothing.
+        /// </p>
+        /// </remarks>
+        /// <param name="guid">GUID of the learning model task to pause</param>
+        /// <returns></returns>
+        [HttpPost("api/learningmodel/{guid}/pause")]
+        public string Pause(string guid)
+        {
+            /* FIXME: Check for null guid values */
+            m_learningService.PauseLearningModel(guid);
+            return "We're pausing something!";
         }
 
         public class RawJsonConverter : JsonConverter

@@ -25,7 +25,8 @@ namespace LexicalAnalyzer.Interfaces
             get;
         }
         */
-        string DName { get; }
+        string UserGivenName { get; set; }
+        string TypeName { get; }
         string Desc { get; }
         string Type
         {
