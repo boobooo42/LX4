@@ -43,6 +43,7 @@ namespace LexicalAnalyzer.DataAccess
                     content.CorpusId = 1;
                     try
                     {
+                        string contentGuid = content.ScraperGuid.ToString();
                         string contentText = System.Text.Encoding.UTF8.GetString(content.Content);
                         //   conn.Execute(@"");
                         conn.Execute(@"IF NOT EXISTS
@@ -52,14 +53,14 @@ namespace LexicalAnalyzer.DataAccess
                             (CorpusId, Hash, Name, Type, ScraperGuid, ScraperType, DownloadDate,
                              DownloadURL, Long, Lat )
                             VALUES ( @CorpusId, @Hash, @Name, @Type, @ScraperGuid, @ScraperType, @DownloadDate,
-                                @DownloadURL, @Long, @Lat )
+                                @DownloadURL, @Long, @Lat) END
                             ", new
                         {
                             CorpusId = content.CorpusId,
                             Hash = content.Hash,
                             Name = content.Name,
                             Type = content.Type,
-                            ScraperGuid = content.ScraperGuid.ToString(),
+                            ScraperGuid = contentGuid,
                             ScraperType = content.ScraperType,
                             DownloadDate = content.DownloadDate.Value,
                             DownloadUrl = content.URL,
@@ -89,7 +90,7 @@ namespace LexicalAnalyzer.DataAccess
                              new
                              {
                                  Hash = content.Hash,
-                                 Contents = content.Content,
+                                 Contents = contentText,
                              }, transaction: tran);
                         tran.Commit();
                     }

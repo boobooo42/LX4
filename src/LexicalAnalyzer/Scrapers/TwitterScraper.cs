@@ -279,7 +279,6 @@ namespace LexicalAnalyzer.Scrapers
             Debug.Assert(false);
             string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
             string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
-            //FullTwitterSample();
             return UserAuthentication(consumerKey, consumerSecret);
 
         }
@@ -309,30 +308,38 @@ namespace LexicalAnalyzer.Scrapers
             stream.TweetReceived += (sender, args) =>
             {
 
-                    ITweet tweet = args.Tweet;
+                ITweet tweet = args.Tweet;
                 //Debug.Assert(false);
                 try
                 {
 
-                        Debug.WriteLine(tweet);
+                    Debug.WriteLine(tweet);
                     Console.WriteLine(tweet);
-                        ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid,
-                        this.GetType().FullName, tweet, this.m_context);
-                        m_downloadCount++;
+                    ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid,
+                    this.GetType().FullName, tweet, this.m_context);
+                    m_downloadCount++;
                     m_progress = (float)m_downloadCount / m_downloadLimit;
-                    if (timeStop() || downloadStop()) 
-                            StopTwitterStream(stream);
+                    if (timeStop() || downloadStop())
+                        StopTwitterStream(stream);
                 }
-                catch (SqlException e)
+                catch 
                 {
                     StopTwitterStream(stream);
                 }
+                
             };
 
             //start the stream, now that we know what to do with it
-            if (Authorized)
+            if (m_authorized)
                 stream.StartStream();
-            else m_status = "No Twitter Authorization";
+            else
+            {
+                m_status = "No Twitter Authorization";
+                string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
+                string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
+                UserAuthentication(consumerKey, consumerSecret);
+                StartTwitterStream();
+            }
         }
 
         /// <summary>
@@ -365,7 +372,7 @@ namespace LexicalAnalyzer.Scrapers
             // Init the authentication process and store the related `AuthenticationContext`.
             authenticationContext = AuthFlow.InitAuthentication(appCredentials);
 
-            return authenticationContext.AuthorizationURL;
+
 
             string authUrl = authenticationContext.AuthorizationURL;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -394,6 +401,8 @@ namespace LexicalAnalyzer.Scrapers
 
             // Use the user credentials in your application
             Auth.SetCredentials(userCredentials);
+            m_authorized = true;
+            return authenticationContext.AuthorizationURL;
         }
 
         public string UserAuthentication()
@@ -432,7 +441,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             if (m_timer.ElapsedMilliseconds >= TimeLimit * 1000)
             {
-              //  m_timer.Reset();
+                //  m_timer.Reset();
                 return true;
             }
             else
