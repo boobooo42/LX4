@@ -39,6 +39,7 @@ namespace LexicalAnalyzer.DataAccess
                 {
                     try
                     {
+                        string contentText = System.Text.Encoding.UTF8.GetString(content.Content);
                         //   conn.Execute(@"");
                         conn.Execute(@" 
                         INSERT INTO la.CorpusContent
@@ -58,14 +59,31 @@ namespace LexicalAnalyzer.DataAccess
                             Long = content.Long,
                             Lat = content.Lat
                         }, transaction: tran);
-                        //conn.Execute(@"INSERT INTO la.ContentBlob
-                        //    (Hash, Contents)
-                        //     VALUES (@Hash, @Contents)",
-                        //     new
-                        //     {
-                        //         Hash = content.Hash,
-                        //         Contents = content.Content,
-                        //     }, transaction: tran);
+                        conn.Execute(@"IF NOT EXISTS
+                        (SELECT 1 FROM la.MerkleNode
+                            WHERE Hash = @Hash)BEGIN                            
+                            INSERT INTO la.MerkleNode
+                            (Hash, Type, Pinned)
+                            VALUES (@Hash, @Type, @Pinned)
+                            END ", new
+                        {
+                            Hash = content.Hash,
+                            Type = content.Type,
+                            Pinned = 1,
+                        }, transaction: tran
+                                     );
+                        conn.Execute(@"IF NOT EXISTS
+                        (SELECT 1 FROM la.ContentBlob
+                            WHERE Hash = @Hash)BEGIN
+                            INSERT INTO la.ContentBlob
+                            (Hash, Contents)
+                             VALUES (@Hash, @Contents)
+                            END",
+                             new
+                             {
+                                 Hash = content.Hash,
+                                 Contents = content.Content,
+                             }, transaction: tran);
                         tran.Commit();
                     }
                     catch (SqlException e)
