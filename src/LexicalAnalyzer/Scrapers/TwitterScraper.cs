@@ -330,7 +330,9 @@ namespace LexicalAnalyzer.Scrapers
             };
 
             //start the stream, now that we know what to do with it
-            stream.StartStream();
+            if (Authorized)
+                stream.StartStream();
+            else m_status = "No Twitter Authorization";
         }
 
         /// <summary>
