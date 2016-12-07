@@ -15,7 +15,6 @@ namespace LexicalAnalyzer.DataAccess {
             : base(connectionFactory)
         {
         }
-
         protected override string TableName {
             get { return "ContentBlob"; }
         }

@@ -143,10 +143,15 @@ namespace LexicalAnalyzer.LearningModels {
                             /* FIXME: Check if this is a valid long */
                             m_corpusID = Convert.ToInt64(property.Value);
                             break;
-                        default:
+                        //default:
+                            /* FIXME: Re-enable this throw. There are some
+                             * weird properties that are being sent to all
+                             * learning models. */
+                            /*
                             throw new LearningModelException(String.Format(
-                                "ZipfLearningModel does not recognize option '{1}'",
+                                "ZipfLearningModel does not recognize option '{0}'",
                                 property.Key));
+                            */
                     }
                 }
                 m_properties = new List<KeyValueProperty>(value);

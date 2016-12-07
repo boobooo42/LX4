@@ -139,6 +139,15 @@ namespace LexicalAnalyzer.Services
         public void PauseTask(ITask task) {
             /* TODO: Find the worker that is running this task */
             /* TODO: Pause the thread that the worker is on (possibly unsafe?) */
+            /* TODO: Simply add this task to the list of ready tasks; the
+             * dispatch thread will handle the rest */
+            m_readyTasksMutex.WaitOne();
+            task.Status = "paused";  /* FIXME: I need better status definitions */
+            Debug.Assert(!m_readyTasks.Contains(task));
+            m_readyTasks.Remove(task);
+            m_readyTasksMutex.ReleaseMutex();
+            /* Signal the dispatch thread */
+            //m_readyTaskEvent.Dispose();
         }
 
         private void AddReadyWorker(Worker worker)

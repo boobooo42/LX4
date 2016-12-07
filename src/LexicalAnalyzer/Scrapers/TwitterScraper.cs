@@ -2,6 +2,7 @@
 using LexicalAnalyzer.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -25,6 +26,7 @@ namespace LexicalAnalyzer.Scrapers
         private int m_downloadLimit;
         private Stopwatch m_timer;
         private int m_timeLimit;
+        private string m_userGivenName;
         private List<KeyValueProperty> m_properties;
         private bool m_authorized;
 
@@ -78,7 +80,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             get { return "Twitter Scraper"; }
         }
-        public string DName { get { return "Twitter Scraper"; } }
+        public string TypeName { get { return "Twitter Scraper"; } }
         /// <summary>
         /// Gets description--is hardcoded
         /// </summary>
@@ -194,6 +196,19 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        public string UserGivenName
+        {
+            get
+            {
+                return m_userGivenName;
+            }
+
+            set
+            {
+                m_userGivenName = value;
+            }
+        }
+
         /// <summary>
         /// List of properties supported by TextScraper and their respective
         /// default values.
@@ -240,6 +255,8 @@ namespace LexicalAnalyzer.Scrapers
                         TimeLimit = int.Parse(property.Value);
                     else if (property.Key == "downloadlimit")
                         DownloadLimit = int.Parse(property.Value);
+                    else if (property.Key == "UserGivenName")
+                        UserGivenName = property.Value;
                 }
                 m_properties = new List<KeyValueProperty>(value);
             }
@@ -262,7 +279,6 @@ namespace LexicalAnalyzer.Scrapers
             Debug.Assert(false);
             string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
             string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
-            //FullTwitterSample();
             return UserAuthentication(consumerKey, consumerSecret);
 
         }
@@ -292,28 +308,38 @@ namespace LexicalAnalyzer.Scrapers
             stream.TweetReceived += (sender, args) =>
             {
 
-                    ITweet tweet = args.Tweet;
+                ITweet tweet = args.Tweet;
                 //Debug.Assert(false);
                 try
                 {
 
-                        Debug.WriteLine(tweet);
+                    Debug.WriteLine(tweet);
                     Console.WriteLine(tweet);
-                        ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid,
-                        this.GetType().FullName, tweet, this.m_context);
-                        m_downloadCount++;
+                    ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid,
+                    this.GetType().FullName, tweet, this.m_context);
+                    m_downloadCount++;
                     m_progress = (float)m_downloadCount / m_downloadLimit;
-                    if (timeStop() || downloadStop()) 
-                            StopTwitterStream(stream);
+                    if (timeStop() || downloadStop())
+                        StopTwitterStream(stream);
                 }
-                catch
+                catch 
                 {
                     StopTwitterStream(stream);
                 }
+                
             };
 
             //start the stream, now that we know what to do with it
-            stream.StartStream();
+            if (m_authorized)
+                stream.StartStream();
+            else
+            {
+                m_status = "No Twitter Authorization";
+                string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
+                string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
+                UserAuthentication(consumerKey, consumerSecret);
+                StartTwitterStream();
+            }
         }
 
         /// <summary>
@@ -346,9 +372,8 @@ namespace LexicalAnalyzer.Scrapers
             // Init the authentication process and store the related `AuthenticationContext`.
             authenticationContext = AuthFlow.InitAuthentication(appCredentials);
 
-            return authenticationContext.AuthorizationURL;
 
-            /*
+
             string authUrl = authenticationContext.AuthorizationURL;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -376,7 +401,8 @@ namespace LexicalAnalyzer.Scrapers
 
             // Use the user credentials in your application
             Auth.SetCredentials(userCredentials);
-            */
+            m_authorized = true;
+            return authenticationContext.AuthorizationURL;
         }
 
         public string UserAuthentication()
@@ -415,7 +441,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             if (m_timer.ElapsedMilliseconds >= TimeLimit * 1000)
             {
-              //  m_timer.Reset();
+                //  m_timer.Reset();
                 return true;
             }
             else

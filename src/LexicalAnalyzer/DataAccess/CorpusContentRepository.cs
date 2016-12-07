@@ -1,10 +1,14 @@
 using Dapper;
 using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace LexicalAnalyzer.DataAccess
 {
@@ -12,7 +16,6 @@ namespace LexicalAnalyzer.DataAccess
     {
         /* Private members */
         private IDbConnectionFactory m_connectionFactory;
-
         /* Constructors */
         public CorpusContentRepository(
                 IDbConnectionFactory connectionFactory)
@@ -31,34 +34,85 @@ namespace LexicalAnalyzer.DataAccess
         public void Add(CorpusContent content)
         {
             Debug.Assert(content.Id == -1);
-
-                using (var conn = this.Connection())
+            using (var conn = this.Connection())
+            {
+                using (IDbTransaction tran = conn.BeginTransaction())
                 {
-                            conn.Execute(@" IF NOT EXISTS (SELECT * FROM la.CorpusContent WHERE Hash =@Hash)
-                        INSERT INTO la.CorpusContent
-                            (CorpusId, Hash, Name, Type,
-                             DownloadURL, Long, Lat )
-                            VALUES ( @CorpusId, @Hash, @Name, @Type,
-                                @DownloadURL, @Long, @Lat )
-                            ", new
-                            {
 
-                                CorpusId = 1,
-                                Hash = content.Hash,
-                                Name = content.Name,
-                                Type = content.Type,
-                                DownloadUrl = content.URL,
-                                Long = content.Long,
-                                Lat = content.Lat
-                            });
+
+                    content.CorpusId = 1;
+                    try
+                    {
+                        string contentGuid = content.ScraperGuid.ToString();
+                        string contentText = System.Text.Encoding.UTF8.GetString(content.Content);
+                        //   conn.Execute(@"");
+                        conn.Execute(@"IF NOT EXISTS
+                        (SELECT 1 FROM la.CorpusContent
+                            WHERE Hash = @Hash)BEGIN 
+                        INSERT INTO la.CorpusContent
+                            (CorpusId, Hash, Name, Type, ScraperGuid, ScraperType, DownloadDate,
+                             DownloadURL, Long, Lat )
+                            VALUES ( @CorpusId, @Hash, @Name, @Type, @ScraperGuid, @ScraperType, @DownloadDate,
+                                @DownloadURL, @Long, @Lat) END
+                            ", new
+                        {
+                            CorpusId = content.CorpusId,
+                            Hash = content.Hash,
+                            Name = content.Name,
+                            Type = content.Type,
+                            ScraperGuid = contentGuid,
+                            ScraperType = content.ScraperType,
+                            DownloadDate = content.DownloadDate.Value,
+                            DownloadUrl = content.URL,
+                            Long = content.Long,
+                            Lat = content.Lat
+                        }, transaction: tran);
+                        conn.Execute(@"IF NOT EXISTS
+                        (SELECT 1 FROM la.MerkleNode
+                            WHERE Hash = @Hash)BEGIN                            
+                            INSERT INTO la.MerkleNode
+                            (Hash, Type, Pinned)
+                            VALUES (@Hash, @Type, @Pinned)
+                            END ", new
+                        {
+                            Hash = content.Hash,
+                            Type = content.Type,
+                            Pinned = 1,
+                        }, transaction: tran
+                                     );
+                        conn.Execute(@"IF NOT EXISTS
+                        (SELECT 1 FROM la.ContentBlob
+                            WHERE Hash = @Hash)BEGIN
+                            INSERT INTO la.ContentBlob
+                            (Hash, Contents)
+                             VALUES (@Hash, @Contents)
+                            END",
+                             new
+                             {
+                                 Hash = content.Hash,
+                                 Contents = contentText,
+                             }, transaction: tran);
+                        tran.Commit();
+                    }
+                    catch (SqlException e)
+                    {
+                        tran.Rollback();
+                        for (int i = 0; i < e.Errors.Count; ++i)
+                        {
+                            Debug.WriteLine("SQL Error: " + e.Errors[i].ToString());
+                        }
+                        throw;
+
+                    }
+
+                    /* TODO: Check for flyweight CorpusContent objects */
+                    /* TODO: Make sure the contents are somehow added to the Merkle
+                     * tree as a ContentBlob */
+                    /* TODO: If we also add a ContentBlob here, it would be nice to
+                     * do everything as a single transaction */
                 }
-            
-                /* TODO: Check for flyweight CorpusContent objects */
-                /* TODO: Make sure the contents are somehow added to the Merkle
-                 * tree as a ContentBlob */
-                /* TODO: If we also add a ContentBlob here, it would be nice to
-                 * do everything as a single transaction */
-            
+            }
+
         }
 
         public void Delete(CorpusContent content)
@@ -114,18 +168,20 @@ namespace LexicalAnalyzer.DataAccess
             IEnumerable<CorpusContent> list = null;
             using (var conn = this.Connection())
             {
-                /* NOTE: It would be a bad idea to fetch a heavyweight list of
-                 * all of the corpus content in the database, so we fetch
-                 * flyweight objects here */
-                list = conn.Query<CorpusContent>(@"
+                using (IDbTransaction tran = conn.BeginTransaction())
+                {
+                    /* NOTE: It would be a bad idea to fetch a heavyweight list of
+                     * all of the corpus content in the database, so we fetch
+                     * flyweight objects here */
+                    list = conn.Query<CorpusContent>(@"
                     SELECT Id, Hash, Name, Type,
-                        ScraperGuid,
                         ScraperType,
                         DownloadDate,
                         DownloadURL
                     FROM la.CorpusContent
                     WHERE CorpusId=@CorpusId
-                        ", new { CorpusId = corpusId });
+                        ", new { CorpusId = corpusId }, transaction: tran);
+                }
 
             }
             return list;

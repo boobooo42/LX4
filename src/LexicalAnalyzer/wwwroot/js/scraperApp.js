@@ -1,16 +1,9 @@
 var manageApp = angular.module("scraperApp", ['ngRoute']);
 
-manageApp.controller("ScraperController", function ($scope, $http) {
-    var editScraper = {};
+manageApp.controller("ScraperController", function ($scope, $http, $interval) {
     $scope.init = function () {
-        if (localStorage.getItem("guid")) {
-            getScraperByGuid(localStorage.getItem("guid"));
-            localStorage.clear();
-        } else {
-            editScraper = null;
-            getTypes();
-        }
-
+        getTypes();
+        getExistingCorpora();
     }
 
     $scope.init();
@@ -18,60 +11,52 @@ manageApp.controller("ScraperController", function ($scope, $http) {
     var types;
     var nameConversion = {};
 
+    function getExistingCorpora() {
+        console.log("corpora");
+        $http({
+            method: 'get',
+            url: '/api/corpus/'
+        })
+        .success(function (response) {
+            console.log(response);
+            var tempCorpora = [];
+            for (var i = 0; i < response.length; i++) {
+                tempCorpora.push(response[i]["name"]);
+            }
+            $scope.corpora = tempCorpora;
+        })
+        .error(function () {
+
+        });
+    }
+
     function getTypes() {
         types = {};
-        if (editScraper) {
-            
-            types[editScraper["Type"]] = {
-                "displayName": editScraper["DName"],
-                "description": editScraper["Desc"],
-                "properties": editScraper["Properties"],
-                "guid": editScraper["Guid"],
-                "priority": editScraper["Priority"],
-                "progress": editScraper["Progress"],
-                "status": editScraper["Status"]
-            }
-            var properties = [];
-          
-            for (var key in editScraper["Properties"]) {
-                properties.push(
-                    {
-                        "key": editScraper["Properties"][key]["Key"],
-                        "type" : editScraper["Properties"][key]["Type"],
-                        "value": editScraper["Properties"][key]["Value"]
-                    });
-            }
-            types[editScraper["Type"]]["properties"] = properties;
-            nameConversion[editScraper["Type"]] = editScraper["DName"];
-            nameConversion[editScraper["DName"]] = editScraper["Type"];
-            setupForm();
-        } else {
-
-            $http({
-                method: 'get',
-                url: '/api/scraper/types'
-            })
-                .success(function (response) {
-                    if (response !== 'undefined') {
-                        for (var key in response) {
-                            types[response[key]["type"]] = response[key];
-                            nameConversion[response[key]["displayName"]] = response[key]["type"];
-                            nameConversion[response[key]["type"]] = response[key]["displayName"];
-                            //types[response[key]["type"]] = {};
-                            for (var key2 in response[key]) {
-                                if (key2 !== "type") {
-                                    types[response[key]["type"]][key2] = response[key][key2];
-                                }
+        $http({
+            method: 'get',
+            url: '/api/scraper/types'
+        })
+            .success(function (response) {
+                if (response !== 'undefined') {
+                    for (var key in response) {
+                        types[response[key]["type"]] = response[key];
+                        nameConversion[response[key]["displayName"]] = response[key]["type"];
+                        nameConversion[response[key]["type"]] = response[key]["displayName"];
+                        //types[response[key]["type"]] = {};
+                        for (var key2 in response[key]) {
+                            if (key2 !== "type") {
+                                types[response[key]["type"]][key2] = response[key][key2];
                             }
                         }
-                        console.log(types);
-                        setupForm();
                     }
-                })
-                .error(function () {
+                    console.log(types);
+                    setupForm();
+                }
+            })
+            .error(function () {
 
-                });
-        }
+            });
+        
     }
 
     function setupForm() {
@@ -84,6 +69,7 @@ manageApp.controller("ScraperController", function ($scope, $http) {
     }
 
     function updateDescription() {
+        redInput = [];
         $("#scraperContent").empty();
         var selected = $scope.selectedScraper;
         if (selected) {
@@ -102,7 +88,6 @@ manageApp.controller("ScraperController", function ($scope, $http) {
     function listProperties() {
         build = "";
         var selected = $scope.selectedScraper;
-        console.log(selected);
         if (selected) {
             $("#scraperProperties").empty();
             properties = types[nameConversion[selected]]["properties"];
@@ -110,9 +95,6 @@ manageApp.controller("ScraperController", function ($scope, $http) {
                 build += '<label>' + properties[i]["key"] + "(" + properties[i]["type"] + "): " + '</label><input type="text" class="form-control" id="' + properties[i]["key"] + '" placeholder="' + properties[i]["value"] + '"><hr />';
             }
         }
-        //if (editScraper) {
-        //    build += '<label> Priority: </label><input type="text" class="form-control" id="Priority placehoder="' + editScraper["Priority"] + '"/></hr>"';
-        //}
         $(build).appendTo("#scraperProperties");
     }
 
@@ -133,10 +115,10 @@ manageApp.controller("ScraperController", function ($scope, $http) {
         });
     }
 
+    var redInput = [];
     $scope.createScraper = function () {
         var sitesToScrape = [];
         var scraperType = nameConversion[$scope.selectedScraper];
-        console.log(scraperType);
         var scraperName = $("#scraperName").val();
         var tempProperties = types[scraperType]["properties"];
         var data = {
@@ -145,24 +127,52 @@ manageApp.controller("ScraperController", function ($scope, $http) {
             "priority": 0,
             "properties": []
         }
+        var complete = true
+        var name = $("#scraperName").val().trim();
+        if (name == "") {
+            redInput.push("#scraperName");
+            $("#scraperName").css("border", "solid 1px red");
+            complete = false;
+        } else {
+            data["properties"].push({ "key": "UserGivenName", "type": "UserGivenName", "value": name });
+        }
         for (var i = 0; i < tempProperties.length; i++) {
             var tempProps = tempProperties[i];
             var val = ($("#" + tempProps["key"]).val());
-            if (val == "")
+
+            if (val == "") {
                 val = $("#" + tempProps["key"]).attr('placeholder');
+                if (!val) {
+                    $("#" + tempProps["key"]).css("border", "solid 1px red");
+                    redInput.push("#" + tempProps["key"]);
+                    complete = false;
+                }
+            }
             data["properties"].push({ "key": tempProps["key"], "type": tempProps["type"], "value": val });
         }
-        console.log(data);
-        $http({
-            method: 'post',
-            url: '/api/scraper/' + scraperType,
-            data: data
-        })
-        .success(function (response) {
-            console.log(response);
-        })
-        .error(function () {
+        if (complete) {
+            if (redInput) {
+                for (var i = 0; i < redInput.length; i++) {
+                    $(redInput[i]).removeAttr("style");
+                }
+            }
+            $http({
+                method: 'post',
+                url: '/api/scraper/' + scraperType,
+                data: data
+            })
+            .success(function (response) {
+                //$("#scraperNew").closest('form').find("input[type=text], textarea").val("");
+                console.log(response);
+                localStorage.setItem("guid", response["Guid"]);
+                window.location.href = "Manage";
+                
+            })
+            .error(function () {
 
-        });
+            });
+        } else {
+            alert("Fill in all fields");
+        }
     };
 });
