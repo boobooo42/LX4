@@ -61,14 +61,20 @@ namespace LexicalAnalyzer.DataAccess {
         }
 
         public void Update(Corpus corpus) {
-            Debug.Assert(corpus.Id == -1);
             using (var conn = this.Connection())
             {
-                        conn.Execute(
-                    @" UPDATE la.Corpus SET Name =@Name, Description = @Description, Locked = @Locked 
-                       where Id = @Id",
-                    new { Name = corpus.Name, Description = corpus.Description, Locked = corpus.Locked, Id =corpus.Id });
-                    }
+                conn.Execute(@"
+                    UPDATE la.Corpus
+                    SET Name = @Name,
+                        Description = @Description,
+                        Locked = @Locked 
+                    WHERE Id = @Id
+                    ", new {
+                        Name = corpus.Name,
+                        Description = corpus.Description,
+                        Locked = corpus.Locked,
+                        Id = corpus.Id });
+            }
         }
 
         public Corpus GetById(long id) {
