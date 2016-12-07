@@ -12,7 +12,6 @@ manageApp.controller("ScraperController", function ($scope, $http, $interval) {
     var nameConversion = {};
 
     function getExistingCorpora() {
-        console.log("corpora");
         $http({
             method: 'get',
             url: '/api/corpus/'
@@ -150,6 +149,8 @@ manageApp.controller("ScraperController", function ($scope, $http, $interval) {
             }
             data["properties"].push({ "key": tempProps["key"], "type": tempProps["type"], "value": val });
         }
+        data["properties"].push({ "key": "CorpusId", "type": "id", "value": "1" });
+        console.log(data["properties"]);
         if (complete) {
             if (redInput) {
                 for (var i = 0; i < redInput.length; i++) {

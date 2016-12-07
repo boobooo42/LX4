@@ -335,10 +335,10 @@ namespace LexicalAnalyzer.Scrapers
             else
             {
                 m_status = "No Twitter Authorization";
-                string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
-                string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
-                UserAuthentication(consumerKey, consumerSecret);
-                StartTwitterStream();
+                    //string consumerKey = "GzWUY0oTfH4AMZdnMqrm0wcde";
+                    //string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
+                    //UserAuthentication(consumerKey, consumerSecret);
+                    //StartTwitterStream();                
             }
         }
 

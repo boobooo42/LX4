@@ -81,6 +81,10 @@ namespace LexicalAnalyzer.LearningModels {
                             "",  /* DefaultValue */
                             "corpus_id"  /* Type */
                             ));
+                properties.Add(new KeyValueProperty(
+                            "LearningModelName",
+                            "",
+                            "Name"));
                 return properties;
             }
         }
