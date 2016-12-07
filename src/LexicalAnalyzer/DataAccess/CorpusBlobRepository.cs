@@ -167,7 +167,7 @@ namespace LexicalAnalyzer.DataAccess {
             /* Get all of the content hashes currently in this corpus */
             IEnumerable<CorpusContent> contentResult = conn.Query<CorpusContent>(@"
                     SELECT Id, Hash, Name, Type,
-                        ScraperGuid,
+                        
                         ScraperType,
                         DownloadDate,
                         DownloadURL
