@@ -14,6 +14,7 @@ namespace LexicalAnalyzer.LearningModels {
         private List<KeyValueProperty> m_properties;
         private long m_corpusID;
         private List<RankFrequencyPair> m_words;
+        private float m_progress;
 
         /* Constructors */
         public ZipfLearningModel(IMerkleTreeContext context) {
@@ -21,6 +22,7 @@ namespace LexicalAnalyzer.LearningModels {
             m_context = context;
             // this.Status = "init";  /* FIXME */
             m_words = new List<RankFrequencyPair>();
+            m_progress = 0.0f;
         }
 
         /* Public static interface */
@@ -124,7 +126,7 @@ namespace LexicalAnalyzer.LearningModels {
         /// </summary>
         public float Progress {
             /* TODO */
-            get { return 0.0f; }
+            get { return m_progress; }
         }
 
         /// <summary>
@@ -196,11 +198,12 @@ namespace LexicalAnalyzer.LearningModels {
              * word */
             var rankedWords = dictionary.Values.OrderBy(word => word.Frequency);
             for (int i = 0; i < rankedWords.Count(); ++i) {
-                rankedWords.ElementAt(i).Rank = i + 1;
+                rankedWords.ElementAt(i).Rank = rankedWords.Count() - i;
             }
 
             /* TODO: Implement thread safety here */
             m_words = new List<RankFrequencyPair>(rankedWords);
+            m_progress = 1.0f;
         }
 
         public IResult Result {

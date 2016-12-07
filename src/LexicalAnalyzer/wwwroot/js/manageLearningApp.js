@@ -13,14 +13,17 @@ learningApp.directive('highlight', function () {
     };
 })
 
-learningApp.controller("ManageLearningController", function ($scope, $http) {
+learningApp.controller("ManageLearningController", function ($scope, $http, $interval) {
     var nameConversion = {};
+    var existingLearnings = [];
+    var progressUpdates;
+
     $scope.init = function () {
+        progressUpdates = getUpdates();
         getTypes();        
     }
 
     function getTypes() {
-        types = {};
         $http({
             method: 'get',
             url: '/api/learningmodel/types'
@@ -38,8 +41,6 @@ learningApp.controller("ManageLearningController", function ($scope, $http) {
     }
 
     $scope.init();
-
-    var existingLearnings = [];
 
     $scope.editLearning = function (e) {
         var target = $(e.target);
@@ -98,6 +99,7 @@ learningApp.controller("ManageLearningController", function ($scope, $http) {
     }
 
     function getExistingLearnings() {
+        $interval.cancel(progressUpdates);
         existingLearnings = [];
         current = 0;
         $http({
@@ -116,6 +118,29 @@ learningApp.controller("ManageLearningController", function ($scope, $http) {
         });
     }
 
+    function getUpdates() {
+        return $interval(function () {
+            existingScrapers = [];
+            $http({
+                method: 'get',
+                url: '/api/learningmodel/'
+            })
+            .success(function (response) {
+                for (var key in response) {
+                    existingScrapers.push(response[key]);
+                    if (response[key]["Status"] == "started") {
+                        $("#" + response[key]["Guid"])[0].children[4].innerHTML = response[key]["Progress"];
+                    }
+                    console.log("updating progress " + response[key]["UserGivenName"] + ": " + response[key]["Progress"]);
+                }
+            })
+
+            .error(function (response) {
+                console.log(response);
+            });
+        }, 1500);
+    }
+
     function setupTable() {
         $("#learningEdit").show();
         var localLM = [];
@@ -129,11 +154,11 @@ learningApp.controller("ManageLearningController", function ($scope, $http) {
             lm.progress = existingLearnings[key]["Progress"];
             lm.result = existingLearnings[key]["Result"]["Data"];
             lm.type = nameConversion[existingLearnings[key]["Type"]];
-            lm.desc = existingLearnings[key]["description"];
-            lm.name = existingLearnings[key]["UserGivenName"];
+            lm.name = existingLearnings[key]["Properties"][0]["Value"];
             localLM.push(lm);
         }
         $scope.currentLearningList = localLM;
+        progressUpdates = getUpdates();
     }
 
     function getLearningByGuid(guid) {

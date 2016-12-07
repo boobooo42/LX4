@@ -458,7 +458,6 @@ namespace LexicalAnalyzer.Scrapers
         /// <returns></returns>
         public void Run()
         {
-            Debug.Assert(false);
             string rootURL = "";
             foreach (KeyValueProperty i in DefaultProperties)
                 if (i.Key.Equals("website"))

@@ -13,11 +13,11 @@
             <div class="scrapper-status" ng-repeat="scrapper in scrappers">
                 <span class="status-pause" ng-click="toggleScrapper(scrapper)"><i class="glyphicon glyphicon-pause"></i></span>
 
-                <span>Name: {{scrapper.Properties[0].Value}}</span>
+                <span>Name: {{scrapper.UserGivenName}}</span>
                 <br />
                 <span>Status: {{scrapper.Status}}</span>
                 <br />
-                <span>Content Type: {{scrapper.ContentType}}</span>
+                <span>Type: {{scrapper.TypeName}}</span>
                 <br />
                 <span>Guid: {{scrapper.Guid}}</span>
 
@@ -42,7 +42,7 @@
 
                 <span class="status-id">{{lm.id}}</span>
 
-                <span>Name: {{lm.name}} N/A</span>
+                <span>Name: {{lm.Properties[0].Value}}</span>
                 <br />
                 <span>Status: {{lm.Status}}</span>
                 <br />
