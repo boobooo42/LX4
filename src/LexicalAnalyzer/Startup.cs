@@ -54,8 +54,6 @@ namespace LexicalAnalyzer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var pathToDoc = "LexicalAnalyzer.xml";
-
             // Add framework services.
             services.AddMvc();
             services.AddSwaggerGen(c =>

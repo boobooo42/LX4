@@ -3,6 +3,7 @@ var manageApp = angular.module("learningApp", ['ngRoute']);
 manageApp.controller("LearningController", function ($scope, $http) {
     var types, nameConversion = {};
     function getTypes() {
+        getExistingCorpora();
         types = {};
         $http({
             method: 'get',
@@ -27,6 +28,25 @@ manageApp.controller("LearningController", function ($scope, $http) {
             .error(function () {
 
             });
+    }
+
+    function getExistingCorpora() {
+        console.log("corpora");
+        $http({
+            method: 'get',
+            url: '/api/corpus/'
+        })
+        .success(function (response) {
+            console.log(response);
+            var tempCorpora = [];
+            for (var i = 0; i < response.length; i++) {
+                tempCorpora.push(response[i]["name"]);
+            }
+            $scope.corpora = tempCorpora;
+        })
+        .error(function () {
+
+        });
     }
 
     function setupForm() {
@@ -79,6 +99,14 @@ manageApp.controller("LearningController", function ($scope, $http) {
             "properties": []
         }
         var complete = true;
+        var name = $("#learningName").val().trim();
+        if (name == "") {
+            redInput.push("#learningName");
+            $("#learningName").css("border", "solid 1px red");
+            complete = false;
+        } else {
+            data["properties"].push({ "key": "UserGivenName", "type": "UserGivenName", "value": name });
+        }
         for (var i = 0; i < tempProperties.length; i++) {
             var tempProps = tempProperties[i];
             var val = ($("#" + tempProps["key"]).val());
@@ -104,12 +132,15 @@ manageApp.controller("LearningController", function ($scope, $http) {
                 data: data
             })
             .success(function (response) {
-                $("#learningForm").closest('form').find("input[type=text], textarea").val("");
+                localStorage.setItem("guid", response["Guid"]);
+                window.location.href = "ManageLearning";
                 console.log(response);
             })
             .error(function () {
                 console.log(response);
             });
+        } else {
+            alert("Fill in all fields");
         }
     };
 

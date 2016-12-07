@@ -59,7 +59,12 @@
     "emitEntryPoint": true,
     "preserveCompilationContext": true,
     "xmlDoc": true,
-    "define": [ "DEBUG" ]
+    "define": [ "DEBUG" ],
+    "embed": [
+      "schema.sql",
+      "constraints.sql",
+      "example_data.sql"
+    ]
   },
 
   "runtimeOptions": {
@@ -80,11 +85,5 @@
   "scripts": {
     "prepublish": [ "bower install", "dotnet bundle" ],
     "postpublish": [ "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%" ]
-  },
-
-  "resource": [
-    "schema.sql",
-    "constraints.sql",
-    "example_data.sql"
-  ]
+  }
 }

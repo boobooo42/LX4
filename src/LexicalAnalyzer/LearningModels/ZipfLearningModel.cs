@@ -1,19 +1,26 @@
+using LexicalAnalyzer.Exceptions;
 using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Models;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System;
 
 namespace LexicalAnalyzer.LearningModels {
     public class ZipfLearningModel : ILearningModel {
         /* Private data members */
         private Guid m_guid;
-        private ICorpusContext m_context;
+        private IMerkleTreeContext m_context;
+        private List<KeyValueProperty> m_properties;
+        private long m_corpusID;
+        private List<RankFrequencyPair> m_words;
 
         /* Constructors */
-        public ZipfLearningModel(ICorpusContext context) {
+        public ZipfLearningModel(IMerkleTreeContext context) {
             m_guid = System.Guid.NewGuid();
-            // this.Status = "init";  /* FIXME */
             m_context = context;
+            // this.Status = "init";  /* FIXME */
+            m_words = new List<RankFrequencyPair>();
         }
 
         /* Public static interface */
@@ -67,7 +74,11 @@ namespace LexicalAnalyzer.LearningModels {
         public static IEnumerable<KeyValueProperty> DefaultProperties {
             get {
                 var properties = new List<KeyValueProperty>();
-                /* TODO: Add properties (if they are even needed) */
+                properties.Add(new KeyValueProperty(
+                            "corpus",  /* Key */
+                            "",  /* DefaultValue */
+                            "corpus_id"  /* Type */
+                            ));
                 return properties;
             }
         }
@@ -122,39 +133,79 @@ namespace LexicalAnalyzer.LearningModels {
         }
 
         public IEnumerable<KeyValueProperty> Properties {
-            get;
-            set;
-        } = DefaultProperties;
+            get {
+                return m_properties;
+            }
+            set {
+                foreach (var property in value) {
+                    switch (property.Key.ToLower()) {
+                        case "corpus":
+                            /* FIXME: Check if this is a valid long */
+                            m_corpusID = Convert.ToInt64(property.Value);
+                            break;
+                        //default:
+                            /* FIXME: Re-enable this throw. There are some
+                             * weird properties that are being sent to all
+                             * learning models. */
+                            /*
+                            throw new LearningModelException(String.Format(
+                                "ZipfLearningModel does not recognize option '{0}'",
+                                property.Key));
+                            */
+                    }
+                }
+                m_properties = new List<KeyValueProperty>(value);
+            }
+        }
 
         public void Run() {
-            /* TODO: Read from the corpus */
-            /* TODO: Calculate the frequency/rank of words/letters */
+            /* Read from the corpus */
+            var corpusBlob = m_context.CorpusBlobRepository
+                .GetByCorpusID(m_corpusID);
+
+            /* Iterate over all corpus content */
+            var dictionary = new SortedDictionary<string, RankFrequencyPair>();
+            foreach (var cont in corpusBlob.Content) {
+                /* Note that we only have the content hash at this point. We
+                 * must retrieve the actual content from the
+                 * ContentBlobRepository. */
+                var content =
+                    m_context.ContentBlobRepository.GetByHash(cont.Hash);
+                var text = content.Contents;
+                /* TODO: We split the text into words and compute the frequency
+                 * of each */
+                /* From: http://stackoverflow.com/a/16734675 */
+                var punctuation = text.Where(Char.IsPunctuation).Distinct().ToArray();
+                var words = text.Split().Select(x => x.Trim(punctuation));
+                foreach (var word in words) {
+                    if (!dictionary.ContainsKey(word)) {
+                        dictionary.Add(word, new RankFrequencyPair(
+                                    word,  /* name */
+                                    -1,  /* rank */
+                                    0  /* frequency */
+                                    ));
+                    }
+                    dictionary[word].Frequency += 1;
+                }
+            }
+            /* We sort the words by frequency to determine the rank of each
+             * word */
+            var rankedWords = dictionary.Values.OrderBy(word => word.Frequency);
+            for (int i = 0; i < rankedWords.Count(); ++i) {
+                rankedWords.ElementAt(i).Rank = i + 1;
+            }
+
+            /* TODO: Implement thread safety here */
+            m_words = new List<RankFrequencyPair>(rankedWords);
         }
 
         public IResult Result {
             get {
-                /* XXX: Replace this with real data */
-                var words = new List<RankFrequencyPair>();
-                words.Add(new RankFrequencyPair(
-                            "foo",  /* name */
-                            1,  /* rank */
-                            2935  /* frequency */
-                            ));
-                words.Add(new RankFrequencyPair(
-                            "bar",  /* name */
-                            2,  /* rank */
-                            235  /* frequency */
-                            ));
-                words.Add(new RankFrequencyPair(
-                            "baz",  /* name */
-                            3,  /* rank */
-                            20  /* frequency */
-                            ));
-                var characters = new List<RankFrequencyPair>();
-                ZipfResult result = new ZipfResult(
-                    words, /* words */
-                    characters  /* characters */
-                    );
+                /* FIXME: Implement thread safety here */
+                var result = new ZipfResult(
+                        m_words,  /* words */
+                        new List<RankFrequencyPair>()  /* characters */
+                        );
                 return result;
             }
         }

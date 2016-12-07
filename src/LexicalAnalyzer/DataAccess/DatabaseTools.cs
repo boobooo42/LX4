@@ -75,7 +75,7 @@ namespace LexicalAnalyzer.DataAccess {
                     cn.Open();
                     RunSqlBatch(sql, cn);
                 }
-            } catch (SqlException e) {
+            } catch (SqlException) {
                 /* Since the transaction failed, we can assume that we already
                  * have example data in our database */
                 Debug.WriteLine("Failed to add example data; assuming we already have data");
@@ -116,7 +116,9 @@ namespace LexicalAnalyzer.DataAccess {
                 } catch (SqlException e) {
                     tran.Rollback();
                     for (int i = 0; i < e.Errors.Count; ++i) {
-                        Debug.WriteLine("SQL Error: " + e.Errors[i].ToString());
+                        Debug.WriteLine(string.Format(
+                            "SQL Error: {0}",
+                            e.Errors[i].ToString()));
                     }
                     throw;
                 }

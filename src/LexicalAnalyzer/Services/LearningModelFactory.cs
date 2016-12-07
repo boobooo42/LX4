@@ -11,10 +11,10 @@ namespace LexicalAnalyzer.Services {
     public class LearningModelFactory : ILearningModelFactory {
         /* Private members */
         private List<Type> m_learningModelTypes;
-        private ICorpusContext m_context;
+        private IMerkleTreeContext m_context;
 
         /* Constructors */
-        public LearningModelFactory(ICorpusContext context) {
+        public LearningModelFactory(IMerkleTreeContext context) {
             m_context = context;
             m_learningModelTypes = new List<Type>();
 

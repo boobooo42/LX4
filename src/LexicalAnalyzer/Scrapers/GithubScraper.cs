@@ -325,7 +325,7 @@ namespace LexicalAnalyzer.Scrapers
 
             var repositories = await api.GetTokenAsync();
 
-            string tokenString = "66d32909b6aafe5f7b311984f303b3df25e2d7fe";
+            // string tokenString = "66d32909b6aafe5f7b311984f303b3df25e2d7fe";
         }
         private async Task<string> ScrapeRepo()
         {

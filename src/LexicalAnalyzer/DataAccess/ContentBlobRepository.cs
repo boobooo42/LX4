@@ -24,7 +24,7 @@ namespace LexicalAnalyzer.DataAccess {
             using (IDbConnection cn = this.Connection()) {
                 cn.Execute(
                         "INSERT INTO la.ContentBlob (Hash, Contents) VALUES (@Hash, @Contents)",
-                        new { Hash = content.Hash, Contents = content.Content });
+                        new { Hash = content.Hash, Contents = content.Contents });
                 /* TODO: Insert the corresponding MerkleNode record */
             }
         }
@@ -50,16 +50,16 @@ namespace LexicalAnalyzer.DataAccess {
             }
         }
 
-        public override ContentBlob GetByHash(MerkleHash hash) {
+        public override ContentBlob GetByHash(string hash) {
             ContentBlob content = null;
             using (IDbConnection cn = this.Connection()) {
-                IEnumerable<ContentBlob> result = cn.Query<ContentBlob>(
-                    @" SELECT * FROM la.ContentBlob
-                        LEFT OUTER JOIN MerkleNode
-                            ON (MerkleNode.Hash = ContentBlob.Hash)
-                        WHERE ContentBlob.Hash=@Hash
-                        ", new { Hash = hash });
+                IEnumerable<ContentBlob> result = cn.Query<ContentBlob>(@"
+                    SELECT Hash, Contents
+                    FROM la.ContentBlob
+                    WHERE la.ContentBlob.Hash=@Hash
+                    ", new { Hash = hash });
                 if (result.Any()) {
+                    Debug.Assert(result.Count() == 1);
                     content = result.First();
                 }
             }
@@ -75,6 +75,9 @@ namespace LexicalAnalyzer.DataAccess {
                         LEFT OUTER JOIN MerkleNode
                             ON (MerkleNode.Hash = ContentBlob.Hash)
                         ");
+                /* FIXME: This is almost certainly broken. We need to use the
+                 * Dapper multi mapping facilities to make the list of child
+                 * nodes. */
             }
             return list;
         }
