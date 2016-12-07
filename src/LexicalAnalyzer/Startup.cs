@@ -44,9 +44,9 @@ namespace LexicalAnalyzer
                     .GetSection("Database")
                     .GetValue(typeof(string), "ConnectionString");
             DatabaseTools.InitializeDatabase(connectionString);
-            if (env.IsDevelopment()) {
-                DatabaseTools.AddExampleData(connectionString);
-            }
+            //if (env.IsDevelopment()) {
+            //    DatabaseTools.AddExampleData(connectionString);
+            //}
         }
 
         public IConfigurationRoot Configuration { get; }

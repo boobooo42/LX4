@@ -61,6 +61,7 @@ namespace LexicalAnalyzer.DataAccess {
                             VALUES ( @version )",
                             new { version = DatabaseVersion });
                 }
+                AddExampleData(connectionString);
             }
         }
 
