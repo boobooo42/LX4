@@ -9,8 +9,12 @@
             <div class="col-sm-6" id="scraperInfo">
                 <h3 class="panel-heading">Learning Model</h3>
                 <hr />
+                <label>Name: </label>
+                <input type="text" id="learningName" class="form-control" /> <br />
                 <label>Learning Model Type: </label>
-                <select class="form-control" id="learnings" ng-model="selectedLearningModel" ng-options="option as option for option in learnings"></select>
+                <select class="form-control" id="learnings" ng-model="selectedLearningModel" ng-options="option as option for option in learnings"></select><br/>
+                <label>Corpus</label>
+                <select class="form-control" id="corpora" ng-model="selectedCorpora" ng-options="option as option for option in corpora"></select>
                 <div id="learningContent"></div>
             </div>
             <div class="col-sm-6 panel">

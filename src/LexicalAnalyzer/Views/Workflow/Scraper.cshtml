@@ -13,7 +13,9 @@
                     <label>Scraper Name: </label>
                     <input type="text" id="scraperName" class="form-control" /> <br />
                     <label>Scraper Type: </label>
-                    <select class="form-control" id="scrapers" ng-model="selectedScraper" ng-options="option as option for option in scrapers"></select>
+                    <select class="form-control" id="scrapers" ng-model="selectedScraper" ng-options="option as option for option in scrapers"></select><br />
+                    <label>Corpus:</label>
+                    <select class="form-control" id="corpora" ng-model="selectedCorpora" ng-options="option as option for option in corpora"></select>
                     <div id="scraperContent"></div>
                 </div>
 

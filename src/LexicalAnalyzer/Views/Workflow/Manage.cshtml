@@ -2,6 +2,17 @@
 <script src="~/js/angular-route.min.js"></script>
 <script src="~/js/manageApp.js"></script>
 <link rel="stylesheet" href="~/css/workflow.css" asp-append-version="true" />
+<style>
+    @@keyframes newItem {
+        0%   {background-color: white;}
+        25%  {background-color: lightgrey;}
+        100% {background-color: white;}
+    }
+    .new {
+        animation-name: newItem;
+        animation-duration: 1s;
+    }
+</style>
 
 <div class="container">
     <div ng-app="manageApp" ng-controller="ManageController">
@@ -26,38 +37,41 @@
             </div>
         </div>
 
-        <div id="scraperEdit" class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead id="editTHead">
-                    <tr>
-                        <th></th>
-                        <th>GUID</th>
-                        <th>Status</th>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Progress</th>
-                        <th>Priority</th>
-                    </tr>
-                </thead>
-                <tbody id="editTBody" class="table">
-                    <tr ng-repeat="scraper in currentScraperList">
-                        <th scope="row">
-                            <p>
-                                <span class="glyphicon glyphicon-file" ng-click="editScraper($event)"></span>
-                                <span class="glyphicon glyphicon-trash" ng-click="deleteScraper($event)"></span>
-                                <span class="glyphicon glyphicon-pause" ng-click="pauseScraper($event)"></span>
-                                <span class="glyphicon glyphicon-play" ng-click="startScraper($event)"></span>
-                            </p>
-                        </th>
-                        <th scope="row" class="guid"> {{scraper.guid}} </th>
-                        <th scope="row"> {{scraper.status}} </th>
-                        <th scope="row"> {{scraper.name}} </th>
-                        <th scope="row" title="{{scraper.desc}}" class="type"> {{scraper.type}} </th>
-                        <th scope="row"> {{scraper.progress}} </th>
-                        <th scope="row"> {{scraper.priority}} </th>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="row-margin">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>Manage Scrapers</h4>
+                </div>
+                <div id="scraperEdit" class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead id="editTHead">
+                            <tr>
+                                <th class="col-xs-2"></th>
+                                <th class="col-xs-3">Name</th>
+                                <th class="col-xs-2">Status</th>
+                                <th class="col-xs-2">Type</th>
+                                <th class="col-xs-1">Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody id="editTBody" class="table">
+                            <tr hidden ng-repeat="scraper in currentScraperList" id="{{scraper.guid}}" highlight>
+                                <td>
+                                    <p>
+                                        <span class="glyphicon glyphicon-file" ng-click="editScraper($event)"></span>
+                                        <span class="glyphicon glyphicon-trash" ng-click="deleteScraper($event)"></span>
+                                        <span class="glyphicon glyphicon-pause" ng-click="pauseScraper($event)"></span>
+                                        <span class="glyphicon glyphicon-play" ng-click="startScraper($event)"></span>
+                                    </p>
+                                </td>
+                                <td title="{{scraper.guid}}"> {{scraper.name}} </td>
+                                <td> {{scraper.status}} </td>
+                                <td title="{{scraper.desc}}" class="type"> {{scraper.type}} </td>
+                                <td> {{scraper.progress}} </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>

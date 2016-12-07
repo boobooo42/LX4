@@ -1,10 +1,22 @@
-var manageApp = angular.module("manageLearningApp", ['ngRoute']);
+var learningApp = angular.module("manageLearningApp", ['ngRoute']);
 
-manageApp.controller("ManageLearningController", function ($scope, $http) {
+learningApp.directive('highlight', function () {
+    return function (scope, element, attrs) {
+        var guid = localStorage.getItem("guid");
+        angular.element(element).removeAttr("hidden");
+        if (guid !== null) {
+            if (attrs.id == guid) {
+                angular.element(element).addClass("new");
+                localStorage.removeItem("guid");
+            }
+        }
+    };
+})
+
+learningApp.controller("ManageLearningController", function ($scope, $http) {
     var nameConversion = {};
     $scope.init = function () {
-        getTypes();
-        getExistingLearnings();
+        getTypes();        
     }
 
     function getTypes() {
@@ -14,12 +26,11 @@ manageApp.controller("ManageLearningController", function ($scope, $http) {
             url: '/api/learningmodel/types'
         })
             .success(function (response) {
-                if (response !== 'undefined') {
-                    for (var key in response) {
-                        nameConversion[response[key]["displayName"]] = response[key]["type"];
-                        nameConversion[response[key]["type"]] = response[key]["displayName"];
-                    }
+                for (var key in response) {
+                    nameConversion[response[key]["displayName"]] = response[key]["type"];
+                    nameConversion[response[key]["type"]] = response[key]["displayName"];
                 }
+                getExistingLearnings();
             })
             .error(function () {
 
@@ -32,7 +43,7 @@ manageApp.controller("ManageLearningController", function ($scope, $http) {
 
     $scope.editLearning = function (e) {
         var target = $(e.target);
-        var guid = target.parent().parent().siblings(".guid").text().trim();
+        var guid = target.parent().parent().parent().attr("id");
         localStorage.setItem("guid", guid);
         //window.location.href = "Learning";
     }
@@ -40,7 +51,7 @@ manageApp.controller("ManageLearningController", function ($scope, $http) {
     $scope.deleteLearning = function (e) {
         var target = $(e.target);
         target.parent().parent().parent().hide();
-        var guid = target.parent().parent().siblings(".guid").text().trim();
+        var guid = target.parent().parent().parent().attr("id");
         console.log(guid);
         $http({
             method: 'delete',
@@ -56,7 +67,7 @@ manageApp.controller("ManageLearningController", function ($scope, $http) {
 
     $scope.pauseLearning = function (e) {
         var target = $(e.target);
-        var guid = target.parent().parent().siblings(".guid").text().trim();
+        var guid = target.parent().parent().parent().attr("id");
         $http({
             method: 'post',
             url: '/api/learningmodel/' + guid + '/pause'
@@ -72,7 +83,7 @@ manageApp.controller("ManageLearningController", function ($scope, $http) {
 
     $scope.startLearning = function (e) {
         var target = $(e.target);
-        var guid = target.parent().parent().siblings(".guid").text().trim();
+        var guid = target.parent().parent().parent().attr("id");
         $http({
             method: 'post',
             url: '/api/learningmodel/' + guid + '/start'
@@ -119,6 +130,7 @@ manageApp.controller("ManageLearningController", function ($scope, $http) {
             lm.result = existingLearnings[key]["Result"]["Data"];
             lm.type = nameConversion[existingLearnings[key]["Type"]];
             lm.desc = existingLearnings[key]["description"];
+            lm.name = existingLearnings[key]["UserGivenName"];
             localLM.push(lm);
         }
         $scope.currentLearningList = localLM;

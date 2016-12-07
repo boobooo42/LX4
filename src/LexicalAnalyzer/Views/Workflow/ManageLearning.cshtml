@@ -2,42 +2,64 @@
 <script src="~/js/angular-route.min.js"></script>
 <script src="~/js/manageLearningApp.js"></script>
 <link rel="stylesheet" href="~/css/workflow.css" asp-append-version="true" />
+<style>
+    @@keyframes newItem {
+        0% {
+            background-color: white;
+        }
+
+        25% {
+            background-color: lightgrey;
+        }
+
+        100% {
+            background-color: white;
+        }
+    }
+
+    .new {
+        animation-name: newItem;
+        animation-duration: 1s;
+    }
+</style>
 
 <div class="container">
     <div ng-app="manageLearningApp" ng-controller="ManageLearningController">
-        
-        <div id="learningEdit" class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead id="editTHead">
-                    <tr>
-                        <th></th>
-                        <th>GUID</th>
-                        <th>Status</th>
-                        <th>Type</th>
-                        @*<th>Progress</th>
-                        <th>Priority</th>*@
-                        <th>Result</th>
-                    </tr>
-                </thead>
-                <tbody id="editTBody" class="table">
-                    <tr ng-repeat="learning in currentLearningList">
-                        <th scope="row">
-                            <p>
-                                <span class="glyphicon glyphicon-file" ng-click="editLearning($event)"></span>
-                                <span class="glyphicon glyphicon-trash" ng-click="deleteLearning($event)"></span>
-                                <span class="glyphicon glyphicon-pause" ng-click="pauseLearning($event)"></span>
-                                <span class="glyphicon glyphicon-play" ng-click="startLearning($event)"></span>
-                            </p>
-                        </th>
-                        <th scope="row" class="guid"> {{learning.guid}} </th>
-                        <th scope="row"> {{learning.status}} </th>
-                        <th scope="row" title="{{learning.desc}}" class="type"> {{learning.type}} </th>
-                        @*<th scope="row"> {{learning.progress}} </th>
-                        <th scope="row"> {{learning.priority}} </th>*@
-                        <th scope="row"> {{learning.result}} </th>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="row-margin">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>Manage Learning Models</h4>
+                </div>
+                <div id="learningEdit" class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead id="editTHead">
+                            <tr>
+                                <th class="col-xs-2"></th>
+                                <th class="col-xs-3">Name</th>
+                                <th class="col-xs-2">Status</th>
+                                <th class="col-xs-2">Type</th>
+                                <th class="col-xs-1">Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody id="editTBody" class="table">
+                            <tr hidden ng-repeat="learning in currentLearningList" id="{{learning.guid}}" highlight>
+                                <th scope="row">
+                                    <p>
+                                        <span class="glyphicon glyphicon-file" ng-click="editLearning($event)"></span>
+                                        <span class="glyphicon glyphicon-trash" ng-click="deleteLearning($event)"></span>
+                                        <span class="glyphicon glyphicon-pause" ng-click="pauseLearning($event)"></span>
+                                        <span class="glyphicon glyphicon-play" ng-click="startLearning($event)"></span>
+                                    </p>
+                                </th>
+                                <td title="{{learning.guid}}">{{learning.name}}</td>
+                                <td > {{learning.status}} </td>
+                                <td title="{{learning.desc}}" class="type"> {{learning.type}} </td>
+                                <td > {{learning.progress}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
