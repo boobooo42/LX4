@@ -33,10 +33,6 @@ namespace LexicalAnalyzer.LearningModels
         public static IEnumerable<KeyValueProperty> DefaultProperties {
             get {
                 var properties = new List<KeyValueProperty>();
-                properties.Add(new KeyValueProperty(
-                "LearningModelName",
-                "",
-                "Name"));
                 //properties.Add(
                 //        new KeyValueProperty(
                 //            "timeout",  /* key */

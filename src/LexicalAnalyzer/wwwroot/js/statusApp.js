@@ -43,16 +43,20 @@ statusApp.controller("status", function ($scope, $http, $interval) {
     $scope.setProgress = function () {
 
         if ($scope.scrappers != undefined)
-        for (var i = 0; i < $scope.scrappers.length; i++) {
-            $scope.scrappers[i].Progress *= 100;
-            $scope.scrappers[i].Progress = Math.floor($scope.scrappers[i].Progress);
-        }
+            for (var i = 0; i < $scope.scrappers.length; i++) {
+                if ($scope.scrappers[i].Progress <= 1) {
+                    $scope.scrappers[i].Progress *= 100;
+                    $scope.scrappers[i].Progress = Math.floor($scope.scrappers[i].Progress);
+                }
+            }
 
         if ($scope.learningModels != undefined)
-        for (var i = 0; i < $scope.learningModels.length; i++) {
-            $scope.learningModels[i].Progress *= 100;
-            $scope.learningModels[i].Progress = Math.floor($scope.learningModels[i].Progress);
-        }
+            for (var i = 0; i < $scope.learningModels.length; i++) {
+                if ($scope.learningModels[i].Progress <= 1) {
+                    $scope.learningModels[i].Progress *= 100;
+                    $scope.learningModels[i].Progress = Math.floor($scope.learningModels[i].Progress);
+                }
+            }
     }
 
     //Starts or stop given scrapper.
