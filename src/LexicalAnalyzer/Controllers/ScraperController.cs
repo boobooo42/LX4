@@ -314,9 +314,9 @@ namespace LexicalAnalyzer.Controllers
                 return JsonConvert.SerializeObject(error);
             }
             scraper.Properties = s.Properties;
-            if (s.Status.ToLower() == "start") {
+            if (s.Status.ToLower() == "started") {
                 m_scraperService.StartScraper(guid);
-            } else if (s.Status.ToLower() == "pause") {
+            } else if (s.Status.ToLower() == "paused") {
                 m_scraperService.PauseScraper(guid);
             } else {
                 Response.StatusCode = 400;  /* Bad Request */

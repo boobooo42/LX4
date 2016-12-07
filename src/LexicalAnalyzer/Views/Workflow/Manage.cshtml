@@ -16,7 +16,7 @@
 
 <div class="container">
     <div ng-app="manageApp" ng-controller="ManageController">
-        <!-- Modal -->
+        <!-- Twitter Auth Modal -->
         <div id="twitterAuth" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <!-- Modal content-->
@@ -32,6 +32,28 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" id="submitPin">Submit Pin</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Scraper Modal -->
+        <div id="editScraperModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" data-toggle="collapse" data-target="#collapseArea" aria-expanded="true" aria-controls="collapseArea">&times;</button>
+                        <h4 class="modal-title">Edit Scraper</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div hidden id="{{modalguid}}"></div>
+                        <form id="editScraperModalBody"></form>
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" ng-click="submitScraperEdits()" id="modalEditButton">Edit</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="collapse" data-target="#collapseArea" aria-expanded="true" aria-controls="collapseArea">Cancel</button>
                     </div>
                 </div>
             </div>

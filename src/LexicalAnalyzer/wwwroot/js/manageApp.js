@@ -13,20 +13,68 @@ manageApp.directive('highlight', function() {
     };
 })
 
-manageApp.controller("ManageController", function ($scope, $http) {
+manageApp.controller("ManageController", function ($scope, $http, $interval) {
     $scope.init = function () {
+        progressUpdates = getUpdates();
         getExistingScrapers();
     }
     $scope.init();
 
+    var progressUpdates;
     var existingScrapers = [];
 
     $scope.editScraper = function (e) {
         var target = $(e.target);
         var guid = target.parent().parent().parent().attr("id");
-        console.log(guid);
-        //localStorage.setItem("guid", guid);
-        //window.location.href = "Scraper";
+        $scope.modalguid = guid;
+        var editScraper = getScraperByGuid(guid);
+        console.log(editScraper);
+        var build = "";
+        $("#editScraperModalBody").empty();
+        if (editScraper["Status"] == "started") {
+            build = "<p>Scraper has been started and cant be edited.</p>"
+            $("#modalEditButton").attr("hidden");
+        } else {
+            var properties = editScraper["Properties"];
+            console.log(properties);
+            for (var i in properties) {
+                build += '<label>' + properties[i]["Key"] + "(" + properties[i]["Type"] + "): " + '</label><input type="text" class="form-control" id="' + properties[i]["Key"] + '" mytype="' + properties[i]["Type"] + '" placeholder="' + properties[i]["Value"] + '"><hr />';
+            }
+        }
+        $(build).appendTo("#editScraperModalBody");
+        $("#editScraperModal").modal('show');
+    }
+
+    $scope.submitScraperEdits = function () {
+        /*var editScraper = getScraperByGuid($scope.modalguid);
+        var data = {
+            "Status": "paused",
+            "Properties": []
+        }
+        $("form#editScraperModalBody :input").each(function () {
+            var input = $(this); // This is the jquery object of the input, do what you will
+            if (input.text == "") {
+                data["Properties"].push({ "key": input.id, "type": input.mytype, "value": input.placeholder });
+            } else {
+                data["Properties"].push({ "key": input.id, "type": input.mytype, "value": input.text });
+            }
+        });
+
+        $http({
+            method: 'put',
+            url: '/api/scraper/' + $scope.modalguid,
+            data: data
+        })
+        .success(function (response) {
+            console.log(response);
+            $("#editScraperModal").modal('hide');
+            getExistingScrapers();
+        })
+        .error(function (response) {
+            console.log(response);
+            $("#editScraperModal").modal('hide');
+        });*/
+
     }
 
     $scope.deleteScraper = function (e) {
@@ -127,6 +175,7 @@ manageApp.controller("ManageController", function ($scope, $http) {
     }
 
     function getExistingScrapers() {
+        $interval.cancel(progressUpdates);
         existingScrapers = [];
         $http({
             method: 'get',
@@ -142,6 +191,29 @@ manageApp.controller("ManageController", function ($scope, $http) {
         .error(function (response) {
             console.log(response);
         });
+    }
+
+    function getUpdates() {
+        return $interval(function () {
+            existingScrapers = [];
+            $http({
+                method: 'get',
+                url: '/api/scraper/'
+            })
+            .success(function (response) {
+                for (var key in response) {
+                    existingScrapers.push(response[key]);
+                    if(response[key]["Status"] == "started"){
+                        $("#" + response[key]["Guid"])[0].children[4].innerHTML = response[key]["Progress"];
+                        console.log("updating progress " + response[key]["UserGivenName"] + ": " + response[key]["Progress"]);
+                    }
+                }
+            })
+
+            .error(function (response) {
+                console.log(response);
+            });
+        }, 1500);
     }
 
     function setupTable() {
@@ -161,6 +233,7 @@ manageApp.controller("ManageController", function ($scope, $http) {
             localSC.push(sc);
         }
         $scope.currentScraperList = localSC;
+        progressUpdates = getUpdates();
     }
 
     function getScraperByGuid(guid) {

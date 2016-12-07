@@ -29,7 +29,7 @@ manageApp.controller("LearningController", function ($scope, $http) {
 
             });
     }
-
+    var existCorpora = [];
     function getExistingCorpora() {
         console.log("corpora");
         $http({
@@ -40,8 +40,10 @@ manageApp.controller("LearningController", function ($scope, $http) {
             console.log(response);
             var tempCorpora = [];
             for (var i = 0; i < response.length; i++) {
+                existCorpora.push(response[i]);
                 tempCorpora.push(response[i]["name"]);
             }
+            console.log(existCorpora);
             $scope.corpora = tempCorpora;
         })
         .error(function () {
@@ -82,7 +84,10 @@ manageApp.controller("LearningController", function ($scope, $http) {
             $("#learningProperties").empty();
             properties = types[nameConversion[selected]]["properties"];
             for (var i = 0; i < properties.length; i++) {
-                build += '<label>' + properties[i]["key"] + "(" + properties[i]["type"] + "): " + '</label><input type="text" class="form-control" id="' + properties[i]["key"] + '" placeholder="' + properties[i]["value"] + '"><hr />';
+                //if (properties[i]["key"] !== "LearningModelName" && properties[i]["key"] !== "corpus") 
+                {
+                    build += '<label>' + properties[i]["key"] + "(" + properties[i]["type"] + "): " + '</label><input type="text" class="form-control" id="' + properties[i]["key"] + '" placeholder="' + properties[i]["value"] + '"><hr />';
+                }
             }
         }
         $(build).appendTo("#learningProperties");
@@ -120,6 +125,7 @@ manageApp.controller("LearningController", function ($scope, $http) {
             }
             data["properties"].push({ "key": tempProps["key"], "type": tempProps["type"], "value": val });
         }
+        //data["properties"].push({ "key": "corpus", "type": "corpus_id", "value": existCorpora[0]["id"] });
         if (complete) {
             if (redInput) {
                 for (var i = 0; i < redInput.length; i++) {
