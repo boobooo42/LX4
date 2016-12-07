@@ -37,11 +37,15 @@ namespace LexicalAnalyzer.DataAccess {
             Debug.Assert(corpus.Id == -1);
             using (var conn = this.Connection())
             {
-                        conn.Execute(
-                    @" INSERT INTO la.Corpus(Id, Name, Description, Locked ) VALUES ( @Id, @Name, @Description, @Locked )",
-                    new { Id = corpus.Id, Name = corpus.Name, Description = corpus.Description, Locked = corpus.Locked });
-                    }
-               
+                conn.Execute(@"
+                    INSERT INTO la.Corpus ( Name, Description, Locked )
+                    VALUES ( @Name, @Description, @Locked )
+                    ", new {
+                        Name = corpus.Name,
+                        Description = corpus.Description,
+                        Locked = corpus.Locked });
+            }
+
         }
 
         public void Delete(Corpus corpus) {
