@@ -350,17 +350,16 @@ namespace LexicalAnalyzer.Scrapers
         void StopTwitterStream(Tweetinvi.Streaming.ISampleStream stream)
         {
             stream.StopStream();
-            m_status = "stopped on ";
             if (downloadStop() && timeStop())
-                m_status += "downloads, time";
+                m_status = ScraperUtilities.SCRAPER_STATUS_TIME_AND_DOWNLOAD_LIMIT_REACHED ;
             else if (downloadStop())
-                m_status += "downloads";
+                m_status = ScraperUtilities.SCRAPER_STATUS_DOWNLOAD_LIMIT_REACHED;
             else if (timeStop())
             {
                 m_timer.Reset();
-                m_status += "time";
+                m_status = ScraperUtilities.SCRAPER_STATUS_TIME_LIMIT_REACHED;
             }
-            else m_status = "stopped due to application error";
+            else m_status = ScraperUtilities.SCRAPER_STATUS_APPLICATION_ERROR;
         }
 
         IAuthenticationContext authenticationContext;
