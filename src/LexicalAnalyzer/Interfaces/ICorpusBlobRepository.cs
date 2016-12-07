@@ -5,6 +5,6 @@ namespace LexicalAnalyzer.Interfaces {
     public interface ICorpusBlobRepository
         : IMerkleNodeRepository<CorpusBlob>
     {
-        List<ContentBlob> GetAll();
+        CorpusBlob GetByCorpusID(long id);
     }
 }

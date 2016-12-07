@@ -7,6 +7,7 @@ namespace LexicalAnalyzer.DataAccess {
         IDbConnectionFactory m_connectionFactory;
         MerkleNodeRepository m_merkleNodeRepository;
         ContentBlobRepository m_contentBlobRepository;
+        CorpusBlobRepository m_corpusBlobRepository;
 
         public MerkleTreeContext(IDbConnectionFactory connectionFactory) {
             m_connectionFactory = connectionFactory;
@@ -32,8 +33,8 @@ namespace LexicalAnalyzer.DataAccess {
                 return m_contentBlobRepository;
             }
         }
-        /*
-        ICorpusBlobRepository CorpusBlobRepository {
+
+        public ICorpusBlobRepository CorpusBlobRepository {
             get {
                 if (m_corpusBlobRepository == null) {
                     m_corpusBlobRepository =
@@ -42,6 +43,5 @@ namespace LexicalAnalyzer.DataAccess {
                 return m_corpusBlobRepository;
             }
         }
-        */
     }
 }

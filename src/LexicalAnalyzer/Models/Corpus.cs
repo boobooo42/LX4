@@ -5,6 +5,7 @@ namespace LexicalAnalyzer.Models {
         public string Name { get; set; }
         public string Description { get; set; }
         public bool Locked { get; set; }
+        public string Hash { get; set; }
         /* TODO: Add count of content entries */
 
         /* Constructors */

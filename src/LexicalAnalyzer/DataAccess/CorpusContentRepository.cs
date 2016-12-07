@@ -43,9 +43,20 @@ namespace LexicalAnalyzer.DataAccess
                     content.CorpusId = 1;
                     try
                     {
-                        string contentGuid = content.ScraperGuid.ToString();
-                        string contentText = System.Text.Encoding.UTF8.GetString(content.Content);
-                        //   conn.Execute(@"");
+                        //string contentGuid = content.ScraperGuid.ToString();
+                        //string contentText = System.Text.Encoding.UTF8.GetString(content.Content);
+                        //conn.Execute(@"IF NOT EXISTS
+                        //(SELECT 1 FROM la.Corpus
+                        //    WHERE Id = @Id)BEGIN                            
+                        //    INSERT INTO la.Corpus
+                        //    (Id, Name, Description)
+                        //    VALUES (@Id, @Name, @Description)
+                        //    END ", new
+                        //{
+                        //    Id = 1,
+                        //    Name = "stuff",
+                        //    Text = "more stuff",
+                        //}, transaction: tran);
                         conn.Execute(@"IF NOT EXISTS
                         (SELECT 1 FROM la.CorpusContent
                             WHERE Hash = @Hash)BEGIN 
@@ -60,7 +71,7 @@ namespace LexicalAnalyzer.DataAccess
                             Hash = content.Hash,
                             Name = content.Name,
                             Type = content.Type,
-                            ScraperGuid = contentGuid,
+                            ScraperGuid = content.ScraperGuid.ToString(),
                             ScraperType = content.ScraperType,
                             DownloadDate = content.DownloadDate.Value,
                             DownloadUrl = content.URL,
@@ -90,7 +101,7 @@ namespace LexicalAnalyzer.DataAccess
                              new
                              {
                                  Hash = content.Hash,
-                                 Contents = contentText,
+                                 Contents = System.Text.Encoding.UTF8.GetString(content.Content),
                              }, transaction: tran);
                         tran.Commit();
                     }
