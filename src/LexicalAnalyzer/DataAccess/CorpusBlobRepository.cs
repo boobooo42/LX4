@@ -41,7 +41,7 @@ namespace LexicalAnalyzer.DataAccess {
             Debug.Assert(false);
         }
 
-        public override CorpusBlob GetByHash(MerkleHash hash) {
+        public override CorpusBlob GetByHash(string hash) {
             CorpusBlob corpusBlob = null;
             using (IDbConnection cn = this.Connection()) {
                 IEnumerable<CorpusBlob> result = cn.Query<CorpusBlob>(
@@ -110,20 +110,15 @@ namespace LexicalAnalyzer.DataAccess {
                                 UPDATE la.Corpus
                                 SET Hash = @Hash
                                 WHERE ID = @Id
-                                ", new { Id = id },
+                                ", new { Id = id, Hash = corpus.Hash },
                                 transaction: trans);
                         }
-                        Debug.WriteLine(string.Format(
-                            "Corpus hash: {0}",
-                            corpus.Hash));
-                        Debug.Assert(false);
                         /* Retrieve the CorpusBlob object. */
                         IEnumerable<CorpusBlob> blobResult =
                             conn.Query<CorpusBlob,ContentBlob,CorpusBlob>(@"
                                 SELECT
                                     corpus.Hash,
-                                    content.Hash,
-                                    content.Contents
+                                    content.Hash
                                 FROM la.CorpusBlob AS corpus
                                 LEFT JOIN la.MerkleNode AS corpus_mn
                                     ON corpus.Hash = corpus_mn.Hash
@@ -135,13 +130,19 @@ namespace LexicalAnalyzer.DataAccess {
                                     ON content.Hash = content_mn.Hash
                                 WHERE corpus.Hash = @Hash
                                 ",
-                                (corp,cont) => {
-                                    Debug.Assert(false);
-                                    return new CorpusBlob();
+                                map: (corp,cont) => {
+                                    /* Note that we only set the hash of the
+                                     * content blob; we do not actually fill
+                                     * its contents. */
+                                    corp.Content.Add(cont);
+                                    return corp;
                                 },
                                 param: new { Hash = corpus.Hash },
-                                splitOn: "corpus.Hash,",
+                                splitOn: "Hash,Hash",
                                 transaction: trans);
+                        Debug.Assert(blobResult.Any());
+                        Debug.Assert(blobResult.Count() == 1);
+                        corpusBlob = blobResult.First();
                         trans.Commit();
                     } catch (SqlException e) {
                         trans.Rollback();

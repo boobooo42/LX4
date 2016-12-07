@@ -5,6 +5,11 @@ namespace LexicalAnalyzer.Models {
     /// The POCO object for collecting content into a corpus.
     /// </summary>
     public class CorpusBlob : MerkleNode {
-        public IEnumerable<ContentBlob> Content { get; set; }
+        /* Constructors */
+        public CorpusBlob() {
+            this.Content = new List<ContentBlob>();
+        }
+
+        public List<ContentBlob> Content { get; set; }
     }
 }

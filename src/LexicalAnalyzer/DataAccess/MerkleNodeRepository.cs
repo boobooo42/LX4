@@ -39,7 +39,7 @@ namespace LexicalAnalyzer.DataAccess {
          * values are computed, such as the neural nets and the query
          * results. */
         public abstract void Update(T entity);
-        public abstract T GetByHash(MerkleHash hash);
+        public abstract T GetByHash(string hash);
         public abstract IEnumerable<T> List();
 //        public abstract IEnumerable<T> List(Expression<Func<T, bool>> predicate);
     }
@@ -83,7 +83,7 @@ namespace LexicalAnalyzer.DataAccess {
             /* NOTE: The Merkle nodes themselves are immutable */
         }
 
-        public override MerkleNode GetByHash(MerkleHash hash) {
+        public override MerkleNode GetByHash(string hash) {
             MerkleNode node = null;
             using (IDbConnection cn = this.Connection()) {
                 IEnumerable<MerkleNode> result = cn.Query<MerkleNode>(@"
