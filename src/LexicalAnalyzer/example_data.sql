@@ -1,12 +1,12 @@
-INSERT INTO la.Corpus ( Id, Name, Description, Locked )
-    VALUES ( '1',
+INSERT INTO la.Corpus (Name, Description, Locked )
+    VALUES ( 
         N'Emily Dickinson Poetry',
         N'A small sample of Emily Dickinson''s work copied from Wikisource.',
         '0' );
 
-INSERT INTO la.CorpusContent ( Id, CorpusId, Hash, Name, Type )
+INSERT INTO la.CorpusContent (CorpusId, Hash, Name, Type )
     VALUES ( 
-        '1',
+
         '1',
         N'02abfb2131a43a79f803e38912621bf266e4e5b2284ab7c348441f21d7da87e6',
         N'Much madness is divinest sense',

@@ -8,15 +8,15 @@ CREATE TABLE la.Info(
 
 -- Corpus Tables
 CREATE TABLE la.Corpus (
-    Id bigint NOT NULL,
+    Id bigint NOT NULL IDENTITY,
     Name varchar(2048) NOT NULL,
     Description text NOT NULL,
     Locked bit DEFAULT '0',
     CONSTRAINT PK_Corpus PRIMARY KEY (Id)
-    )
+    );
 
 CREATE TABLE la.CorpusContent (
-    Id bigint NOT NULL,
+    Id bigint NOT NULL IDENTITY,
     CorpusId bigint NOT NULL,
     Hash char(64) NOT NULL,
     Name varchar(2048) NOT NULL,
