@@ -100,7 +100,7 @@ namespace LexicalAnalyzer.DataAccess {
                         Corpus corpus = result.First();
                         /* Check the hash field of this corpus. If it is null,
                          * then the blob likely does not yet exist. */
-                        if (corpus.Hash == null) {
+                        if (true) {
                             /* Create a corpus blob from the existing state of this
                              * corpus */
                             corpus.Hash = this.GetCorpusBlob(
@@ -141,8 +141,12 @@ namespace LexicalAnalyzer.DataAccess {
                                 splitOn: "Hash,Hash",
                                 transaction: trans);
                         Debug.Assert(blobResult.Any());
-                        Debug.Assert(blobResult.Count() == 1);
+                        //Debug.Assert(blobResult.Count() == 1);
                         corpusBlob = blobResult.First();
+                        foreach(CorpusBlob blob in blobResult)
+                        {
+                            corpusBlob.Content.Add(blob.Content[0]);
+                        }
                         trans.Commit();
                     } catch (SqlException e) {
                         trans.Rollback();
