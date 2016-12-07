@@ -49,6 +49,10 @@ namespace LexicalAnalyzer.LearningModels
                 //            "[default val of selection]",  /* defaultValue */
                 //            "[units or type description]"  /* type */
                 //            ));
+                properties.Add(new KeyValueProperty(
+                            "LearningModelName",
+                            "",
+                            "Name"));
                 properties.Add(
                     new KeyValueProperty(
                         "cSymmetric", "1", "boolean"
