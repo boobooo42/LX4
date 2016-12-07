@@ -493,13 +493,12 @@ namespace LexicalAnalyzer.Scrapers
                 }
                 currentURL = getNextPage(tempLinkList);
             }
-            m_status = "stopped on ";
             if (downloadLimitReached && timeLimitReached)
-                m_status += "downloads, time";
+                m_status = ScraperUtilities.SCRAPER_STATUS_TIME_AND_DOWNLOAD_LIMIT_REACHED;
             else if (downloadLimitReached)
-                m_status += "downloads";
+                m_status = ScraperUtilities.SCRAPER_STATUS_DOWNLOAD_LIMIT_REACHED;
             else if (timeLimitReached)
-                m_status += "time";
+                m_status = ScraperUtilities.SCRAPER_STATUS_TIME_LIMIT_REACHED;
         }
 
         public bool downloadStop()

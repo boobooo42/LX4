@@ -21,6 +21,13 @@ namespace LexicalAnalyzer.Scrapers
     /// </summary>
     public static class ScraperUtilities
     {
+        #region Constants
+        public static string SCRAPER_STATUS_TIME_LIMIT_REACHED = "Stopped--scraper time limit reached";
+        public static string SCRAPER_STATUS_DOWNLOAD_LIMIT_REACHED = "Stopped--scraper download limit reached";
+        public static string SCRAPER_STATUS_TIME_AND_DOWNLOAD_LIMIT_REACHED = "Stopped--scraper download and time limits reached";
+        public static string SCRAPER_STATUS_APPLICATION_ERROR = "Stopped--Application error";
+        #endregion
+
         #region Structs
         struct splitUrl
         {
