@@ -427,7 +427,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             //link to next page should be found at the bottom of list
             //changethis to a foreach if PG layout changes
-            if (linksFromPage[linksFromPage.Count - 1].Contains("offset="))
+            if (linksFromPage[linksFromPage.Count - 1].Contains("offset=") && linksFromPage.Count >0)
                 return "http://www.gutenberg.org/robot/" + linksFromPage[linksFromPage.Count - 1];
             else return null;
         }
