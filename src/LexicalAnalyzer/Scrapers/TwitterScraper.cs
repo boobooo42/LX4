@@ -26,6 +26,7 @@ namespace LexicalAnalyzer.Scrapers
         private int m_downloadLimit;
         private Stopwatch m_timer;
         private int m_timeLimit;
+        private int m_corpusId;
         private string m_userGivenName;
         private List<KeyValueProperty> m_properties;
         private bool m_authorized;
@@ -236,6 +237,12 @@ namespace LexicalAnalyzer.Scrapers
                             "https://twitter.com",  /* defaultValue */
                             "url"  /* type */
                             ));
+                properties.Add(
+                        new KeyValueProperty(
+                            "Corpus",
+                            "1",
+                            "ID"));
+
                 return properties;
             }
         }
@@ -257,8 +264,23 @@ namespace LexicalAnalyzer.Scrapers
                         DownloadLimit = int.Parse(property.Value);
                     else if (property.Key == "UserGivenName")
                         UserGivenName = property.Value;
+                    else if (property.Key == "Corpus")
+                        CorpusId = int.Parse(property.Value);
                 }
                 m_properties = new List<KeyValueProperty>(value);
+            }
+        }
+
+        public int CorpusId
+        {
+            get
+            {
+                return m_corpusId;
+            }
+
+            set
+            {
+                m_corpusId = value;
             }
         }
         #endregion
@@ -316,7 +338,7 @@ namespace LexicalAnalyzer.Scrapers
                     Debug.WriteLine(tweet);
                     Console.WriteLine(tweet);
                     ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid,
-                    this.GetType().FullName, tweet, this.m_context);
+                    this.GetType().FullName, tweet, this.m_context, m_corpusId);
                     m_downloadCount++;
                     m_progress = (float)m_downloadCount / m_downloadLimit;
                     if (timeStop() || downloadStop())

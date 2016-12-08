@@ -38,9 +38,6 @@ namespace LexicalAnalyzer.DataAccess
             {
                 using (IDbTransaction tran = conn.BeginTransaction())
                 {
-
-
-                    content.CorpusId = 1;
                     try
                     {
                         //string contentGuid = content.ScraperGuid.ToString();

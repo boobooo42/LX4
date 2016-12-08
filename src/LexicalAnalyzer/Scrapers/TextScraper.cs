@@ -26,6 +26,7 @@ namespace LexicalAnalyzer.Scrapers
         private int m_downloadLimit;
         private Stopwatch m_timer;
         private int m_timeLimit;
+        private int m_corpusId;
         private string m_userGivenName;
         private List<KeyValueProperty> m_properties;
 
@@ -228,6 +229,11 @@ namespace LexicalAnalyzer.Scrapers
                             "http://www.gutenberg.org/robot/harvest",  /* defaultValue */
                             "url"  /* type */
                             ));
+                properties.Add(
+                        new KeyValueProperty(
+                            "Corpus",
+                            "1",
+                            "ID"));
                 return properties;
             }
         }
@@ -249,8 +255,24 @@ namespace LexicalAnalyzer.Scrapers
                         DownloadLimit = int.Parse(property.Value);
                     else if (property.Key == "UserGivenName")
                         UserGivenName = property.Value;
+                    else if (property.Key == "Corpus")
+                        CorpusId = int.Parse(property.Value);
+
                 }
                 m_properties = new List<KeyValueProperty>(value);
+            }
+        }
+
+        public int CorpusId
+        {
+            get
+            {
+                return m_corpusId;
+            }
+
+            set
+            {
+                m_corpusId = value;
             }
         }
 
@@ -330,7 +352,7 @@ namespace LexicalAnalyzer.Scrapers
             HttpClient client = new HttpClient();
 
             var textArray = await client.GetByteArrayAsync(downloadURL);
-           
+
 
             MemoryStream memoryStream = new MemoryStream(textArray);
             Random rand = new Random(DateTime.Now.Millisecond);
@@ -377,19 +399,19 @@ namespace LexicalAnalyzer.Scrapers
 
                         unzippedEntryStream = entry.Open(); // .Open will return a stream                                                      
                         byte[] byteArray = ReadFully(unzippedEntryStream); //converts stream to byte array
-                                                                          
+
 
                         DateTime sqlDate = DateTime.Now;
-                        ScraperUtilities.addCorpusContent("Project Gutenberg File", "text", 
+                        ScraperUtilities.addCorpusContent("Project Gutenberg File", "text",
                             this.m_guid, this.GetType().FullName, sqlDate, downloadURL,
-                            byteArray,m_context);
+                            byteArray, m_context, m_corpusId);
 
 
                         unzippedEntryStream.Dispose();
                     }
-                   
+
                 }
-                catch {} //ignore invalid files
+                catch { } //ignore invalid files
             }
         }
 
@@ -427,7 +449,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             //link to next page should be found at the bottom of list
             //changethis to a foreach if PG layout changes
-            if (linksFromPage[linksFromPage.Count - 1].Contains("offset=") && linksFromPage.Count >0)
+            if (linksFromPage[linksFromPage.Count - 1].Contains("offset=") && linksFromPage.Count > 0)
                 return "http://www.gutenberg.org/robot/" + linksFromPage[linksFromPage.Count - 1];
             else return null;
         }

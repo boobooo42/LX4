@@ -421,11 +421,11 @@ namespace LexicalAnalyzer.Scrapers
         /// <param name="m_context"></param>
        public static void addCorpusContent(string Name, string Type,
     Guid ScraperGuid, string ScraperType, DateTime DownloadDate, string DownloadURL,
-    byte[] Content, ICorpusContext m_context)
+    byte[] Content, ICorpusContext m_context, int corpusId)
         {
             CorpusContent corpContent = new CorpusContent();
 
-
+            corpContent.CorpusId = corpusId;
             corpContent.Name = Name;
             corpContent.Type = Type;
             corpContent.ScraperGuid = ScraperGuid;
@@ -447,10 +447,11 @@ namespace LexicalAnalyzer.Scrapers
         /// <param name="tweet"></param>
         /// <param name="m_context"></param>
         public static void addCorpusContent(string Name, string Type,
-     Guid ScraperGuid, string ScraperType, ITweet tweet, ICorpusContext m_context)
+     Guid ScraperGuid, string ScraperType, ITweet tweet, ICorpusContext m_context, int corpusId)
         {
 
             CorpusContent corpContent = new CorpusContent();
+            corpContent.CorpusId = corpusId;
             corpContent.Name = Name;
             corpContent.Type = Type;
             corpContent.ScraperGuid = ScraperGuid;
