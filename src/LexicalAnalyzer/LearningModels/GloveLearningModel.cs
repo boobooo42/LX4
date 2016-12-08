@@ -21,9 +21,13 @@ namespace LexicalAnalyzer.LearningModels
         public GloveLearningModel(IMerkleTreeContext context) {
             m_context = context;
             cooccurArgs = new CooccurArgs();
+            FillCooccurArgs(ref cooccurArgs);
             gloveArgs = new GloveArgs();
+            FillGloveArgs(ref gloveArgs);
             shuffleArgs = new ShuffleArgs();
+            FillShuffleArgs(ref shuffleArgs);
             vocabCountArgs = new VocabCountArgs();
+            FillVocabCountArgs(ref vocabCountArgs);
         }
 
         public Guid Guid { get; }           = System.Guid.NewGuid();
@@ -93,12 +97,21 @@ namespace LexicalAnalyzer.LearningModels
             }
         }
         public void Run() {
-            test(2);
-            /* Waits and does nothing */
-            while (Progress < 1.0f) {
-                Thread.Sleep(5000);
-                Progress += 0.1f;
-            }
+            string corpus = "corpus.txt";
+            string vocab = "vocab.txt";
+            string cooccurence = "cooccurence.bin";
+            string cooccurenceShuf = "cooccurence.shuf.bin";
+            string gradsq = "gradsq";
+            string save = "vectors";
+
+            vocabCount(ref vocabCountArgs, corpus, vocab);
+            Progress = 0.25f;
+            cooccur(ref cooccurArgs, corpus, vocab, cooccurence);
+            Progress = 0.5f;
+            shuffle(ref shuffleArgs, cooccurence, cooccurenceShuf);
+            Progress = 0.75f;
+            glove(ref gloveArgs, cooccurenceShuf, vocab, save, gradsq);
+            Progress = 1.0f;
         }
 
         public static string DisplayName {
@@ -117,8 +130,8 @@ namespace LexicalAnalyzer.LearningModels
             }
         }
 
-        [DllImport("deeplearning.dll")]
-        public static extern int test(int foo);
+        [DllImport("learning64.dll")]
+        static extern int test(int foo);
 
 
         public IResult Result {
@@ -128,66 +141,82 @@ namespace LexicalAnalyzer.LearningModels
                 return result;
             }
         }
+
+        public void FillCooccurArgs(ref CooccurArgs args) {
+            args.verbose = 1;
+            args.symmetric = 1;
+            args.windowSize = 15;
+            args.memory = 4;
+            args.maxProduct = -1;
+            args.overflowLength = -1;
+            args.overflowFile = "overflow";
+            args.mode = 0;
+        }
+        [DllImport("learning64.dll")]
+        static extern int cooccur(ref CooccurArgs args, string corpusInFile, string vocabInFile, string cooccurOutFile);
+
+        public void FillGloveArgs(ref GloveArgs args) {
+            args.verbose = 1;
+            args.vectorSize = 50;
+            args.threads = 8;
+            args.iter = 15;
+            args.eta = 0.05f;
+            args.alpha = 0.75f;
+            args.xMax = 100.0f;
+            args.binary = 0;
+            args.model = 2;
+            args.saveGradsq = 0;
+            args.checkpointEvery = 0;
+            args.mode = 0;
+        }
+        [DllImport("learning64.dll")]
+        static extern int glove(ref GloveArgs args, string shufCooccurInFile, string vocabInFile, string gloveOutFile, string gradsqOutFile);
+
+        public void FillShuffleArgs(ref ShuffleArgs args) {
+            args.verbose = 1;
+            args.memory = 4.0f;
+            args.arraySize = -1;
+            args.tempFile = "temp_shuffle";
+            args.mode = 0;
+        }
+        [DllImport("learning64.dll")]
+        static extern int shuffle(ref ShuffleArgs args, string cooccurInFile, string shufCooccurOutFile);
+
+        public void FillVocabCountArgs(ref VocabCountArgs args) {
+            args.verbose = 1;
+            args.maxVocab = -1;
+            args.minCount = 1;
+            args.mode = 0;
+        }
+        [DllImport("learning64.dll")]
+        static extern int vocabCount(ref VocabCountArgs args, string corpusInFile, string vocabOutFile);
     }
 
-    public class CooccurArgs {
-        int verbose, symmetric, windowSize;
-        float memory;
-        int maxProduct, overflowLength;
-        string overflowFile;
-        int mode;
-        public CooccurArgs() {
-            verbose = 0;
-            symmetric = 1;
-            windowSize = 15;
-            memory = 4;
-            maxProduct = -1;
-            overflowLength = -1;
-            overflowFile = "overflow";
-            mode = 0;
-        }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CooccurArgs {
+        public int verbose, symmetric, windowSize;
+        public float memory;
+        public int maxProduct, overflowLength;
+        public string overflowFile;
+        public int mode;
     }
-    public class GloveArgs {
-        int verbose, vectorSize, threads, iter;
-        float eta, alpha, xMax;
-        int binary, model;
-        int saveGradsq, checkpointEvery, mode;
-        public GloveArgs() {
-            verbose = 0;
-            vectorSize = 50;
-            threads = 8;
-            iter = 25;
-            eta = 0.05f;
-            alpha = 0.75f;
-            xMax = 100.0f;
-            binary = 0;
-            model = 2;
-            saveGradsq = 0;
-            checkpointEvery = 0;
-            mode = 0;
-        }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct GloveArgs {
+        public int verbose, vectorSize, threads, iter;
+        public float eta, alpha, xMax;
+        public int binary, model;
+        public int saveGradsq, checkpointEvery, mode;
     }
-    public class ShuffleArgs {
-        int verbose;
-        float memory;
-        int arraySize;
-        string tempFile;
-        int mode;
-        public ShuffleArgs() {
-            verbose = 0;
-            memory = 4.0f;
-            arraySize = -1;
-            tempFile = "temp_shuffle";
-            mode = 0;
-        }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct ShuffleArgs {
+        public int verbose;
+        public float memory;
+        public int arraySize;
+        public string tempFile;
+        public int mode;
     }
-    public class VocabCountArgs {
-        int verbose, maxVocab, minCount, mode;
-        public VocabCountArgs() {
-            verbose = 0;
-            maxVocab = -1;
-            minCount = 1;
-            mode = 0;
-        }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct VocabCountArgs {
+        public int verbose, maxVocab, minCount, mode;
     }
 }
