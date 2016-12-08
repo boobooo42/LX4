@@ -44,9 +44,9 @@ namespace LexicalAnalyzer
                     .GetSection("Database")
                     .GetValue(typeof(string), "ConnectionString");
             DatabaseTools.InitializeDatabase(connectionString);
-            if (env.IsDevelopment()) {
-                DatabaseTools.AddExampleData(connectionString);
-            }
+            //if (env.IsDevelopment()) {
+            //    DatabaseTools.AddExampleData(connectionString);
+            //}
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -54,8 +54,6 @@ namespace LexicalAnalyzer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var pathToDoc = "LexicalAnalyzer.xml";
-
             // Add framework services.
             services.AddMvc();
             services.AddSwaggerGen(c =>

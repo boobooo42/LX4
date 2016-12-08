@@ -20,7 +20,7 @@ namespace LexicalAnalyzer.Interfaces {
     public interface IMerkleTreeContext {
         IMerkleNodeRepository MerkleNodeRepository { get; }
         IContentBlobRepository ContentBlobRepository { get; }
-        //ICorpusBlobRepository CorpusBlobRepository { get; }
+        ICorpusBlobRepository CorpusBlobRepository { get; }
         //INeuralNetBlobRepository NeuralNetBlobRepository { get; }
     }
 }

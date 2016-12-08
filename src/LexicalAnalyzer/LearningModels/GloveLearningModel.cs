@@ -12,13 +12,13 @@ namespace LexicalAnalyzer.LearningModels
 {
     public class GloveLearningModel : ILearningModel
     {
-        private ICorpusContext m_context;
+        private IMerkleTreeContext m_context;
         private CooccurArgs cooccurArgs;
         private GloveArgs gloveArgs;
         private ShuffleArgs shuffleArgs;
         private VocabCountArgs vocabCountArgs;
 
-        public GloveLearningModel(ICorpusContext context) {
+        public GloveLearningModel(IMerkleTreeContext context) {
             m_context = context;
             cooccurArgs = new CooccurArgs();
             gloveArgs = new GloveArgs();

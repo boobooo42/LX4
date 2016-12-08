@@ -23,7 +23,7 @@ namespace LexicalAnalyzer.Interfaces
         void Add(T entity);
         void Delete(T entity);
         void Update(T entity);
-        T GetByHash(MerkleHash hash);
+        T GetByHash(string hash);
         IEnumerable<T> List();
 //        IEnumerable<T> List(Expression<Func<T, bool>> predicate);
     }

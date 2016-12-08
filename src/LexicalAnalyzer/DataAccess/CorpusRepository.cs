@@ -12,10 +12,17 @@ namespace LexicalAnalyzer.DataAccess {
         private IDbConnectionFactory m_connectionFactory;
 
         /* Constructors */
-        public CorpusRepository(
-                IDbConnectionFactory connectionFactory)
+        public CorpusRepository(IDbConnectionFactory connectionFactory)
         {
             m_connectionFactory = connectionFactory;
+        }
+        public List<ContentBlob> GetAll()
+        {
+            using (IDbConnection cn = this.Connection())
+            {
+                return cn.Query<ContentBlob>("SELECT Hash FROM la.ContentBlob").ToList();
+            }
+
         }
 
         /* Private methods */
@@ -30,36 +37,45 @@ namespace LexicalAnalyzer.DataAccess {
             Debug.Assert(corpus.Id == -1);
             using (var conn = this.Connection())
             {
-                        conn.Execute(
-                    @" INSERT INTO la.Corpus(Id, Name, Description, Locked ) VALUES ( @Id, @Name, @Description, @Locked )",
-                    new { Id = corpus.Id, Name = corpus.Name, Description = corpus.Description, Locked = corpus.Locked });
-                    }
+                conn.Execute(@"
+                    INSERT INTO la.Corpus ( Name, Description, Locked )
+                    VALUES ( @Name, @Description, @Locked )
+                    ", new {
+                        Name = corpus.Name,
+                        Description = corpus.Description,
+                        Locked = corpus.Locked });
+            }
+
         }
 
         public void Delete(Corpus corpus) {
             Debug.Assert(corpus.Id != -1);
             using (var conn = this.Connection()) {
+              
                         /* Delete the corpus and all of its content in one
                          * database transaction */
                         conn.Execute(
                             @" DELETE FROM la.Corpus WHERE CorpusId=@Id ",
                             new { CorpusId = corpus.Id });
-
-                        /* TODO: Schedule garbage collection of possibly
-                         * orphaned CorpusBlobs */
             }
         }
 
         public void Update(Corpus corpus) {
-            Debug.Assert(corpus.Id == -1);
             using (var conn = this.Connection())
             {
-                        conn.Execute(
-                    @" UPDATE la.Corpus SET Name =@Name, Description = @Description, Locked = @Locked 
-                       where Id = @Id",
-                    new { Name = corpus.Name, Description = corpus.Description, Locked = corpus.Locked, Id =corpus.Id });
-                    }
+                conn.Execute(@"
+                    UPDATE la.Corpus
+                    SET Name = @Name,
+                        Description = @Description,
+                        Locked = @Locked 
+                    WHERE Id = @Id
+                    ", new {
+                        Name = corpus.Name,
+                        Description = corpus.Description,
+                        Locked = corpus.Locked,
+                        Id = corpus.Id });
             }
+        }
 
         public Corpus GetById(long id) {
             Corpus corpus = null;

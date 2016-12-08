@@ -26,6 +26,8 @@ namespace LexicalAnalyzer.Scrapers
         private int m_downloadLimit;
         private Stopwatch m_timer;
         private int m_timeLimit;
+        private int m_corpusId;
+        private string m_userGivenName;
         private List<KeyValueProperty> m_properties;
 
         /// <summary>
@@ -65,7 +67,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             get { return "Text Scraper"; }
         }
-        public string DName { get { return "Text Scraper"; } }
+        public string TypeName { get { return "Text Scraper"; } }
         /// <summary>
         /// Gets description--is hardcoded
         /// </summary>
@@ -187,6 +189,19 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        public string UserGivenName
+        {
+            get
+            {
+                return m_userGivenName;
+            }
+
+            set
+            {
+                m_userGivenName = value;
+            }
+        }
+
         /// <summary>
         /// List of properties supported by TextScraper and their respective
         /// default values.
@@ -214,6 +229,11 @@ namespace LexicalAnalyzer.Scrapers
                             "http://www.gutenberg.org/robot/harvest",  /* defaultValue */
                             "url"  /* type */
                             ));
+                properties.Add(
+                        new KeyValueProperty(
+                            "Corpus",
+                            "1",
+                            "ID"));
                 return properties;
             }
         }
@@ -233,8 +253,26 @@ namespace LexicalAnalyzer.Scrapers
                         TimeLimit = int.Parse(property.Value);
                     else if (property.Key == "downloadlimit")
                         DownloadLimit = int.Parse(property.Value);
+                    else if (property.Key == "UserGivenName")
+                        UserGivenName = property.Value;
+                    else if (property.Key == "Corpus")
+                        CorpusId = int.Parse(property.Value);
+
                 }
                 m_properties = new List<KeyValueProperty>(value);
+            }
+        }
+
+        public int CorpusId
+        {
+            get
+            {
+                return m_corpusId;
+            }
+
+            set
+            {
+                m_corpusId = value;
             }
         }
 
@@ -314,28 +352,25 @@ namespace LexicalAnalyzer.Scrapers
             HttpClient client = new HttpClient();
 
             var textArray = await client.GetByteArrayAsync(downloadURL);
-           
+
 
             MemoryStream memoryStream = new MemoryStream(textArray);
             Random rand = new Random(DateTime.Now.Millisecond);
-            await Task.Delay(rand.Next(500, 1000));//wait 5 seconds before trying next download
+            await Task.Delay(rand.Next(250, 750));//waits between .25 and .75 seconds before trying next download
 
             return memoryStream;
         }
 
         /// <summary>
-        /// Downloads zip files from urls, extracts them, and loads their contents into the database
+        /// Downloads zip file from url, extracts it, and loads its content into the database
         /// to byte arrays
         /// </summary>
-        /// <param name="urls"></param>
-        void downloadZipFilesFromLinks(List<string> urls)
+        /// <param name="url"></param>
+        void downloadZipFilesFromLinks(string url)
         {
-            foreach (string downloadURL in urls)
+            using (MemoryStream download = (loadFileToStream(url).Result))
             {
-                using (MemoryStream download = (loadFileToStream(downloadURL).Result))
-                {
-                    extractAndLoadZipIntoDatabase(download, ".txt",downloadURL);
-                }
+                extractAndLoadZipIntoDatabase(download, ".txt", url);
             }
         }
 
@@ -364,19 +399,19 @@ namespace LexicalAnalyzer.Scrapers
 
                         unzippedEntryStream = entry.Open(); // .Open will return a stream                                                      
                         byte[] byteArray = ReadFully(unzippedEntryStream); //converts stream to byte array
-                                                                          
+
 
                         DateTime sqlDate = DateTime.Now;
-                        ScraperUtilities.addCorpusContent("Project Gutenberg File", "text", 
+                        ScraperUtilities.addCorpusContent("Project Gutenberg File", "text",
                             this.m_guid, this.GetType().FullName, sqlDate, downloadURL,
-                            byteArray,m_context);
+                            byteArray, m_context, m_corpusId);
 
 
                         unzippedEntryStream.Dispose();
                     }
-                   
+
                 }
-                catch {} //ignore invalid files
+                catch { } //ignore invalid files
             }
         }
 
@@ -414,7 +449,7 @@ namespace LexicalAnalyzer.Scrapers
         {
             //link to next page should be found at the bottom of list
             //changethis to a foreach if PG layout changes
-            if (linksFromPage[linksFromPage.Count - 1].Contains("offset="))
+            if (linksFromPage[linksFromPage.Count - 1].Contains("offset=") && linksFromPage.Count > 0)
                 return "http://www.gutenberg.org/robot/" + linksFromPage[linksFromPage.Count - 1];
             else return null;
         }
@@ -445,7 +480,6 @@ namespace LexicalAnalyzer.Scrapers
         /// <returns></returns>
         public void Run()
         {
-            Debug.Assert(false);
             string rootURL = "";
             foreach (KeyValueProperty i in DefaultProperties)
                 if (i.Key.Equals("website"))
@@ -469,20 +503,24 @@ namespace LexicalAnalyzer.Scrapers
             {
                 List<string> tempLinkList = GetLinksFromPage(currentURL, "//a[@href]");
                 var dlList = getListOfDownloadsForPage(tempLinkList, ".zip");
-                downloadZipFilesFromLinks(dlList);
+                foreach (string url in dlList)
+                {
+                    downloadZipFilesFromLinks(url);
+                    m_downloadCount++;
+                    m_progress = (float)m_downloadCount / m_downloadLimit;
+                    downloadLimitReached = downloadStop();
+                    timeLimitReached = timeStop();
+                    if (downloadLimitReached || timeLimitReached)
+                        break;
+                }
                 currentURL = getNextPage(tempLinkList);
-                m_downloadCount += 100;
-                m_progress = (float)m_downloadCount / m_downloadLimit;
-                downloadLimitReached = downloadStop();
-                timeLimitReached = timeStop();
             }
-            m_status = "stopped on ";
             if (downloadLimitReached && timeLimitReached)
-                m_status += "downloads, time";
+                m_status = ScraperUtilities.SCRAPER_STATUS_TIME_AND_DOWNLOAD_LIMIT_REACHED;
             else if (downloadLimitReached)
-                m_status += "downloads";
+                m_status = ScraperUtilities.SCRAPER_STATUS_DOWNLOAD_LIMIT_REACHED;
             else if (timeLimitReached)
-                m_status += "time";
+                m_status = ScraperUtilities.SCRAPER_STATUS_TIME_LIMIT_REACHED;
         }
 
         public bool downloadStop()

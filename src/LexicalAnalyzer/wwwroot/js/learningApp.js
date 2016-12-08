@@ -3,6 +3,7 @@ var manageApp = angular.module("learningApp", ['ngRoute']);
 manageApp.controller("LearningController", function ($scope, $http) {
     var types, nameConversion = {};
     function getTypes() {
+        getExistingCorpora();
         types = {};
         $http({
             method: 'get',
@@ -21,13 +22,33 @@ manageApp.controller("LearningController", function ($scope, $http) {
                             }
                         }
                     }
-                    console.log(types);
                     setupForm();
                 }
             })
             .error(function () {
 
             });
+    }
+    var existCorpora = [];
+    function getExistingCorpora() {
+        console.log("corpora");
+        $http({
+            method: 'get',
+            url: '/api/corpus/'
+        })
+        .success(function (response) {
+            console.log(response);
+            var tempCorpora = [];
+            for (var i = 0; i < response.length; i++) {
+                existCorpora.push(response[i]);
+                tempCorpora.push(response[i]["name"]);
+            }
+            console.log(existCorpora);
+            $scope.corpora = tempCorpora;
+        })
+        .error(function () {
+
+        });
     }
 
     function setupForm() {
@@ -41,6 +62,7 @@ manageApp.controller("LearningController", function ($scope, $http) {
 
     function updateDescription() {
         $("#learningContent").empty();
+        redInput = [];
         var selected = $scope.selectedLearningModel;
         if (selected) {
             var localBuild = "";
@@ -58,20 +80,22 @@ manageApp.controller("LearningController", function ($scope, $http) {
     function listProperties() {
         build = "";
         var selected = $scope.selectedLearningModel;
-        console.log(selected);
         if (selected) {
             $("#learningProperties").empty();
             properties = types[nameConversion[selected]]["properties"];
             for (var i = 0; i < properties.length; i++) {
-                build += '<label>' + properties[i]["key"] + "(" + properties[i]["type"] + "): " + '</label><input type="text" class="form-control" id="' + properties[i]["key"] + '" placeholder="' + properties[i]["value"] + '"><hr />';
+                //if (properties[i]["key"] !== "LearningModelName" && properties[i]["key"] !== "corpus") 
+                {
+                    build += '<label>' + properties[i]["key"] + "(" + properties[i]["type"] + "): " + '</label><input type="text" class="form-control" id="' + properties[i]["key"] + '" placeholder="' + properties[i]["value"] + '"><hr />';
+                }
             }
         }
         $(build).appendTo("#learningProperties");
     }
 
+    var redInput = [];
     $scope.createLearningModel = function () {
         var learningModel = nameConversion[$scope.selectedLearningModel];
-        console.log(learningModel);
         var tempProperties = types[learningModel]["properties"];
         var data = {
             "status": "init",
@@ -79,25 +103,51 @@ manageApp.controller("LearningController", function ($scope, $http) {
             "priority": 0,
             "properties": []
         }
+        var complete = true;
+        var name = $("#learningName").val().trim();
+        if (name == "") {
+            redInput.push("#learningName");
+            $("#learningName").css("border", "solid 1px red");
+            complete = false;
+        } else {
+            data["properties"].push({ "key": "UserGivenName", "type": "UserGivenName", "value": name });
+        }
         for (var i = 0; i < tempProperties.length; i++) {
             var tempProps = tempProperties[i];
             var val = ($("#" + tempProps["key"]).val());
-            if (val == "")
+            if (val == "") {
                 val = $("#" + tempProps["key"]).attr('placeholder');
+                if (!val) {
+                    $("#" + tempProps["key"]).css("border", "solid 1px red");
+                    redInput.push("#" + tempProps["key"]);
+                    complete = false;
+                }
+            }
             data["properties"].push({ "key": tempProps["key"], "type": tempProps["type"], "value": val });
         }
-        console.log(data);
-        $http({
-            method: 'post',
-            url: '/api/learningmodel/' + learningModel,
-            data: data
-        })
-        .success(function (response) {
-            console.log(response);
-        })
-        .error(function () {
-
-        });
+        //data["properties"].push({ "key": "corpus", "type": "corpus_id", "value": existCorpora[0]["id"] });
+        if (complete) {
+            if (redInput) {
+                for (var i = 0; i < redInput.length; i++) {
+                    $(redInput[i]).removeAttr("style");
+                }
+            }
+            $http({
+                method: 'post',
+                url: '/api/learningmodel/' + learningModel,
+                data: data
+            })
+            .success(function (response) {
+                localStorage.setItem("guid", response["Guid"]);
+                window.location.href = "ManageLearning";
+                console.log(response);
+            })
+            .error(function () {
+                console.log(response);
+            });
+        } else {
+            alert("Fill in all fields");
+        }
     };
 
     getTypes()

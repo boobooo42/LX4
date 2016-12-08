@@ -26,6 +26,7 @@ namespace LexicalAnalyzer.Scrapers
         private int m_downloadLimit;
         private Stopwatch m_timer;
         private int m_timeLimit;
+        private string m_userGivenName;
         private List<KeyValueProperty> m_properties;
 
         /// <summary>
@@ -70,7 +71,7 @@ namespace LexicalAnalyzer.Scrapers
         /// Gets display name--is hardcoded
         /// </summary>
         /// <returns></returns>
-        public string DName
+        public string TypeName
         {
             get { return "Github Scraper"; }
         }
@@ -202,6 +203,18 @@ namespace LexicalAnalyzer.Scrapers
                 m_timeLimit = value;
             }
         }
+        public string UserGivenName
+        {
+            get
+            {
+                return m_userGivenName;
+            }
+
+            set
+            {
+                m_userGivenName = value;
+            }
+        }
 
         /// <summary>
         /// List of properties supported by TextScraper and their respective
@@ -248,6 +261,8 @@ namespace LexicalAnalyzer.Scrapers
                         TimeLimit = int.Parse(property.Value);
                     else if (property.Key == "downloadlimit")
                         DownloadLimit = int.Parse(property.Value);
+                    else if (property.Key == "UserGivenName")
+                        UserGivenName = property.Value;
                 }
                 m_properties = new List<KeyValueProperty>(value);
             }
@@ -287,13 +302,12 @@ namespace LexicalAnalyzer.Scrapers
                 downloadLimitReached = downloadStop();
                 timeLimitReached = timeStop();
             }
-            m_status = "stopped on ";
             if (downloadLimitReached && timeLimitReached)
-                m_status += "downloads, time";
+                m_status = ScraperUtilities.SCRAPER_STATUS_TIME_AND_DOWNLOAD_LIMIT_REACHED;
             else if (downloadLimitReached)
-                m_status += "downloads";
+                m_status = ScraperUtilities.SCRAPER_STATUS_DOWNLOAD_LIMIT_REACHED;
             else if (timeLimitReached)
-                m_status += "time";
+                m_status = ScraperUtilities.SCRAPER_STATUS_TIME_LIMIT_REACHED;
         }
 
         private async void GetAccessToken()
@@ -310,7 +324,7 @@ namespace LexicalAnalyzer.Scrapers
 
             var repositories = await api.GetTokenAsync();
 
-            string tokenString = "66d32909b6aafe5f7b311984f303b3df25e2d7fe";
+            // string tokenString = "66d32909b6aafe5f7b311984f303b3df25e2d7fe";
         }
         private async Task<string> ScrapeRepo()
         {

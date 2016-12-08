@@ -8,22 +8,23 @@ CREATE TABLE la.Info(
 
 -- Corpus Tables
 CREATE TABLE la.Corpus (
-    Id bigint NOT NULL,
+    Id bigint NOT NULL IDENTITY,
     Name varchar(2048) NOT NULL,
     Description text NOT NULL,
     Locked bit DEFAULT '0',
+    Hash char(64),
     CONSTRAINT PK_Corpus PRIMARY KEY (Id)
-    )
+    );
 
 CREATE TABLE la.CorpusContent (
-    Id bigint NOT NULL,
+    Id bigint NOT NULL IDENTITY,
     CorpusId bigint NOT NULL,
     Hash char(64) NOT NULL,
     Name varchar(2048) NOT NULL,
     Type varchar(64) NOT NULL,
     ScraperGuid varchar(2048) NULL,
     ScraperType varchar(2048) NULL,
-    DownloadDate datetime NULL,
+    DownloadDate datetime2 NULL,
     DownloadURL varchar(2048) NULL,
 	Long float NULL,
 	Lat float NULL,
@@ -37,8 +38,6 @@ CREATE TABLE la.MerkleNode(
     Pinned bit NOT NULL,
     CONSTRAINT PK_MerkleNode PRIMARY KEY (Hash)
     );
-
-
 
 CREATE TABLE la.MerkleEdge(
     ParentHash char(64) NOT NULL,

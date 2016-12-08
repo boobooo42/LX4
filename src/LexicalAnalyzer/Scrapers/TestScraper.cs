@@ -22,6 +22,7 @@ namespace LexicalAnalyzer.Scrapers
         private int m_downloadLimit;
         private Stopwatch m_timer;
         private int m_timeLimit;
+        private string m_userGivenName;
         private List<KeyValueProperty> m_properties;
 
 
@@ -35,6 +36,7 @@ namespace LexicalAnalyzer.Scrapers
             m_downloadLimit = 0;
             m_timer = new Stopwatch();
             m_timeLimit = 0;
+            m_userGivenName = "";
         }
 
         /* Public Interface */
@@ -58,7 +60,7 @@ namespace LexicalAnalyzer.Scrapers
         public static string DisplayName {
             get { return "Test Scraper"; }
         }
-        public string DName { get { return "Test Scraper"; } }
+        public string TypeName { get { return "Test Scraper"; } }
 
         public static string Description {
             get {
@@ -143,6 +145,19 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        public string UserGivenName
+        {
+            get
+            {
+                return m_userGivenName;
+            }
+
+            set
+            {
+                m_userGivenName = value;
+            }
+        }
+
         public static IEnumerable<KeyValueProperty> DefaultProperties {
             get
             {
@@ -179,11 +194,12 @@ namespace LexicalAnalyzer.Scrapers
                         TimeLimit = int.Parse(property.Value);
                     else if (property.Key == "downloadlimit")
                         DownloadLimit = int.Parse(property.Value);
+                    else if (property.Key == "UserGivenName")
+                        UserGivenName = property.Value;
                 }
                 m_properties = new List<KeyValueProperty>(value);
             }
         }
-
 
         public void Run() {
             /* Implement a fake scraper that simply waits for a while and
@@ -200,13 +216,12 @@ namespace LexicalAnalyzer.Scrapers
                 downloadLimitReached = downloadStop();
                 timeLimitReached = timeStop();
             }
-            m_status = "stopped on ";
-            if(downloadLimitReached && timeLimitReached)
-                m_status += "downloads, time";
+            if (downloadLimitReached && timeLimitReached)
+                m_status = ScraperUtilities.SCRAPER_STATUS_TIME_AND_DOWNLOAD_LIMIT_REACHED;
             else if (downloadLimitReached)
-                m_status += "downloads";
-            else if(timeLimitReached)
-                m_status += "time";
+                m_status = ScraperUtilities.SCRAPER_STATUS_DOWNLOAD_LIMIT_REACHED;
+            else if (timeLimitReached)
+                m_status = ScraperUtilities.SCRAPER_STATUS_TIME_LIMIT_REACHED;
         }
 
         public bool downloadStop()

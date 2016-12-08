@@ -3,22 +3,38 @@
 <script src="~/js/learningApp.js"></script>
 <link rel="stylesheet" href="~/css/workflow.css" asp-append-version="true" />
 
-<div ng-app="learningApp" ng-controller="LearningController">
-    <form id="learningForm" class="row col-sm-12 panel panel-default">
-        <div class="row row-margin ">
-            <div class="col-sm-6" id="scraperInfo">
-                <h3 class="panel-heading">Learning Model</h3>
-                <hr />
-                <label>Learning Model Type: </label>
-                <select class="form-control" id="learnings" ng-model="selectedLearningModel" ng-options="option as option for option in learnings"></select>
-                <div id="learningContent"></div>
-            </div>
-            <div class="col-sm-6 panel">
-                <h3 class="panel-heading">Properties</h3>
-                <hr />
-                <div class="panel-body" id="learningProperties"></div>
-            </div>
+<div class="container">
+    <div ng-app="learningApp" ng-controller="LearningController">
+        <div class="row row-margin">
+            <form id="learningForm" class="row col-sm-12 panel panel-default">
+                <div class="row row-margin">
+                    <div class="col-sm-6" id="scraperInfo">
+                        <div class="panel-heading">
+                            <h3>Learning Model</h3>
+                        </div>
+                        <hr />
+                        <div class="panel-body">
+                            <label>Learning Model Name: </label>
+                            <input type="text" id="learningName" class="form-control" /> <br />
+                            <label>Learning Model Type: </label>
+                            <select class="form-control" id="learnings" ng-model="selectedLearningModel" ng-options="option as option for option in learnings"></select><br />
+                            <label>Corpus</label>
+                            <select class="form-control" id="corpora" ng-model="selectedCorpora" ng-options="option as option for option in corpora"></select>
+                            <div id="learningContent"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="panel-heading">
+                            <h3>Properties</h3>
+                        </div>
+                        <hr />
+                        <div class="panel-body">
+                            <div id="learningProperties"></div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-default" style="margin-bottom:15px" id="runScrape" ng-click="createLearningModel()">Create Learning Model</button>
+            </form>
         </div>
-        <button type="submit" class="btn btn-default" style="margin-bottom:15px" id="runScrape" ng-click="createLearningModel()">Create Learning Model</button>
-    </form>
+    </div>
 </div>

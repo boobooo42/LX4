@@ -21,6 +21,13 @@ namespace LexicalAnalyzer.Scrapers
     /// </summary>
     public static class ScraperUtilities
     {
+        #region Constants
+        public static string SCRAPER_STATUS_TIME_LIMIT_REACHED = "Stopped--scraper time limit reached";
+        public static string SCRAPER_STATUS_DOWNLOAD_LIMIT_REACHED = "Stopped--scraper download limit reached";
+        public static string SCRAPER_STATUS_TIME_AND_DOWNLOAD_LIMIT_REACHED = "Stopped--scraper download and time limits reached";
+        public static string SCRAPER_STATUS_APPLICATION_ERROR = "Stopped--Application error";
+        #endregion
+
         #region Structs
         struct splitUrl
         {
@@ -401,19 +408,29 @@ namespace LexicalAnalyzer.Scrapers
             Database.DatabaseTools.createFile(System.Text.Encoding.UTF8.GetString(input));
         }
 
-
+        /// <summary>
+        /// Creates corpus content for a project Gutenberg text file
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="Type"></param>
+        /// <param name="ScraperGuid"></param>
+        /// <param name="ScraperType"></param>
+        /// <param name="DownloadDate"></param>
+        /// <param name="DownloadURL"></param>
+        /// <param name="Content"></param>
+        /// <param name="m_context"></param>
        public static void addCorpusContent(string Name, string Type,
     Guid ScraperGuid, string ScraperType, DateTime DownloadDate, string DownloadURL,
-    byte[] Content, ICorpusContext m_context)
+    byte[] Content, ICorpusContext m_context, int corpusId)
         {
             CorpusContent corpContent = new CorpusContent();
 
-
+            corpContent.CorpusId = corpusId;
             corpContent.Name = Name;
             corpContent.Type = Type;
             corpContent.ScraperGuid = ScraperGuid;
             corpContent.ScraperType = ScraperType;
-            corpContent.DownloadDate = DownloadDate;
+            corpContent.DownloadDate = new SqlDateTime(DownloadDate);
             corpContent.URL = DownloadURL;
             corpContent.Content = Content;
             corpContent.Hash = hashContent(Content);
@@ -430,16 +447,17 @@ namespace LexicalAnalyzer.Scrapers
         /// <param name="tweet"></param>
         /// <param name="m_context"></param>
         public static void addCorpusContent(string Name, string Type,
-     Guid ScraperGuid, string ScraperType, ITweet tweet, ICorpusContext m_context)
+     Guid ScraperGuid, string ScraperType, ITweet tweet, ICorpusContext m_context, int corpusId)
         {
 
             CorpusContent corpContent = new CorpusContent();
+            corpContent.CorpusId = corpusId;
             corpContent.Name = Name;
             corpContent.Type = Type;
             corpContent.ScraperGuid = ScraperGuid;
             corpContent.ScraperType = ScraperType;
             corpContent.Content = Encoding.ASCII.GetBytes(tweet.Text);
-            corpContent.DownloadDate= tweet.CreatedAt;
+            corpContent.DownloadDate = new SqlDateTime( tweet.CreatedAt);
             corpContent.URL = tweet.Url;
             if (tweet.Coordinates != null) //may be null if tweet does not have a location
             {

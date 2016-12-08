@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System;
 
 namespace LexicalAnalyzer.Models {
     /// <summary>
@@ -179,6 +180,14 @@ namespace LexicalAnalyzer.Models {
             Debug.Assert(this.Value.Length == HASH_NUM_BYTES);
             Debug.Assert(other.Value.Length == HASH_NUM_BYTES);
             return this.Value.SequenceEqual(other.Value);
+        }
+
+        public override int GetHashCode() {
+            if (this.Value == null)
+                return 0;
+            /* Note that this hash is only used for efficient insertion and
+             * lookup; it is not the complete hash. */
+            return BitConverter.ToInt32(this.Value, 0);
         }
 
         public bool Equals(MerkleHash other) {
