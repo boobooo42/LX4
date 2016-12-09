@@ -21,7 +21,6 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
 
     $scope.init = function () {
         progressUpdates = getUpdates();
-        getExistingCorpora();
         getTypes();
     }
 
@@ -112,7 +111,7 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
             for (var key in response) {
                 existingLearnings.push(response[key]);
             }
-            setupTable();
+            getExistingCorpora();
         })
 
         .error(function (response) {
@@ -157,12 +156,10 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
             lm.type = nameConversion[existingLearnings[key]["Type"]];
             lm.name = existingLearnings[key]["Properties"][0]["Value"];
             for (var keyC in existingCorpora) {
-                for (var keyS in existingLearnings) {
-                    for (var keyP in existingLearnings[keyS]["Properties"]) {
-                        if (existingLearnings[keyS]["Properties"][keyP]["Key"] == "corpus") {
-                            if (existingCorpora[keyC]["id"] == existingLearnings[keyS]["Properties"][keyP]["Value"]) {
-                                lm.corpus = existingCorpora[key]["name"];
-                            }
+                for (var keyP in existingLearnings[key]["Properties"]) {
+                    if (existingLearnings[key]["Properties"][keyP]["Key"] == "corpus") {
+                        if (existingCorpora[keyC]["id"] == existingLearnings[key]["Properties"][keyP]["Value"]) {
+                            lm.corpus = existingCorpora[keyC]["name"];
                         }
                     }
                 }
@@ -183,6 +180,7 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
             for (var i = 0; i < response.length; i++) {
                 existingCorpora.push(response[i]);
             }
+            setupTable();
         })
         .error(function () {
 

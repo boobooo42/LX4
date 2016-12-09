@@ -231,12 +231,10 @@ manageApp.controller("ManageController", function ($scope, $http, $interval) {
             sc.dLimit = existingScrapers[key]["DownloadLimit"];
             sc.tLimit = existingScrapers[key]["TimeLimit"];
             for (var keyC in existingCorpora) {
-                for (var keyS in existingScrapers) {
-                    for (var keyP in existingScrapers[keyS]["Properties"]) {
-                        if (existingScrapers[keyS]["Properties"][keyP]["Key"] == "corpus") {
-                            if (existingCorpora[keyC]["id"] == existingScrapers[keyS]["Properties"][keyP]["Value"]) {
-                                sc.corpus = existingCorpora[key]["name"];
-                            }
+                for (var keyP in existingScrapers[key]["Properties"]) {
+                    if (existingScrapers[key]["Properties"][keyP]["Key"] == "corpus") {
+                        if (existingCorpora[keyC]["id"] == existingScrapers[key]["Properties"][keyP]["Value"]) {
+                            sc.corpus = existingCorpora[keyC]["name"];
                         }
                     }
                 }
