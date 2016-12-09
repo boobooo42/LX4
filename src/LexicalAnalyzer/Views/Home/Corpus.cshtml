@@ -55,7 +55,7 @@
                 <thead>
                     <tr>
                         <th class="col-xs-1">Id</th>
-                        <th class="col-xs-2">Content</th>
+                        <th class="col-xs-2">Name</th>
                         <th class="col-xs-1">Type</th>
                         <th class="col-xs-2">Hash</th>
                         <th class="col-xs-2">Date Added</th>
@@ -90,12 +90,13 @@
                 </div>
                 <div class="modal-body">
                     <p>Corpus: {{corpus.name}}</p>
-                    <p>Content: <input ng-model="newContent.name" class="form-control" type="text" /></p>
+                    <p>Name: <input ng-model="newContent.name" class="form-control" type="text" /></p>
+                    <p>Content: <input ng-model="newContent.content" class="form-control" type="text" /></p>
                     <p>Type: <input ng-model="newContent.type" class="form-control" type="text" /></p>
                 </div>
                 <div class="modal-footer">
                     <div style="margin: 0 auto" type="button" class="btn btn-danger" data-dismiss="modal">Cancel</div>
-                    <div ng-click="createContent()" style="margin: 0 auto" type="button" class="btn btn-success" data-dismiss="modal">Add Content</div>
+                    <div ng-click="createContent(corpus.id)" style="margin: 0 auto" type="button" class="btn btn-success" data-dismiss="modal">Add Content</div>
                 </div>
             </div>
         </div>

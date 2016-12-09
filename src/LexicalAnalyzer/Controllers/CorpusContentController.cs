@@ -6,7 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System;
 using System.Data.SqlTypes;
+using System.Text;
 using Dto;
+using LexicalAnalyzer.Scrapers;
 
 namespace LexicalAnalyzer.Controllers
 {
@@ -48,21 +50,19 @@ namespace LexicalAnalyzer.Controllers
         [HttpPost("add")]
         public void Add([FromBody] CorpusContentDto obj)
         {
-            var corpusContent = new CorpusContent()
+            var content = new CorpusContent()
             {
-                Id = obj.Id,
+                Id = -1,
                 CorpusId = obj.CorpusId,
-                Content = obj.Content,
-                DownloadDate = DateTime.Now,
-                URL = "N/A",
                 Name = obj.Name,
-                Hash = "Not Assigned.",
-                ScraperGuid = new Guid(),
+                Content = Encoding.ASCII.GetBytes(obj.Content),
+                Type = obj.Type,
+                Hash = ScraperUtilities._hashContent(Encoding.ASCII.GetBytes(obj.Content)),
+                DownloadDate = DateTime.Now,
                 ScraperType = "Manual Insert",
-                Type = obj.Type
             };
 
-            m_context.CorpusContentRepository.Add(corpusContent);
+            m_context.CorpusContentRepository.Add(content);
         }
     }
 }

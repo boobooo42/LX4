@@ -3,6 +3,7 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
     $scope.coprusList;
     $scope.corpusContent;
     $scope.corpus;
+    $scope.newContent; 
     $scope.selectedCorpus;
     $scope.newCorpus = {
         "id": 0,
@@ -89,8 +90,10 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
            });
     }
 
-    $scope.createContent = function () {
-        var conn = $http.post(UrlContent('/api/CorpusContent/add'), $scope.newContent,
+    $scope.createContent = function (corpusId) {
+        $scope.newContent.corpusId = corpusId;
+
+        $http.post(UrlContent('/api/CorpusContent/add/'), $scope.newContent,
         {
             headers: { 'Content-Type': 'application/json' }
         })
