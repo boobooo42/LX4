@@ -41,7 +41,7 @@
         <h3><span>Learning Model</span></h3><hr />
         <div class="form-group">
             <label for="">Select a Learning Model</label>
-            <select class="form-control" id="learningModelList" ng-model="learningModel" ng-change="getLearningModelResult(learningModel)" ng-options="lm as lm.Type for lm in learningModels">
+            <select class="form-control" id="learningModelList" ng-model="learningModel" ng-change="getLearningModelResult(learningModel)" ng-options="lm as lm.Properties[0].Value for lm in learningModels">
 
                 <option>TNSE Demo</option>
                 <option>Zipf Demo</option>
@@ -56,12 +56,12 @@
             <h4>{{focusModelType.displayName}}</h4>
             <hr />
             <div>
-                <p><strong>Description:</strong>{{focusModelType.description}}</p>
-
-                <p><strong>Corpa Used:</strong> N/A</p>
-                <p><strong>Created By:</strong> N/A</p>
-                <p><strong>Date Created:</strong> N/A</p>
-                <p><strong>Guid:</strong> {{focusModel.Guid}}</p>
+                <p><strong>Name: </strong>{{focusModel.Properties[0].Value}}</p>
+                <p><strong>Description: </strong>{{focusModelType.description}}</p>
+                <p><strong>Corpa Used: </strong>N/A</p>
+                <p><strong>Created By: </strong>N/A</p>
+                <p><strong>Date Created: </strong>N/A</p>
+                <p><strong>Guid: </strong>{{focusModel.Guid}}</p>
 
                 <div id="elementSelector">
                     <hr />
