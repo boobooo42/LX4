@@ -48,8 +48,7 @@ textarea {
     border-radius: 10px;
     border-bottom-right-radius:0px;
     border-top-right-radius:0px;
-    float: right;
-    transform: translate(300px, 0px);
+    transform: translate(200px, 0px);
 
     -webkit-transition: 0.25s ease-in;
     -moz-transition: 0.25s ease-in;
@@ -59,16 +58,33 @@ textarea {
 
 .docs:hover {
     transform: translate(0px, 0px);
-                -webkit-transition: 0.5s ease-in;
-    -moz-transition: 0.25s ease-in;
-    -o-transition: 0.25s ease-in;
-    transition: 0.25s ease-in;
+                -webkit-transition: 0.15s ease-in;
+    -moz-transition: 0.15s ease-in;
+    -o-transition: 0.15s ease-in;
+    transition: 0.15s ease-in;
 }
 
 .docs-title{
         text-align: center;
         font-size: 16px;
 }
+
+doc{
+    font-size: 12px;
+    padding-bottom: 50px;
+}
+
+.doc .definition{
+   font-size: 13px;
+   color: dodgerblue;
+   text-shadow: 0px 0px 5px 5px black;
+}
+
+.doc-search{
+    border-radius:10px;
+    padding-bottom:10px;
+}
+
 
 .status-container{
     
