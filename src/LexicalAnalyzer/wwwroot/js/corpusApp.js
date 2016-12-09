@@ -10,8 +10,6 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
         type: "string",
         downloadURL: "Manual Insert",
     };
-
-
     $scope.contentName;
     $scope.contentType;
 
@@ -19,7 +17,7 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
     $scope.getCorpusList = function () {
         $http({
             method: 'get',
-            url: '/api/corpus',
+            url: UrlContent('/api/corpus'),
         })
            .success(function (response) {
                $scope.corpusList = response;
@@ -32,7 +30,7 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
 
     //Gets all scrappers and neural nets. 
     $scope.getCorpusContent = function (corpusId) {
-        var route = "/api/CorpusContent/list/" + corpusId;
+        var route = UrlContent("/api/CorpusContent/list/" + corpusId);
 
         $http({
             method: 'get',
@@ -61,7 +59,7 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
     }
 
     $scope.deleteContent = function (contentId, corpusId) {
-        var route = "/api/CorpusContent/delete/" + contentId;
+        var route = UrlContent("/api/CorpusContent/delete/" + contentId);
 
         $http({
             method: 'get',
@@ -78,7 +76,7 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
     }
 
     $scope.createContent = function () {
-        var conn = $http.post('/api/CorpusContent/add', $scope.newContent,
+        var conn = $http.post(UrlContent('/api/CorpusContent/add'), $scope.newContent,
         {
             headers: { 'Content-Type': 'application/json' }
         })

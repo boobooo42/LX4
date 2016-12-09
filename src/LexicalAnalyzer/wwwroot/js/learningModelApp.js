@@ -12,7 +12,7 @@ neuralNetApp.controller('learningModelController', function ($scope, $http) {
     $scope.getLearningModelTypes = function () {
         $http({
             method: 'get',
-            url: '/api/learningmodel/types',
+            url: UrlContent('/api/learningmodel/types'),
         }).success(function (response) {
             $scope.learningModelTypes = response;
             console.log($scope.learningModelTypes);
@@ -26,7 +26,7 @@ neuralNetApp.controller('learningModelController', function ($scope, $http) {
     $scope.getLearningModels = function () {
         $http({
             method: 'get',
-            url: '/api/learningmodel',
+            url: UrlContent('/api/learningmodel'),
         }).success(function (response) {
             $scope.learningModels = response;
             console.log($scope.learningModels);
@@ -39,7 +39,7 @@ neuralNetApp.controller('learningModelController', function ($scope, $http) {
     //Get Specific learning model [PARAM: guid]
     $scope.getLearningModelResult = function (learningModel) {
         $scope.focusModel = learningModel;
-        var route = "/api/learningmodel/" + learningModel.Guid + "/result";
+        var route = UrlContent("/api/learningmodel/" + learningModel.Guid + "/result");
 
         $http({
             method: 'get',
