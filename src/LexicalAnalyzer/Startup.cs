@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
+using Dapper;
 
 namespace LexicalAnalyzer
 {
@@ -43,6 +44,8 @@ namespace LexicalAnalyzer
                 (string)Configuration
                     .GetSection("Database")
                     .GetValue(typeof(string), "ConnectionString");
+            SqlMapper.AddTypeMap(typeof(System.DateTime), System.Data.DbType.DateTime2);
+            SqlMapper.AddTypeMap(typeof(Guid), System.Data.DbType.Guid);
             DatabaseTools.InitializeDatabase(connectionString);
             //if (env.IsDevelopment()) {
             //    DatabaseTools.AddExampleData(connectionString);

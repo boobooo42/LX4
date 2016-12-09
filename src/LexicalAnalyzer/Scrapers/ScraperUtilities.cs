@@ -120,7 +120,7 @@ namespace LexicalAnalyzer.Scrapers
                 throw;
             }
         }
-#endregion
+        #endregion
 
         #region Display Urls
         /// <summary>
@@ -129,7 +129,7 @@ namespace LexicalAnalyzer.Scrapers
         /// <param name="doc"></param>
         /// <param name="linkPath"></param>
         /// <returns></returns>
-        private static  string displayAllUrls(HtmlDocument doc, string linkPath)
+        private static string displayAllUrls(HtmlDocument doc, string linkPath)
         {
             string result = "";
             List<string> allUrls = getLinks(doc, linkPath);
@@ -419,9 +419,9 @@ namespace LexicalAnalyzer.Scrapers
         /// <param name="DownloadURL"></param>
         /// <param name="Content"></param>
         /// <param name="m_context"></param>
-       public static void addCorpusContent(string Name, string Type,
-    Guid ScraperGuid, string ScraperType, DateTime DownloadDate, string DownloadURL,
-    byte[] Content, ICorpusContext m_context, int corpusId)
+        public static void addCorpusContent(string Name, string Type,
+     Guid ScraperGuid, string ScraperType, DateTime DownloadDate, string DownloadURL,
+     byte[] Content, ICorpusContext m_context, int corpusId)
         {
             CorpusContent corpContent = new CorpusContent();
 
@@ -430,7 +430,7 @@ namespace LexicalAnalyzer.Scrapers
             corpContent.Type = Type;
             corpContent.ScraperGuid = ScraperGuid;
             corpContent.ScraperType = ScraperType;
-            corpContent.DownloadDate = new SqlDateTime(DownloadDate);
+            corpContent.DownloadDate = DownloadDate;
             corpContent.URL = DownloadURL;
             corpContent.Content = Content;
             corpContent.Hash = hashContent(Content);
@@ -457,7 +457,7 @@ namespace LexicalAnalyzer.Scrapers
             corpContent.ScraperGuid = ScraperGuid;
             corpContent.ScraperType = ScraperType;
             corpContent.Content = Encoding.ASCII.GetBytes(tweet.Text);
-            corpContent.DownloadDate = new SqlDateTime( tweet.CreatedAt);
+            corpContent.DownloadDate = tweet.CreatedAt;
             corpContent.URL = tweet.Url;
             if (tweet.Coordinates != null) //may be null if tweet does not have a location
             {
@@ -468,7 +468,7 @@ namespace LexicalAnalyzer.Scrapers
             corpContent.AuthorName = tweet.CreatedBy.Name;
             //corpContent.Hashtags = tweet.Hashtags;
             corpContent.Language = tweet.Language.GetType().FullName;
-           // corpContent.Source = source;            
+            // corpContent.Source = source;            
 
             corpContent.Hash = hashContent(Encoding.ASCII.GetBytes(tweet.Text));
             m_context.CorpusContentRepository.Add(corpContent);

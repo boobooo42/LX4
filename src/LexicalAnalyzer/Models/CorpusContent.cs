@@ -13,7 +13,7 @@ namespace LexicalAnalyzer.Models {
         /* FIXME: Some of these data types are specific to MSSQL */
         public Guid ScraperGuid { get; set; }
         public string ScraperType { get; set; }
-        public SqlDateTime DownloadDate { get; set; }
+        public DateTime DownloadDate { get; set; }
         public string URL { get; set; }
         public byte[] Content { get; set; }
         public float Long { get; set; }

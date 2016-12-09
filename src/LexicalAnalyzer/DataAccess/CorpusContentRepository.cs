@@ -68,9 +68,9 @@ namespace LexicalAnalyzer.DataAccess
                             Hash = content.Hash,
                             Name = content.Name,
                             Type = content.Type,
-                            ScraperGuid = content.ScraperGuid.ToString(),
+                            ScraperGuid = content.ScraperGuid,
                             ScraperType = content.ScraperType,
-                            DownloadDate = content.DownloadDate.Value,
+                            DownloadDate = content.DownloadDate,
                             DownloadUrl = content.URL,
                             Long = content.Long,
                             Lat = content.Lat
@@ -183,6 +183,7 @@ namespace LexicalAnalyzer.DataAccess
                      * flyweight objects here */
                     list = conn.Query<CorpusContent>(@"
                     SELECT Id, Hash, Name, Type,
+                        ScraperGuid,
                         ScraperType,
                         DownloadDate,
                         DownloadURL
