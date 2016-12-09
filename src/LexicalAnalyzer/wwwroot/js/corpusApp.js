@@ -4,14 +4,28 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
     $scope.corpusContent;
     $scope.corpus;
     $scope.selectedCorpus;
-    $scope.newContent = {
-        id: -1,
-        name: "string",
-        type: "string",
-        downloadURL: "Manual Insert",
+    $scope.newCorpus = {
+        "id": 0,
+        "name": "string",
+        "description": "string",
+        "locked": true,
+        "hash": "string"
     };
     $scope.contentName;
     $scope.contentType;
+
+    $scope.createCorpus = function () {
+        var conn = $http.post(UrlContent('/api/corpus'), $scope.newCorpus,
+        {
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .success(function () {
+            $scope.getCorpusList();
+        })
+        .error(function (e) {
+            alert("Error: " + e);
+        });
+    }
 
     //Gets all corpora
     $scope.getCorpusList = function () {

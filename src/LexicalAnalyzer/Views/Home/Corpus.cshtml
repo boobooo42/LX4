@@ -19,6 +19,11 @@
 <div class="row row-margin" ng-app="corpusApp" ng-controller="corpus">
     <h3><span>Corpus</span></h3><hr />
     <div class="form-group">
+        <div style="float:right;">
+            <br />
+            <button margin:5px" type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#CreateCorpusModal">Create new Corpus</button>
+        </div>
+        
         <label for="">Select a Corpus</label>
         <select class="form-control" id="corpusList" ng-model="selectedCorpus" onchange="displayContentView()" ng-change="display(selectedCorpus)">
             <option ng-repeat="c in corpusList">
@@ -28,9 +33,7 @@
     </div>
 
     <div id="content-view">
-    <button style="float:right; margin:5px" type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#DeleteCorpusModal">Delete Corpus</button>
-    <button style="float:right; margin:5px" type="button" class="btn btn-success btn-sm" ng-click="display(selectedCorpus)">Refresh</button>
-    <button style="float:right; margin:5px" type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#AddContentModal">Add Content</button>
+    
 
     <br />
     <br />
@@ -39,7 +42,13 @@
     <div class="row-margin">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h4> {{corpus.name}} </h4>
+                <h4 style="display:inline;"> {{corpus.name}} </h4>
+
+                <button style="float:right; margin:5px" type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#DeleteCorpusModal">Delete Corpus</button>
+                <button style="float:right; margin:5px" type="button" class="btn btn-success btn-sm" ng-click="display(selectedCorpus)">Refresh</button>
+                <button style="float:right; margin:5px" type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#AddContentModal">Add Content</button>
+                <br />
+                <hr />
             </div>
 
             <table class="table table-fixed">
@@ -108,6 +117,28 @@
                 <div class="modal-footer">
                     <div style="margin: 0 auto" type="button" class="btn btn-danger" data-dismiss="modal">Not too sure..</div>
                     <div style="margin: 0 auto" type="button" class="btn btn-success" data-dismiss="modal">Yes.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" style="width:auto" id="CreateCorpusModal" role="dialog">
+        <div style="width:300px" class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Create a new Corpus</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Name: <input ng-model="newCorpus.name" class="form-control" type="text" /></p>
+                    <p>Description: <input ng-model="newCorpus.description" class="form-control" type="text" /></p>
+                </div>
+                <div class="modal-footer">
+                    <div style="margin: 0 auto" type="button" class="btn btn-danger" data-dismiss="modal">Cancel</div>
+                    <div ng-click="createCorpus()" style="margin: 0 auto" type="button" class="btn btn-success" data-dismiss="modal">Create Corpus</div>
                 </div>
             </div>
         </div>
