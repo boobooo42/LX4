@@ -8,7 +8,7 @@ statusApp.controller("status", function ($scope, $http, $interval) {
     $scope.init = function () {
         $http({
             method: 'get',
-            url: '/api/scraper',
+            url: UrlContent('/api/scraper/'),
         })
            .success(function (response) {
                $scope.scrappers = response;
@@ -22,7 +22,7 @@ statusApp.controller("status", function ($scope, $http, $interval) {
 
         $http({
             method: 'get',
-            url: '/api/learningmodel',
+            url: UrlContent('/api/learningmodel'),
         })
            .success(function (response) {
                $scope.learningModels = response;
@@ -63,8 +63,7 @@ statusApp.controller("status", function ($scope, $http, $interval) {
     $scope.toggleScrapper = function (scrapper) {
 
         if (scrapper.Status == "init") {
-            var route = "/api/scraper/" + scrapper.Guid + "/start";
-
+            var route = UrlContent("/api/scraper/" + scrapper.Guid + "/start");
             $http({
                 method: 'post',
                 url: route,
@@ -88,8 +87,7 @@ statusApp.controller("status", function ($scope, $http, $interval) {
                });
 
         } else {
-            var route = "/api/scraper/" + scrapper.Guid + "/start";
-
+            var route = UrlContent("/api/scraper/" + scrapper.Guid + "/start");
             $http({
                 method: 'post',
                 url: route,
@@ -104,8 +102,7 @@ statusApp.controller("status", function ($scope, $http, $interval) {
 
     //Starts or stop given learning model.
     $scope.togglelearningModel = function (lm) {
-        var route = "/api/learningmodel/" + lm.Guid;
-
+        var route = UrlContent("/api/learningmodel/" + lm.Guid);
         if (lm.Status != "paused") {
             lm.Status = "pause";
             $http.put(route, lm)
