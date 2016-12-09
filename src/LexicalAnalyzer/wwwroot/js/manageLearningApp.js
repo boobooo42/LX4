@@ -17,16 +17,18 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
     var nameConversion = {};
     var existingLearnings = [];
     var progressUpdates;
+    var existingCorpora = []
 
     $scope.init = function () {
         progressUpdates = getUpdates();
-        getTypes();        
+        getExistingCorpora();
+        getTypes();
     }
 
     function getTypes() {
         $http({
             method: 'get',
-            url: '/api/learningmodel/types'
+            url: UrlContent( '/api/learningmodel/types')
         })
             .success(function (response) {
                 for (var key in response) {
@@ -56,7 +58,7 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
         console.log(guid);
         $http({
             method: 'delete',
-            url: '/api/learningmodel/' + guid
+            url: UrlContent( '/api/learningmodel/' + guid)
         })
         .success(function (response) {
             console.log(response);
@@ -71,7 +73,7 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
         var guid = target.parent().parent().parent().attr("id");
         $http({
             method: 'post',
-            url: '/api/learningmodel/' + guid + '/pause'
+            url: UrlContent( '/api/learningmodel/' + guid + '/pause')
         })
         .success(function (response) {
             console.log(response);
@@ -87,7 +89,7 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
         var guid = target.parent().parent().parent().attr("id");
         $http({
             method: 'post',
-            url: '/api/learningmodel/' + guid + '/start'
+            url: UrlContent( '/api/learningmodel/' + guid + '/start')
         })
         .success(function (response) {
             console.log(response);
@@ -104,7 +106,7 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
         current = 0;
         $http({
             method: 'get',
-            url: '/api/learningmodel/'
+            url: UrlContent('/api/learningmodel/')
         })
         .success(function (response) {
             for (var key in response) {
@@ -123,7 +125,7 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
             existingScrapers = [];
             $http({
                 method: 'get',
-                url: '/api/learningmodel/'
+                url: UrlContent( '/api/learningmodel/')
             })
             .success(function (response) {
                 for (var key in response) {
@@ -131,7 +133,6 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
                     if (response[key]["Status"] == "started") {
                         $("#" + response[key]["Guid"])[0].children[4].innerHTML = response[key]["Progress"];
                     }
-                    console.log("updating progress " + response[key]["UserGivenName"] + ": " + response[key]["Progress"]);
                 }
             })
 
@@ -155,10 +156,36 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
             lm.result = existingLearnings[key]["Result"]["Data"];
             lm.type = nameConversion[existingLearnings[key]["Type"]];
             lm.name = existingLearnings[key]["Properties"][0]["Value"];
+            console.log(existingLearnings[key]["Properties"][1]["Value"]);
+            for (var key in existingCorpora) {
+                for (var k in existingLearnings[key]["Properties"]) {
+                    if (existingLearnings[key]["Properties"][k]["Key"] == "corpus") {
+                        if (existingCorpora[key]["id"] == existingLearnings[key]["Properties"][k]["Value"]) {
+                            lm.corpus = existingCorpora[key]["name"];
+                        }
+                    }
+                }
+            }
             localLM.push(lm);
         }
         $scope.currentLearningList = localLM;
         progressUpdates = getUpdates();
+    }
+    
+    function getExistingCorpora() {
+        $http({
+            method: 'get',
+            url: UrlContent('/api/corpus/')
+        })
+        .success(function (response) {
+            console.log(response);
+            for (var i = 0; i < response.length; i++) {
+                existingCorpora.push(response[i]);
+            }
+        })
+        .error(function () {
+
+        });
     }
 
     function getLearningByGuid(guid) {

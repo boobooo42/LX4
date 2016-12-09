@@ -16,19 +16,19 @@ manageApp.directive('highlight', function() {
 manageApp.controller("ManageController", function ($scope, $http, $interval) {
     $scope.init = function () {
         progressUpdates = getUpdates();
-        getExistingScrapers();
+        getExistingCorpora();
     }
     $scope.init();
 
     var progressUpdates;
     var existingScrapers = [];
+    var existingCorpora = [];
 
     $scope.editScraper = function (e) {
         var target = $(e.target);
         var guid = target.parent().parent().parent().attr("id");
         $scope.modalguid = guid;
         var editScraper = getScraperByGuid(guid);
-        console.log(editScraper);
         var build = "";
         $("#editScraperModalBody").empty();
         if (editScraper["Status"] == "started") {
@@ -36,7 +36,6 @@ manageApp.controller("ManageController", function ($scope, $http, $interval) {
             $("#modalEditButton").attr("hidden");
         } else {
             var properties = editScraper["Properties"];
-            console.log(properties);
             for (var i in properties) {
                 build += '<label>' + properties[i]["Key"] + "(" + properties[i]["Type"] + "): " + '</label><input type="text" class="form-control" id="' + properties[i]["Key"] + '" mytype="' + properties[i]["Type"] + '" placeholder="' + properties[i]["Value"] + '"><hr />';
             }
@@ -81,10 +80,9 @@ manageApp.controller("ManageController", function ($scope, $http, $interval) {
         var target = $(e.target);
         target.parent().parent().parent().hide();
         var guid = target.parent().parent().parent().attr("id");
-        console.log(guid);
         $http({
             method: 'delete',
-            url: '/api/scraper/' + guid
+            url: UrlContent('/api/scraper/' + guid)
         })
         .success(function (response) {
             console.log(response);
@@ -99,7 +97,7 @@ manageApp.controller("ManageController", function ($scope, $http, $interval) {
         var guid = target.parent().parent().parent().attr("id");
         $http({
             method: 'post',
-            url: '/api/scraper/' + guid + '/pause'
+            url: UrlContent('/api/scraper/' + guid + '/pause')
         })
         .success(function (response) {
             console.log(response);
@@ -115,12 +113,11 @@ manageApp.controller("ManageController", function ($scope, $http, $interval) {
         var guid = target.parent().parent().parent().attr("id");
         var type = target.parent().parent().siblings(".type").text().trim();
         if (isTwitterandAuth(type, guid)) {
-            console.log("twitAuth");
             getTwitterAuth(guid, e);
         } else {
             $http({
                 method: 'post',
-                url: '/api/scraper/' + guid + '/start'
+                url: UrlContent('/api/scraper/' + guid + '/start')
             })
             .success(function (response) {
                 console.log(response);
@@ -135,7 +132,6 @@ manageApp.controller("ManageController", function ($scope, $http, $interval) {
     function isTwitterandAuth(type, guid) {
         if (type == "Twitter Scraper") {
             twitScraper = getScraperByGuid(guid);
-            console.log(twitScraper);
             return !twitScraper["Authorized"];
         } else
             return false;
@@ -145,7 +141,7 @@ manageApp.controller("ManageController", function ($scope, $http, $interval) {
         $("#twitterPin").value = "";
         $http({
             method: 'get',
-            url: '/api/scraper/twitter/' + guid
+            url: UrlContent('/api/scraper/twitter/' + guid)
         })
         .success(function (response) {
             console.log(response);
@@ -155,7 +151,7 @@ manageApp.controller("ManageController", function ($scope, $http, $interval) {
                 var tPin = $("#twitterPin").val().trim(); 
                 $http({
                     method: 'get',
-                    url: '/api/scraper/twitter/' + tPin + '/' + guid
+                    url: UrlContent('/api/scraper/twitter/' + tPin + '/' + guid)
                 })
                 .success(function (response) {
                     console.log(response);
@@ -179,7 +175,7 @@ manageApp.controller("ManageController", function ($scope, $http, $interval) {
         existingScrapers = [];
         $http({
             method: 'get',
-            url: '/api/scraper/'
+            url: UrlContent('/api/scraper/')
         })
         .success(function (response) {
             for (var key in response) {
@@ -198,14 +194,15 @@ manageApp.controller("ManageController", function ($scope, $http, $interval) {
             existingScrapers = [];
             $http({
                 method: 'get',
-                url: '/api/scraper/'
+                url: UrlContent('/api/scraper/')
             })
             .success(function (response) {
                 for (var key in response) {
                     existingScrapers.push(response[key]);
                     if(response[key]["Status"] == "started"){
-                        $("#" + response[key]["Guid"])[0].children[4].innerHTML = response[key]["Progress"];
-                        console.log("updating progress " + response[key]["UserGivenName"] + ": " + response[key]["Progress"]);
+                        $("#" + response[key]["Guid"])[0].children[6].innerHTML = response[key]["Progress"];
+                        $("#" + response[key]["Guid"])[0].children[5].innerHTML = response[key]["Timer"]["Elapsed"];
+                        $("#" + response[key]["Guid"])[0].children[4].innerHTML = response[key]["DownloadCount"];
                     }
                 }
             })
@@ -219,8 +216,7 @@ manageApp.controller("ManageController", function ($scope, $http, $interval) {
     function setupTable() {
         $("#scraperEdit").show();
         var localSC = [];
-        var sc = {}
-        console.log(existingScrapers);
+        var sc = {};
         for (var key in existingScrapers) {
             sc = {}
             sc.guid = existingScrapers[key]["Guid"];
@@ -230,10 +226,42 @@ manageApp.controller("ManageController", function ($scope, $http, $interval) {
             sc.name = existingScrapers[key]["UserGivenName"];
             sc.type = existingScrapers[key]["TypeName"];
             sc.desc = existingScrapers[key]["Desc"];
+            sc.eTime = existingScrapers[key]["Timer"]["Elapsed"];
+            sc.dCount = existingScrapers[key]["DownloadCount"];
+            sc.dLimit = existingScrapers[key]["DownloadLimit"];
+            sc.tLimit = existingScrapers[key]["TimeLimit"];
+            for (var key in existingCorpora) {
+                for (var k in existingScrapers[key]["Properties"]) {
+                    console.log(existingScrapers[key]["Properties"][k]["Value"]);
+                    if (existingScrapers[key]["Properties"][k]["Key"] == "corpus") {
+                        if (existingCorpora[key]["id"] == existingScrapers[key]["Properties"][k]["Value"]) {
+                            sc.corpus = existingCorpora[key]["name"];
+                        }
+                    }
+                }
+            }
             localSC.push(sc);
         }
         $scope.currentScraperList = localSC;
         progressUpdates = getUpdates();
+    }
+
+    function getExistingCorpora() {
+        existingCorpora = [];
+        $http({
+            method: 'get',
+            url: UrlContent('/api/corpus/')
+        })
+        .success(function (response) {
+            console.log(response);
+            for (var i = 0; i < response.length; i++) {
+                existingCorpora.push(response[i]);
+            }
+            getExistingScrapers();
+        })
+        .error(function () {
+            console.log("Failed to get Corpora");
+        });
     }
 
     function getScraperByGuid(guid) {

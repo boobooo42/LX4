@@ -68,10 +68,13 @@
                     <table class="table table-bordered table-hover">
                         <thead id="editTHead">
                             <tr>
-                                <th class="col-xs-2"></th>
+                                <th class="col-xs-1"></th>
                                 <th class="col-xs-3">Name</th>
-                                <th class="col-xs-2">Status</th>
-                                <th class="col-xs-2">Type</th>
+                                <th class="col-xs-1">Status</th>
+                                <th class="col-xs-1">Type</th>
+                                <th class="col-xs-1">Corpus</th>
+                                <th class="col-xs-1">Download Count</th>
+                                <th class="col-xs-1">Elapsed Time</th>
                                 <th class="col-xs-1">Progress</th>
                             </tr>
                         </thead>
@@ -79,7 +82,7 @@
                             <tr hidden ng-repeat="scraper in currentScraperList" id="{{scraper.guid}}" highlight>
                                 <td>
                                     <p>
-                                        <span class="glyphicon glyphicon-file" ng-click="editScraper($event)"></span>
+                                        @*<span class="glyphicon glyphicon-file" ng-click="editScraper($event)"></span>*@
                                         <span class="glyphicon glyphicon-trash" ng-click="deleteScraper($event)"></span>
                                         <span class="glyphicon glyphicon-pause" ng-click="pauseScraper($event)"></span>
                                         <span class="glyphicon glyphicon-play" ng-click="startScraper($event)"></span>
@@ -88,6 +91,9 @@
                                 <td title="{{scraper.guid}}"> {{scraper.name}} </td>
                                 <td> {{scraper.status}} </td>
                                 <td title="{{scraper.desc}}" class="type"> {{scraper.type}} </td>
+                                <td>{{scraper.corpus}}</td>
+                                <td title="{{scraper.dLimit}}"> {{scraper.dCount}} </td>
+                                <td title="{{scrpaer.tLimit}}"> {{scraper.eTime}} </td>
                                 <td> {{scraper.progress}} </td>
                             </tr>
                         </tbody>

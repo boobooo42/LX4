@@ -229,11 +229,6 @@ namespace LexicalAnalyzer.Scrapers
                             "http://www.gutenberg.org/robot/harvest",  /* defaultValue */
                             "url"  /* type */
                             ));
-                properties.Add(
-                        new KeyValueProperty(
-                            "Corpus",
-                            "1",
-                            "ID"));
                 return properties;
             }
         }
@@ -255,7 +250,7 @@ namespace LexicalAnalyzer.Scrapers
                         DownloadLimit = int.Parse(property.Value);
                     else if (property.Key == "UserGivenName")
                         UserGivenName = property.Value;
-                    else if (property.Key == "Corpus")
+                    else if (property.Key == "corpus")
                         CorpusId = int.Parse(property.Value);
 
                 }

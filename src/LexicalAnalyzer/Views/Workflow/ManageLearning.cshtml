@@ -34,11 +34,12 @@
                     <table class="table table-bordered table-hover">
                         <thead id="editTHead">
                             <tr>
-                                <th class="col-xs-2"></th>
-                                <th class="col-xs-3">Name</th>
-                                <th class="col-xs-2">Status</th>
-                                <th class="col-xs-2">Type</th>
+                                <th class="col-xs-1"></th>
+                                <th class="col-xs-2">Name</th>
+                                <th class="col-xs-1">Status</th>
+                                <th class="col-xs-1">Type</th>
                                 <th class="col-xs-1">Progress</th>
+                                <th class="col-xs-1">Corpus</th>
                             </tr>
                         </thead>
                         <tbody id="editTBody" class="table">
@@ -52,9 +53,10 @@
                                     </p>
                                 </th>
                                 <td title="{{learning.guid}}">{{learning.name}}</td>
-                                <td > {{learning.status}} </td>
+                                <td> {{learning.status}} </td>
                                 <td title="{{learning.desc}}" class="type"> {{learning.type}} </td>
-                                <td > {{learning.progress}}</td>
+                                <td> {{learning.progress}}</td>
+                                <td> {{learning.corpus}}</td>
                             </tr>
                         </tbody>
                     </table>

@@ -237,12 +237,6 @@ namespace LexicalAnalyzer.Scrapers
                             "https://twitter.com",  /* defaultValue */
                             "url"  /* type */
                             ));
-                properties.Add(
-                        new KeyValueProperty(
-                            "Corpus",
-                            "1",
-                            "ID"));
-
                 return properties;
             }
         }
@@ -264,7 +258,7 @@ namespace LexicalAnalyzer.Scrapers
                         DownloadLimit = int.Parse(property.Value);
                     else if (property.Key == "UserGivenName")
                         UserGivenName = property.Value;
-                    else if (property.Key == "Corpus")
+                    else if (property.Key == "corpus")
                         CorpusId = int.Parse(property.Value);
                 }
                 m_properties = new List<KeyValueProperty>(value);

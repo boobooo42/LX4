@@ -76,11 +76,6 @@ namespace LexicalAnalyzer.LearningModels {
         public static IEnumerable<KeyValueProperty> DefaultProperties {
             get {
                 var properties = new List<KeyValueProperty>();
-                properties.Add(new KeyValueProperty(
-                            "corpus",  /* Key */
-                            "",  /* DefaultValue */
-                            "corpus_id"  /* Type */
-                            ));
                 return properties;
             }
         }

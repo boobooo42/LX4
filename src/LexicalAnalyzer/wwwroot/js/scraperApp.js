@@ -1,25 +1,28 @@
 var manageApp = angular.module("scraperApp", ['ngRoute']);
 
 manageApp.controller("ScraperController", function ($scope, $http, $interval) {
+
+    var types;
+    var nameConversion = {};
+    var existingCorpora = [];
+
     $scope.init = function () {
         getTypes();
         getExistingCorpora();
     }
 
     $scope.init();
-
-    var types;
-    var nameConversion = {};
-
+    
     function getExistingCorpora() {
         $http({
             method: 'get',
-            url: '/api/corpus/'
+            url: UrlContent( '/api/corpus/')
         })
         .success(function (response) {
             console.log(response);
             var tempCorpora = [];
             for (var i = 0; i < response.length; i++) {
+                existingCorpora.push(response[i]);
                 tempCorpora.push(response[i]["name"]);
             }
             $scope.corpora = tempCorpora;
@@ -33,7 +36,7 @@ manageApp.controller("ScraperController", function ($scope, $http, $interval) {
         types = {};
         $http({
             method: 'get',
-            url: '/api/scraper/types'
+            url: UrlContent( '/api/scraper/types')
         })
             .success(function (response) {
                 if (response !== 'undefined') {
@@ -41,14 +44,14 @@ manageApp.controller("ScraperController", function ($scope, $http, $interval) {
                         types[response[key]["type"]] = response[key];
                         nameConversion[response[key]["displayName"]] = response[key]["type"];
                         nameConversion[response[key]["type"]] = response[key]["displayName"];
-                        //types[response[key]["type"]] = {};
+
                         for (var key2 in response[key]) {
                             if (key2 !== "type") {
                                 types[response[key]["type"]][key2] = response[key][key2];
                             }
                         }
                     }
-                    console.log(types);
+                    
                     setupForm();
                 }
             })
@@ -58,6 +61,89 @@ manageApp.controller("ScraperController", function ($scope, $http, $interval) {
         
     }
 
+    var redInput = [];
+    $scope.createScraper = function () {
+        if (redInput) {
+            for (var i = 0; i < redInput.length; i++) {
+                $(redInput[i]).removeAttr("style");
+            }
+        }
+        var data = {
+            "status": "init",
+            "progress": 0,
+            "priority": 0,
+            "properties": []
+        }
+        var complete = true
+
+        // Check Scraper Name Field
+        var name = $("#scraperName").val().trim();
+        if (name == "") {
+            redInput.push("#scraperName");
+            $("#scraperName").css("border", "solid 1px red");
+            complete = false;
+        } else {
+            data["properties"].push({ "key": "UserGivenName", "type": "UserGivenName", "value": name });
+        }
+
+        // Check Scraper Type Field
+        var scraperType = nameConversion[$scope.selectedScraper];
+        if (scraperType) {
+            var tempProperties = types[scraperType]["properties"];
+            for (var i = 0; i < tempProperties.length; i++) {
+                var tempProps = tempProperties[i];
+                var val = ($("#" + tempProps["key"]).val());
+
+                if (val == "") {
+                    val = $("#" + tempProps["key"]).attr('placeholder');
+                    if (!val) {
+                        $("#" + tempProps["key"]).css("border", "solid 1px red");
+                        redInput.push("#" + tempProps["key"]);
+                        complete = false;
+                    }
+                }
+                data["properties"].push({ "key": tempProps["key"], "type": tempProps["type"], "value": val });
+            }
+        } else {
+            complete = false;
+            $("#scrapers").css("border", "solid 1px red");
+            redInput.push("#scrapers");
+        }
+
+        // Check Corpus Field
+        if ($scope.selectedCorpora) {
+            for (var key in existingCorpora) {
+                if (existingCorpora[key]["name"] == $scope.selectedCorpora) {
+                    data["properties"].push({ "key": "corpus", "type": "id", "value": existingCorpora[key]["id"] });
+                }
+            }
+        } else {
+            complete = false;
+            $("#corpora").css("border", "solid 1px red");
+            redInput.push("#corpora");
+        }
+        console.log(data["properties"]);
+        if (complete) {
+            $http({
+                method: 'post',
+                url: UrlContent( '/api/scraper/' + scraperType),
+                data: data
+            })
+            .success(function (response) {
+                console.log(response);
+                localStorage.setItem("guid", response["Guid"]);
+                window.location.href = "Manage";
+                
+            })
+            .error(function () {
+
+            });
+        } else {
+            alert("Fill in all fields");
+        }
+    }
+    
+    //DOM manipulation
     function setupForm() {
         var tempArr = {};
         for (var key in types) {
@@ -96,84 +182,4 @@ manageApp.controller("ScraperController", function ($scope, $http, $interval) {
         }
         $(build).appendTo("#scraperProperties");
     }
-
-    function getScraperByGuid(guid) {
-        console.log(guid);
-        $http({
-            method: 'get',
-            url: '/api/scraper/' + guid
-        })
-        .success(function (response) {
-            console.log(response);
-            editScraper = response;
-            getTypes();
-        })
-
-        .error(function (response) {
-            console.log(response);
-        });
-    }
-
-    var redInput = [];
-    $scope.createScraper = function () {
-        var sitesToScrape = [];
-        var scraperType = nameConversion[$scope.selectedScraper];
-        var scraperName = $("#scraperName").val();
-        var tempProperties = types[scraperType]["properties"];
-        var data = {
-            "status": "init",
-            "progress": 0,
-            "priority": 0,
-            "properties": []
-        }
-        var complete = true
-        var name = $("#scraperName").val().trim();
-        if (name == "") {
-            redInput.push("#scraperName");
-            $("#scraperName").css("border", "solid 1px red");
-            complete = false;
-        } else {
-            data["properties"].push({ "key": "UserGivenName", "type": "UserGivenName", "value": name });
-        }
-        for (var i = 0; i < tempProperties.length; i++) {
-            var tempProps = tempProperties[i];
-            var val = ($("#" + tempProps["key"]).val());
-
-            if (val == "") {
-                val = $("#" + tempProps["key"]).attr('placeholder');
-                if (!val) {
-                    $("#" + tempProps["key"]).css("border", "solid 1px red");
-                    redInput.push("#" + tempProps["key"]);
-                    complete = false;
-                }
-            }
-            data["properties"].push({ "key": tempProps["key"], "type": tempProps["type"], "value": val });
-        }
-        data["properties"].push({ "key": "CorpusId", "type": "id", "value": "1" });
-        console.log(data["properties"]);
-        if (complete) {
-            if (redInput) {
-                for (var i = 0; i < redInput.length; i++) {
-                    $(redInput[i]).removeAttr("style");
-                }
-            }
-            $http({
-                method: 'post',
-                url: '/api/scraper/' + scraperType,
-                data: data
-            })
-            .success(function (response) {
-                //$("#scraperNew").closest('form').find("input[type=text], textarea").val("");
-                console.log(response);
-                localStorage.setItem("guid", response["Guid"]);
-                window.location.href = "Manage";
-                
-            })
-            .error(function () {
-
-            });
-        } else {
-            alert("Fill in all fields");
-        }
-    };
 });
