@@ -200,9 +200,9 @@ manageApp.controller("ManageController", function ($scope, $http, $interval) {
                 for (var key in response) {
                     existingScrapers.push(response[key]);
                     if(response[key]["Status"] == "started"){
-                        $("#" + response[key]["Guid"])[0].children[6].innerHTML = response[key]["Progress"];
-                        $("#" + response[key]["Guid"])[0].children[5].innerHTML = response[key]["Timer"]["Elapsed"];
-                        $("#" + response[key]["Guid"])[0].children[4].innerHTML = response[key]["DownloadCount"];
+                        $("#" + response[key]["Guid"]).children("#sProgress")[0].innerHTML = response[key]["Progress"];
+                        $("#" + response[key]["Guid"]).children("#seTime")[0].innerHTML = response[key]["Timer"]["Elapsed"];
+                        $("#" + response[key]["Guid"]).children("#sdCount")[0].innerHTML = response[key]["DownloadCount"];
                     }
                 }
             })
@@ -230,12 +230,13 @@ manageApp.controller("ManageController", function ($scope, $http, $interval) {
             sc.dCount = existingScrapers[key]["DownloadCount"];
             sc.dLimit = existingScrapers[key]["DownloadLimit"];
             sc.tLimit = existingScrapers[key]["TimeLimit"];
-            for (var key in existingCorpora) {
-                for (var k in existingScrapers[key]["Properties"]) {
-                    console.log(existingScrapers[key]["Properties"][k]["Value"]);
-                    if (existingScrapers[key]["Properties"][k]["Key"] == "corpus") {
-                        if (existingCorpora[key]["id"] == existingScrapers[key]["Properties"][k]["Value"]) {
-                            sc.corpus = existingCorpora[key]["name"];
+            for (var keyC in existingCorpora) {
+                for (var keyS in existingScrapers) {
+                    for (var keyP in existingScrapers[keyS]["Properties"]) {
+                        if (existingScrapers[keyS]["Properties"][keyP]["Key"] == "corpus") {
+                            if (existingCorpora[keyC]["id"] == existingScrapers[keyS]["Properties"][keyP]["Value"]) {
+                                sc.corpus = existingCorpora[key]["name"];
+                            }
                         }
                     }
                 }

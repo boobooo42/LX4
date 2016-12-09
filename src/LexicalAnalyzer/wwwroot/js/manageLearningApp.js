@@ -131,7 +131,7 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
                 for (var key in response) {
                     existingScrapers.push(response[key]);
                     if (response[key]["Status"] == "started") {
-                        $("#" + response[key]["Guid"])[0].children[4].innerHTML = response[key]["Progress"];
+                        $("#" + response[key]["Guid"]).children("#lProgress")[0].innerHTML = response[key]["Progress"];
                     }
                 }
             })
@@ -156,12 +156,13 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
             lm.result = existingLearnings[key]["Result"]["Data"];
             lm.type = nameConversion[existingLearnings[key]["Type"]];
             lm.name = existingLearnings[key]["Properties"][0]["Value"];
-            console.log(existingLearnings[key]["Properties"][1]["Value"]);
-            for (var key in existingCorpora) {
-                for (var k in existingLearnings[key]["Properties"]) {
-                    if (existingLearnings[key]["Properties"][k]["Key"] == "corpus") {
-                        if (existingCorpora[key]["id"] == existingLearnings[key]["Properties"][k]["Value"]) {
-                            lm.corpus = existingCorpora[key]["name"];
+            for (var keyC in existingCorpora) {
+                for (var keyS in existingLearnings) {
+                    for (var keyP in existingLearnings[keyS]["Properties"]) {
+                        if (existingLearnings[keyS]["Properties"][keyP]["Key"] == "corpus") {
+                            if (existingCorpora[keyC]["id"] == existingLearnings[keyS]["Properties"][keyP]["Value"]) {
+                                lm.corpus = existingCorpora[key]["name"];
+                            }
                         }
                     }
                 }
