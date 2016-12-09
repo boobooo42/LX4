@@ -44,6 +44,8 @@ namespace LexicalAnalyzer
                 (string)Configuration
                     .GetSection("Database")
                     .GetValue(typeof(string), "ConnectionString");
+
+            //force dapper to see a system datetime as an sql datetime 2
             SqlMapper.AddTypeMap(typeof(System.DateTime), System.Data.DbType.DateTime2);
             SqlMapper.AddTypeMap(typeof(Guid), System.Data.DbType.Guid);
             DatabaseTools.InitializeDatabase(connectionString);
