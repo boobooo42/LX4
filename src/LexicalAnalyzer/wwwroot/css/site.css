@@ -48,7 +48,8 @@ textarea {
     border-radius: 10px;
     border-bottom-right-radius:0px;
     border-top-right-radius:0px;
-    transform: translate(200px, 0px);
+    float: right;
+    transform: translate(300px, 0px);
 
     -webkit-transition: 0.25s ease-in;
     -moz-transition: 0.25s ease-in;
