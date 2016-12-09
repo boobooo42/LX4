@@ -155,7 +155,6 @@ namespace LexicalAnalyzer.DataAccess
                 IEnumerable<CorpusContent> result =
                     conn.Query<CorpusContent>(@"
                         SELECT Id, Hash, Name, Type,
-                            ScraperGuid,
                             ScraperType,
                             DownloadDate,
                             DownloadURL
@@ -183,7 +182,7 @@ namespace LexicalAnalyzer.DataAccess
                      * flyweight objects here */
                     list = conn.Query<CorpusContent>(@"
                     SELECT Id, Hash, Name, Type,
-                        ScraperGuid,
+
                         ScraperType,
                         DownloadDate,
                         DownloadURL
