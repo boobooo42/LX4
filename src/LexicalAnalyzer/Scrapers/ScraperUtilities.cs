@@ -494,5 +494,14 @@ namespace LexicalAnalyzer.Scrapers
             }
             return hashResult;
         }
+
+        /// <summary>
+        /// Public method to retrieve hash for content.
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public static string _hashContent(byte[] content){
+            return hashContent(content);
+        }
     }
 }

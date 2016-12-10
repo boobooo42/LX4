@@ -3,18 +3,35 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
     $scope.coprusList;
     $scope.corpusContent;
     $scope.corpus;
+    $scope.newContent; 
     $scope.selectedCorpus;
-    $scope.newContent = {
-        id: -1,
-        name: "string",
-        type: "string",
-        downloadURL: "Manual Insert",
+    $scope.newCorpus = {
+        "id": 0,
+        "name": "string",
+        "description": "string",
+        "locked": true,
+        "hash": "string"
     };
     $scope.contentName;
     $scope.contentType;
 
+    $scope.createCorpus = function () {
+
+        var conn = $http.post(UrlContent('/api/corpus'), $scope.newCorpus,
+        {
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .success(function () {
+            $scope.getCorpusList();
+        })
+        .error(function (e) {
+            alert("Error: " + e);
+        });
+    }
+
     //Gets all corpora
     $scope.getCorpusList = function () {
+
         $http({
             method: 'get',
             url: UrlContent('/api/corpus'),
@@ -30,7 +47,8 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
 
     //Gets all scrappers and neural nets. 
     $scope.getCorpusContent = function (corpusId) {
-        var route = UrlContent("/api/CorpusContent/list/" + corpusId);
+
+        var route = UrlContent("/api/CorpusContent/list/" +corpusId);
 
         $http({
             method: 'get',
@@ -46,9 +64,9 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
     }
 
     $scope.display = function (c) {
-        $scope.selectedCorpus = c;
+        $scope.selectedCorpus = c.trim();
         for (var i = 0; i < $scope.corpusList.length; i++) {
-            if ($scope.corpusList[i].name == c) {
+            if ($scope.corpusList[i].name == $scope.selectedCorpus) {
                 $scope.corpus = $scope.corpusList[i];
                 $scope.corpusContent = $scope.getCorpusContent($scope.corpusList[i].id);
                 break;
@@ -59,6 +77,7 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
     }
 
     $scope.deleteContent = function (contentId, corpusId) {
+
         var route = UrlContent("/api/CorpusContent/delete/" + contentId);
 
         $http({
@@ -75,8 +94,10 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
            });
     }
 
-    $scope.createContent = function () {
-        var conn = $http.post(UrlContent('/api/CorpusContent/add'), $scope.newContent,
+    $scope.createContent = function (corpusId) {
+        $scope.newContent.corpusId = corpusId;
+
+        $http.post(UrlContent('/api/CorpusContent/add/'), $scope.newContent,
         {
             headers: { 'Content-Type': 'application/json' }
         })

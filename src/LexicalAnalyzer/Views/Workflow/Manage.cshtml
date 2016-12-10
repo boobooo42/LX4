@@ -72,10 +72,10 @@
                                 <th class="col-xs-3">Name</th>
                                 <th class="col-xs-1">Status</th>
                                 <th class="col-xs-1">Type</th>
-                                <th class="col-xs-1">Corpus</th>
                                 <th class="col-xs-1">Download Count</th>
                                 <th class="col-xs-1">Elapsed Time</th>
                                 <th class="col-xs-1">Progress</th>
+                                <th class="col-xs-1">Corpus</th>
                             </tr>
                         </thead>
                         <tbody id="editTBody" class="table">
@@ -88,13 +88,13 @@
                                         <span class="glyphicon glyphicon-play" ng-click="startScraper($event)"></span>
                                     </p>
                                 </td>
-                                <td title="{{scraper.guid}}"> {{scraper.name}} </td>
-                                <td> {{scraper.status}} </td>
-                                <td title="{{scraper.desc}}" class="type"> {{scraper.type}} </td>
+                                <td id="sName" title="{{scraper.guid}}"> {{scraper.name}} </td>
+                                <td id="sStatus" > {{scraper.status}} </td>
+                                <td id="sType" title="{{scraper.desc}}" class="type"> {{scraper.type}} </td>
+                                <td id="sdCount" title="{{scraper.dLimit}}"> {{scraper.dCount}} </td>
+                                <td id="seTime" title="{{scraper.tLimit}}"> {{scraper.eTime}} </td>
+                                <td id="sProgress"> {{scraper.progress}} </td>
                                 <td>{{scraper.corpus}}</td>
-                                <td title="{{scraper.dLimit}}"> {{scraper.dCount}} </td>
-                                <td title="{{scrpaer.tLimit}}"> {{scraper.eTime}} </td>
-                                <td> {{scraper.progress}} </td>
                             </tr>
                         </tbody>
                     </table>

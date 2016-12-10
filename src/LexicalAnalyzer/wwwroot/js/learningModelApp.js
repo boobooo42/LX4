@@ -40,7 +40,6 @@ neuralNetApp.controller('learningModelController', function ($scope, $http) {
     $scope.getLearningModelResult = function (learningModel) {
         $scope.focusModel = learningModel;
         var route = UrlContent("/api/learningmodel/" + learningModel.Guid + "/result");
-
         $http({
             method: 'get',
             url: route,
