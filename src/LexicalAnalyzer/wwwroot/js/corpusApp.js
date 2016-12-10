@@ -1,9 +1,16 @@
 ﻿var corpusApp = angular.module("corpusApp", ['ngRoute']);
 corpusApp.controller("corpus", function ($scope, $http, $interval) {
+
+    document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+
     $scope.coprusList;
     $scope.corpusContent;
     $scope.corpus;
-    $scope.newContent; 
+    $scope.newContent = {
+        name: "",
+        content: "",
+        type: ""
+    };
     $scope.selectedCorpus;
     $scope.newCorpus = {
         "id": 0,
@@ -48,12 +55,12 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
     //Gets all scrappers and neural nets. 
     $scope.getCorpusContent = function (corpusId) {
 
-        var route = UrlContent("/api/CorpusContent/list/" +corpusId);
+        var route = UrlContent("/api/CorpusContent/list/" + corpusId);
 
         $http({
             method: 'get',
             url: route
-            })
+        })
            .success(function (response) {
                $scope.corpusContent = response;
                console.log($scope.corpusContent);
@@ -64,19 +71,18 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
     }
 
     $scope.display = function (c) {
-        $scope.selectedCorpus = c.trim();
-        for (var i = 0; i < $scope.corpusList.length; i++) {
-            if ($scope.corpusList[i].name == $scope.selectedCorpus) {
-                $scope.corpus = $scope.corpusList[i];
-                $scope.corpusContent = $scope.getCorpusContent($scope.corpusList[i].id);
-                break;
-            }
-        }
-
+        $scope.corpus = c;
+        $scope.corpusContent = $scope.getCorpusContent(c.id);
         console.log($scope.corpus);
     }
 
-    $scope.deleteContent = function (contentId, corpusId) {
+    $scope.setNewContent = function (name, content) {
+        $scope.newContent.name = name;
+        $scope.newContent.content = content;
+        $scope.newContent.type = "text";
+    }
+
+    $scope.deleteContent = function (contentId, c) {
 
         var route = UrlContent("/api/CorpusContent/delete/" + contentId);
 
@@ -86,29 +92,58 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
         })
            .success(function (response) {
                console.log(response);
-               alert("Successfully Deleted");
-               $scope.display($scope.selectedCorpus);
+               $scope.display(c);
            })
            .error(function () {
                console.log("Failed to get corpus content.")
            });
+
     }
 
-    $scope.createContent = function (corpusId) {
-        $scope.newContent.corpusId = corpusId;
+    $scope.createContent = function (c) {
+        $scope.newContent.corpusId = c.id;
 
         $http.post(UrlContent('/api/CorpusContent/add/'), $scope.newContent,
         {
             headers: { 'Content-Type': 'application/json' }
         })
         .success(function () {
-            $scope.display($scope.selectedCorpus);
+            $scope.display(c);
         })
         .error(function (e) {
             alert("Error: " + e);
         });
     }
-
     //Initialize the scope
     $scope.getCorpusList();
 });
+
+function setFileContent(name, content) {
+    var scope = angular.element(document.getElementById("maincontroller")).scope();
+    scope.$apply(function () {
+        scope.setNewContent(name, content);
+    });
+}
+
+function readSingleFile(evt) {
+    //Retrieve the first (and only!) File from the FileList object
+    var f = evt.target.files[0];
+
+    if (f) {
+        var r = new FileReader();
+        r.onload = function (e) {
+            var contents = e.target.result;
+            alert("Got the file.n"
+                  + "name: " + f.name + "n"
+                  + "type: " + f.type + "n"
+                  + "size: " + f.size + " bytesn"
+                  + "starts with: " + contents
+            );
+
+            setFileContent(f.name, contents);
+        }
+        r.readAsText(f);
+    } else {
+        alert("Failed to load file");
+    }
+}
