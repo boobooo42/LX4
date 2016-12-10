@@ -72,6 +72,8 @@ namespace LexicalAnalyzer.Controllers
             {
                 return e.ToString();
             }
+
+            return "All Good";
         }
     }
 }
