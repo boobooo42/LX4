@@ -48,21 +48,32 @@ namespace LexicalAnalyzer.Controllers
         /// </summary>
         /// <param name="obj"></param>
         [HttpPost("add")]
-        public void Add([FromBody] CorpusContentDto obj)
+        public String Add([FromBody] CorpusContentDto obj)
         {
-            var content = new CorpusContent()
-            {
-                Id = -1,
-                CorpusId = obj.CorpusId,
-                Name = obj.Name,
-                Content = Encoding.ASCII.GetBytes(obj.Content),
-                Type = obj.Type,
-                Hash = ScraperUtilities._hashContent(Encoding.ASCII.GetBytes(obj.Content)),
-                DownloadDate = DateTime.Now,
-                ScraperType = "Manual Insert",
-            };
+            var content = new CorpusContent();
 
-            m_context.CorpusContentRepository.Add(content);
+            try
+            {
+                content = new CorpusContent()
+                {
+                    Id = -1,
+                    CorpusId = obj.CorpusId,
+                    Name = obj.Name,
+                    Content = Encoding.ASCII.GetBytes(obj.Content),
+                    Type = obj.Type,
+                    Hash = ScraperUtilities._hashContent(Encoding.ASCII.GetBytes(obj.Content)),
+                    DownloadDate = DateTime.Now,
+                    ScraperType = "Manual Insert",
+                };
+
+                m_context.CorpusContentRepository.Add(content);
+            }
+            catch (Exception e)
+            {
+                return e.ToString();
+            }
+
+            return "All Good";
         }
     }
 }
