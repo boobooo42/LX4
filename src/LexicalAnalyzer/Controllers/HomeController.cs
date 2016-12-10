@@ -52,5 +52,10 @@ namespace LexicalAnalyzer.Controllers
         {
             return View();
         }
+
+        public IActionResult Merkle()
+        {
+            return View();
+        }
     }
 }
