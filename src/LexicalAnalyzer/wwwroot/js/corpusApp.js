@@ -64,9 +64,9 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
     }
 
     $scope.display = function (c) {
-        $scope.selectedCorpus = c;
+        $scope.selectedCorpus = c.trim();
         for (var i = 0; i < $scope.corpusList.length; i++) {
-            if ($scope.corpusList[i].name == c) {
+            if ($scope.corpusList[i].name == $scope.selectedCorpus) {
                 $scope.corpus = $scope.corpusList[i];
                 $scope.corpusContent = $scope.getCorpusContent($scope.corpusList[i].id);
                 break;
