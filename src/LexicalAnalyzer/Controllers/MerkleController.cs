@@ -1,6 +1,7 @@
 ﻿using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,8 +58,17 @@ namespace LexicalAnalyzer.Controllers
         }
 
         [HttpGet("api/merkle/tree/{hash}")]
-        public MerkleNode GetTree(string hash) {
-            return null;  /* TODO */
+        public string GetTree(string hash) {
+            /* TODO: Look for a Merkle node with the given hsah */
+            MerkleNode root = m_context.MerkleNodeRepository.GetByHash(hash);
+            if (root == null) {
+                Response.StatusCode = 404;  /* Not Found */
+                var error = new LexicalAnalyzer.Models.Error();
+                error.Message =
+                    "Could not find Merkle node with the given hash";
+                return JsonConvert.SerializeObject(error);
+            }
+            return JsonConvert.SerializeObject(root);
         }
     }
 }

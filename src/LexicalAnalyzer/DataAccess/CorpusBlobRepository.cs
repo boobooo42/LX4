@@ -131,6 +131,7 @@ namespace LexicalAnalyzer.DataAccess
                         }
                         var blobResult = new Dictionary<string, CorpusBlob>();
                         /* Retrieve the CorpusBlob object. */
+                        /* FIXME: It might be better to use inner joins here... */
                          conn.Query<CorpusBlob, ContentBlob, CorpusBlob>(@"
                                 SELECT
                                     corpus.Hash,

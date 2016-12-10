@@ -83,24 +83,60 @@ namespace LexicalAnalyzer.DataAccess {
             /* NOTE: The Merkle nodes themselves are immutable */
         }
 
-        public override MerkleNode GetByHash(string hash) {
+        private MerkleNode GetNodeByHash(
+                string hash,
+                IDbConnection cn)
+        {
             MerkleNode node = null;
-            using (IDbConnection cn = this.Connection()) {
-                IEnumerable<MerkleNode> result = cn.Query<MerkleNode>(@"
-                        SELECT Hash, Type
-                        FROM la.MerkleNode
-                        WHERE MerkleNode.Hash=@Hash
-                        ", new { Hash = hash });
-                if (result.Any()) {
-                    node = result.First();
-                    node.IsFlyweight = true;  /* A generic merkle node will
-                                                 certainly be missing all of
-                                                 its content */
-                    /* TODO: Recursively get the children of this Merkle
-                     * node */
-                }
+            IEnumerable<MerkleNode> result = cn.Query<MerkleNode>(@"
+                    SELECT Hash, Type
+                    FROM la.MerkleNode
+                    WHERE MerkleNode.Hash=@Hash
+                    ", new { Hash = hash });
+            if (result.Any()) {
+                node = result.First();
+                node.IsFlyweight = true;  /* A generic merkle node will
+                                             certainly be missing all of
+                                             its content */
             }
             return node;
+        }
+
+        private void GetNodeChildren(
+                MerkleNode node,
+                IDbConnection cn)
+        {
+            /* FIXME: Check for loops in this method */
+            /* Query for all children of this Merkle node */
+            var childrenResult = cn.Query<MerkleNode>(@"
+                SELECT
+                    child.Hash,
+                    child.Type
+                FROM la.MerkleNode AS parent
+                INNER JOIN la.MerkleEdge AS edge
+                    ON edge.ParentHash = parent.Hash
+                INNER JOIN la.MerkleNode AS child
+                    ON child.Hash = edge.ChildHash
+                WHERE parent.Hash = @Hash
+                ", new { Hash = node.Hash });
+            node.Children = childrenResult;
+            /* Recursively get children */
+            foreach (var child in node.Children) {
+                this.GetNodeChildren(child, cn);
+            }
+        }
+
+        public override MerkleNode GetByHash(string hash) {
+            MerkleNode root = null;
+            using (IDbConnection cn = this.Connection()) {
+                /* Query for the root Merkle node */
+                root = this.GetNodeByHash(hash, cn);
+                if (root == null)
+                    return null;  /* Could not find node with this hash */
+                /* TODO: Recursively add children to the root node */
+                this.GetNodeChildren(root, cn);
+            }
+            return root;
         }
 
         public override IEnumerable<MerkleNode> List() {
