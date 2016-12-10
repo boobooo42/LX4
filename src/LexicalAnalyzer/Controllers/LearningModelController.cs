@@ -108,7 +108,7 @@ namespace LexicalAnalyzer.Controllers {
                  * learning model, since it is expensive to serialize */
                 if (property.DeclaringType
                         .GetInterfaces()
-                        .Contains(typeof(IScraper)))
+                        .Contains(typeof(ILearningModel)))
                 {
                     if (property.PropertyName == "Result") {
                         property.ShouldSerialize =

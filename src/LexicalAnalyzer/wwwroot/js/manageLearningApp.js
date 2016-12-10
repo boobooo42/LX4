@@ -152,7 +152,6 @@ learningApp.controller("ManageLearningController", function ($scope, $http, $int
             lm.status = existingLearnings[key]["Status"];
             lm.priority = existingLearnings[key]["Priority"];
             lm.progress = existingLearnings[key]["Progress"];
-            lm.result = existingLearnings[key]["Result"]["Data"];
             lm.type = nameConversion[existingLearnings[key]["Type"]];
             lm.name = existingLearnings[key]["Properties"][0]["Value"];
             for (var keyC in existingCorpora) {
