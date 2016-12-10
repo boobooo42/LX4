@@ -47,5 +47,18 @@ namespace LexicalAnalyzer.Controllers
             */
             return default(MerkleNode);
         }
+
+        [HttpGet("api/merkle/tree")]
+        public IEnumerable<MerkleNode> GetTree() {
+            /* TODO: Get all of the corpus blobs (we assume those to be the
+             * roots of the Merkle trees) */
+            /* FIXME: This should instead get all pinned Merkle nodes */
+            return null;  /* TODO */
+        }
+
+        [HttpGet("api/merkle/tree/{hash}")]
+        public MerkleNode GetTree(string hash) {
+            return null;  /* TODO */
+        }
     }
 }

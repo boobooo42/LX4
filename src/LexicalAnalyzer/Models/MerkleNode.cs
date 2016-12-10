@@ -9,6 +9,7 @@ namespace LexicalAnalyzer.Models {
 
         /* Accessors */
         public string Hash { get; set; }
+        public string Type { get; set; }
 
         /* Implement the Merkle node flyweight behavior */
         public bool IsFlyweight { get; set; }

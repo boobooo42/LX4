@@ -161,8 +161,10 @@ namespace LexicalAnalyzer.LearningModels {
                 .GetByCorpusID(m_corpusID);
 
             /* Iterate over all corpus content */
+            m_progress = 0.0f;
             var dictionary = new SortedDictionary<string, RankFrequencyPair>();
-            foreach (var cont in corpusBlob.Content) {
+            for (int i = 0; i < corpusBlob.Content.Count(); ++i) {
+                var cont = corpusBlob.Content[i];
                 /* Note that we only have the content hash at this point. We
                  * must retrieve the actual content from the
                  * ContentBlobRepository. */
@@ -184,13 +186,18 @@ namespace LexicalAnalyzer.LearningModels {
                     }
                     dictionary[word].Frequency += 1;
                 }
+                m_progress = 0.9f * ((float)i / (float)corpusBlob.Content.Count());
             }
             /* We sort the words by frequency to determine the rank of each
              * word */
             var rankedWords = dictionary.Values.OrderBy(word => word.Frequency);
-            for (int i = 0; i < rankedWords.Count(); ++i) {
-                rankedWords.ElementAt(i).Rank = rankedWords.Count() - i;
+            m_progress = 0.93f;
+            int j = 0;
+            foreach (var word in rankedWords) {
+                word.Rank = rankedWords.Count() - j;
+                j += 1;
             }
+            m_progress = 0.96f;
 
             /* TODO: Implement thread safety here */
             m_words = new List<RankFrequencyPair>(rankedWords);

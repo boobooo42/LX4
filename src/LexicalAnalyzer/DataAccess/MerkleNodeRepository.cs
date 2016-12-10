@@ -87,7 +87,7 @@ namespace LexicalAnalyzer.DataAccess {
             MerkleNode node = null;
             using (IDbConnection cn = this.Connection()) {
                 IEnumerable<MerkleNode> result = cn.Query<MerkleNode>(@"
-                        SELECT *
+                        SELECT Hash, Type
                         FROM la.MerkleNode
                         WHERE MerkleNode.Hash=@Hash
                         ", new { Hash = hash });
@@ -107,7 +107,7 @@ namespace LexicalAnalyzer.DataAccess {
             IEnumerable<MerkleNode> list = null;
             using (IDbConnection cn = this.Connection()) {
                 list = cn.Query<MerkleNode>(@"
-                        SELECT Hash
+                        SELECT Hash, Type
                         FROM la.MerkleNode
                         ");
                 foreach (MerkleNode node in list) {

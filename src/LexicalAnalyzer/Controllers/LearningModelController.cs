@@ -89,6 +89,37 @@ namespace LexicalAnalyzer.Controllers {
             return JsonConvert.SerializeObject(learningModel);
         }
 
+        public class SerializeLearningModelContractResolver
+            : DefaultContractResolver
+        {
+            public static readonly SerializeLearningModelContractResolver
+                Instance = new SerializeLearningModelContractResolver();
+
+            protected override JsonProperty CreateProperty(
+                    MemberInfo member,
+                    MemberSerialization memberSerialization)
+            {
+                JsonProperty property =
+                    base.CreateProperty(
+                            member,
+                            memberSerialization);
+
+                /* Suppress the serialization of the Result proprety of the
+                 * learning model, since it is expensive to serialize */
+                if (property.DeclaringType
+                        .GetInterfaces()
+                        .Contains(typeof(IScraper)))
+                {
+                    if (property.PropertyName == "Result") {
+                        property.ShouldSerialize =
+                            instance => { return false; };
+                    }
+                }
+
+                return property;
+            }
+        }
+
         /// <summary>
         /// Returns a list of all of the learning models currently
         /// instantiated.
@@ -104,7 +135,11 @@ namespace LexicalAnalyzer.Controllers {
         {
             /* List all learning models currently instantiated */
             return JsonConvert.SerializeObject(
-                    m_learningService.LearningModels);
+                    m_learningService.LearningModels,
+                    Formatting.Indented,
+                    new JsonSerializerSettings {
+                    ContractResolver = SerializeLearningModelContractResolver.Instance
+                    });
         }
 
         /// <summary>
