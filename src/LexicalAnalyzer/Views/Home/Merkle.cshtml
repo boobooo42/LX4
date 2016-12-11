@@ -1,0 +1,226 @@
+﻿<script src="~/js/angular.min.js"></script>
+<script src="~/js/angular-route.min.js"></script>
+<script src="~/js/merkleApp.js"></script>
+
+<style>
+
+div .title{
+    padding:20px;
+}
+
+.tree {
+    font-family: "Courier New", Courier, monospace;
+	width: 450px;
+    min-height:20px;
+    padding:19px;
+    margin-bottom:20px;
+    border:1px solid #999;
+    -webkit-border-radius:4px;
+    -moz-border-radius:4px;
+    border-radius:4px;
+    -webkit-box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    -moz-box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.tooltip{
+    width: 300px;
+}
+
+.empty{
+    border-color: red;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.tree .merkleTree {
+	text-align: center;
+	-moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border:0px solid #999;
+    border-radius:5px;
+    padding:3px 8px;
+}
+
+.tree .hash {
+    border-style: none;
+    font-size: 10.5px;
+}
+
+.tree input[type=text] {
+    font-family: "Courier New", Courier, monospace;
+    outline: none;
+    border: none !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
+    border:1px solid #999;
+
+	padding-left:15px;
+    background-color: #FFF;
+  	width: 60%;
+  	border-radius: 5em; 
+  	border-bottom-left-radius: 5em;
+  	border-top-left-radius: 5em;
+  	height: 16px;
+}
+
+.tree input[type=submit] {
+    outline: none;
+    border: none !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
+
+
+    border-style: solid;
+    border-color: white;
+    border-top-right-radius: 5em;
+    border-bottom-right-radius: 5em;
+  	height: 24px;
+  	width: 25%;
+    margin-bottom: 10px;
+}
+
+.tree .wall ul {
+	list-style: none;
+}
+
+.tree li {
+    list-style-type:none;
+    margin:0;
+    padding:10px 5px 0 5px;
+    position:relative
+}
+.tree li::before, .tree li::after {
+    content:'';
+    left:-20px;
+    position:absolute;
+    right:auto
+}
+.tree li::before {
+    border-left:1px solid #999;
+    border-width: 5px;
+    border-spacing: 20px;
+    bottom:50px;
+    height:100%;
+    top:0;
+    width:1px
+}
+.tree li::after {
+    border-top:1px solid #999;
+    border-width: 5px;
+    height:20px;
+    top:25px;
+    width:25px;
+
+}
+.tree li span {
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border:1px solid #999;
+    border-radius:5px;
+    display:inline-block;
+    padding:3px 8px;
+    text-decoration:none;
+}
+.tree li.parent_li>span {
+    cursor:pointer
+}
+.tree>ul>li::before, .tree>ul>li::after {
+    border:0
+}
+.tree li:last-child::before {
+    height:30px
+}
+.tree li.parent_li>span:hover, .tree li.parent_li>span:hover+ul li span {
+    background:#eee;
+    border:1px solid #94a0b4;
+    color:#000
+}
+
+    .node circle {
+        stroke: steelblue;
+        stroke-width: 3px;
+    }
+
+        .node circle:hover {
+            fill: #fff;
+            stroke: orange;
+            stroke-width: 3px;
+        }
+
+    .node text {
+        font: 12px sans-serif;
+    }
+
+    .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 2px;
+    }
+</style>
+
+<script>
+    var searchResult;
+
+    $(function () {
+        $("#search").keyup(function () {
+            if ($(this).val().length > 0) {
+                searching = true;
+                filteredList = [];
+
+
+                $("#mainMerkleTree").empty();
+                FilterMerkleTree(searchList, $(this).val());
+                BuildMerkleTree(filteredList, false);
+
+                $("#d3merkleTree").empty();
+                //update(filteredList);
+            }
+            else if ($(this).val().length == 0) {
+                $("#mainMerkleTree").empty();
+                $(htmlList).appendTo("#mainMerkleTree");
+                InitDrawer();
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        $("#vm").click(function (event) {
+            alert(event.target.id);
+        });
+    });
+
+    $(document).ready(function () {
+        $("#mainMerkleTree").click(function (event) {
+            alert($(event.target).text());
+        });
+    });
+</script>
+
+<div id="maincontroller" class="row row-margin" ng-app="merkleApp" ng-controller="MerkleController">
+    <h3><span>Merkle Tree</span></h3><hr />
+
+    <div class="row">
+        <div class="tree well" style="float: left;">
+            <div class="merkleTree">
+                <h4>Structure</h4><hr>
+                <input id="search" class="searchTree" type="text" placeholder='Search for Hash'>
+            </div>
+            <ul id="mainMerkleTree" style="list-style:none;">
+                <!-- Merkle Tree Will be set here -->
+            </ul>
+        </div>
+
+        <!--<div id="vm" class="container" style="float: right; padding-left: 50px;">
+            <div class="title"><h4>Visual Corpus</h4><hr></div>
+
+            <div id="d3merkleTree">
+            </div>
+
+        </div>-->
+    </div>
+
+</div>
+
+

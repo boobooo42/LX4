@@ -290,6 +290,10 @@ namespace LexicalAnalyzer.Scrapers
             StartTwitterStream();
         }
 
+        /// <summary>
+        /// deprecated run of twitter scraper
+        /// </summary>
+        /// <returns></returns>
         public string TwitterTest()
         {
             Debug.Assert(false);
