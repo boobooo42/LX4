@@ -105,25 +105,25 @@ function CreateTreeBranch(jso, level) {
         searchList.push(jso);
     }
 
-    if (jso.children != undefined && jso.children.length != 0) {
+    if (jso.Children != undefined && jso.Children.length != 0) {
         var string = "<li><span><i class='icon-folder-open'></i> ";
     } else {
         var string = "<li><span class='empty'><i class='icon-folder-open'></i> ";
     }
 
-    var title = jso.type;
+    var title = jso.Type;
 
-    if (jso.name != undefined) {
-        string += jso.name + "</span> <a href='#' data-toggle='tooltip' data-placement='right'" + title + "'><span class='hash'>" + jso.hash.substring(jso.hash.length- 20, jso.hash.length); + "</span></a>";
+    if (jso.Name != undefined) {
+        string += jso.Name + "</span> <a href='#' data-toggle='tooltip' data-placement='right'" + title + "'><span class='hash'>" + jso.Hash.substring(jso.Hash.length - 20, jso.Hash.length); + "</span></a>";
     }
     else {
-        string += jso.type + "</span> <a href='#' data-toggle='tooltip' data-placement='right'" + title + "'><span class='hash'>" + jso.hash.substring(jso.hash.length - 20, jso.hash.length); + "</span></a>";
+        string += jso.Type + "</span> <a href='#' data-toggle='tooltip' data-placement='right'" + title + "'><span class='hash'>" + jso.Hash.substring(jso.Hash.length - 20, jso.Hash.length); + "</span></a>";
     }
     collection += string;
-    if (jso.children != undefined && jso.children.length != 0) {
+    if (jso.Children != undefined && jso.Children.length != 0) {
         collection += '<ul>';
-        for (var key in jso.children) {
-            CreateTreeBranch(jso.children[key], level + 1);
+        for (var key in jso.Children) {
+            CreateTreeBranch(jso.Children[key], level + 1);
         }
         collection += "</ul>";
     }
@@ -133,7 +133,7 @@ function CreateTreeBranch(jso, level) {
 
 function FilterMerkleTree(list, word) {
     for (var node = 0; node < list.length; node++) {
-        if (list[node].hash.indexOf(word) !== -1) {
+        if (list[node].Hash.indexOf(word) !== -1) {
             filteredList.push(list[node]);
         }
     }
