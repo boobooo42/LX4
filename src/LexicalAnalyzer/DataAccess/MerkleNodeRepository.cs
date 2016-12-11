@@ -178,7 +178,7 @@ namespace LexicalAnalyzer.DataAccess {
                             cn);
                     node.IsFlyweight = true;  /* A generic merkle node will
                                                  certainly be missing all of
-                                                 its content */
+                                                 itsn content */
                     list.Add(node);
                 }
             }

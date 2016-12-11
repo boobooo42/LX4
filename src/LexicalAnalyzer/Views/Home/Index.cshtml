@@ -1,7 +1,86 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-<div class="panel panel-default">
+<!-- <div class="panel panel-default">
     <h3 class="panel-heading">Lexical Analyzer</h3>
-    <p class="panel-body">We propose to build a web system to facilitate machine learning research, particularly the analysis of machine code using artificial neural networks. Machine code here refers to the machine code found in executable files, shared libraries, and object files. We will compile a corpus of such files and train an artificial neural network in a manner analogous to the word2vec model. The system we develop will be applicable to more than just machine code analysis; with slight modification to the corpus and neural net training routines, our system will be able to handle any research task involving training a neural net with a large corpus of input.</p>
+    <p class="panel-body">We propose to build a web system to facilitate
+    machine learning research, particularly the analysis of machine code using
+    artificial neural networks. Machine code here refers to the machine code
+    found in executable files, shared libraries, and object files. We will
+    compile a corpus of such files and train an artificial neural network in a
+    manner analogous to the word2vec model. The system we develop will be
+    applicable to more than just machine code analysis; with slight
+    modification to the corpus and neural net training routines, our system
+    will be able to handle any research task involving training a neural net
+    with a large corpus of input.</p>
+</div>
+-->
+<div class="jumbotron">
+<h1>LexicalAnalyzer</h1>
+<p>A C# web platform for conducting linguistics research.</p>
+<p><a class="btn btn-primary btn-lg" href="@Url.Content("~/Home/Documentation")" role="button">Get Started</a></p>
+</div>
+<script src="~/js/angular.min.js"></script>
+<script src="~/js/angular-route.min.js"></script>
+<script src="~/js/statusApp.js"></script>
+
+<div class="row" ng-app="statusApp">
+<!--    <h3><span>Status</span></h3><hr /> -->
+    <!--<a style="text-align:right; display:block;" asp-area="" asp-controller="Workflow" asp-action="ManageLearning">History</a>-->
+    <div class="row-margin status-container" ng-controller="status">
+        <!-- USE ANGULAR JS TO RETRIEVE ACTIVE SCRAPPERS (USE NG_REPEAT TO DISPLAY DATA) -->
+        <div class="col-md-5">
+            <h4>Active Scrappers</h4>
+
+            <div class="scrapper-status" ng-repeat="scrapper in scrappers">
+                <span class="status-pause" ng-click="toggleScrapper(scrapper)"><i class="glyphicon glyphicon-pause"></i></span>
+
+                <span>Name: {{scrapper.UserGivenName}}</span>
+                <br />
+                <span>Status: {{scrapper.Status}}</span>
+                <br />
+                <span>Type: {{scrapper.TypeName}}</span>
+                <br />
+                <span>Guid: {{scrapper.Guid}}</span>
+
+                <hr />
+                <div class="progress">
+                    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
+                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:{{scrapper.Progress}}%">
+                        {{scrapper.Progress}}% Complete
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- END SCRAPPERS S-->
+        <!-- USE ANGULAR JS TO RETRIEVE ACTIVE NEURAL NETWORKS IN TRAINING (USE NG_REPEAT TO DISPLAY DATA) -->
+        <div class="col-md-7">
+            <h4>Active Learning Models</h4>
+
+            <div class="scrapper-status" ng-repeat="lm in learningModels">
+                <span class="status-pause" ng-click="togglelearningModel(lm)"><i class="glyphicon glyphicon-pause"></i></span>
+
+                <span class="status-id">{{lm.id}}</span>
+
+                <span>Name: {{lm.Properties[0].Value}}</span>
+                <br />
+                <span>Status: {{lm.Status}}</span>
+                <br />
+                <span>Type: {{lm.Type}}</span>
+                <br />
+                <span>Guid: {{lm.Guid}}</span>
+                <hr />
+                <div class="progress">
+                    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
+                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:{{lm.Progress}}%">
+                        {{lm.Progress}}% Complete
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- END SCRAPPERS S-->
+    </div>
 </div>
