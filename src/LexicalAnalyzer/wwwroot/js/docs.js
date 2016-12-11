@@ -1,3 +1,4 @@
+//Slider Docs
 var sliderDocs = [
     {
         page: "HomeDocumentation",

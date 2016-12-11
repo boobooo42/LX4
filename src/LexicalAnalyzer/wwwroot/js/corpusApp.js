@@ -36,6 +36,23 @@ corpusApp.controller("corpus", function ($scope, $http, $interval) {
         });
     }
 
+
+    $scope.deleteCorpus = function (corpusId) {
+    var route = UrlContent("/delete/" + corpusId);
+
+        $http({
+            method: 'get',
+                    url: route
+            })
+           .success(function(response) {
+               console.log(response);
+               location.reload();
+               })
+           .error(function () {
+               console.log("Failed to delete corpus.")
+           });
+    }
+
     //Gets all corpora
     $scope.getCorpusList = function () {
 
