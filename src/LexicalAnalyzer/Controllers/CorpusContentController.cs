@@ -34,7 +34,7 @@ namespace LexicalAnalyzer.Controllers
         }
 
         /// <summary>
-        /// Get a list of corpora stored on the database
+        /// Delete a Corpus Content of the given id
         /// </summary>
         [HttpGet("delete/{id}")]
         public void Delete(int id)
