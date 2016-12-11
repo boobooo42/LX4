@@ -55,8 +55,8 @@ namespace LexicalAnalyzer.DataAccess {
                         /* Delete the corpus and all of its content in one
                          * database transaction */
                         conn.Execute(
-                            @" DELETE FROM la.Corpus WHERE CorpusId=@Id ",
-                            new { CorpusId = corpus.Id });
+                            @" DELETE FROM la.Corpus WHERE Id=@Id ",
+                            new { Id = corpus.Id });
             }
         }
 
