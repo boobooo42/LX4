@@ -65,10 +65,17 @@ namespace LexicalAnalyzer.Controllers
         /// Delete a Corpus of the given id
         /// </summary>
         [HttpGet("delete/{id}")]
-        public void Delete(int id)
+        public string Delete(int id)
         {
             var temp = m_context.CorpusRepository.GetById(id);
+            if (temp == null)
+            {
+                var error = new LexicalAnalyzer.Models.Error();
+                error.Message = "Could not find Corpus with the given Id";
+                return JsonConvert.SerializeObject(error);
+            }
             m_context.CorpusRepository.Delete(temp);
+            return "Corpus was deleted succesfully";
         }
         /// <summary>
         /// Change the name and description of a corpus with the given id
