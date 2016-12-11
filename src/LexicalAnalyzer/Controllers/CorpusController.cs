@@ -62,6 +62,15 @@ namespace LexicalAnalyzer.Controllers
         }
 
         /// <summary>
+        /// Get a list of corpora stored on the database
+        /// </summary>
+        [HttpGet("delete/{id}")]
+        public void Delete(int id)
+        {
+            var temp = m_context.CorpusRepository.GetById(id);
+            m_context.CorpusRepository.Delete(temp);
+        }
+        /// <summary>
         /// Change the name and description of a corpus with the given id
         /// </summary>
         /// <remarks>
