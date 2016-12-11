@@ -40,28 +40,12 @@ namespace LexicalAnalyzer.DataAccess
                 {
                     try
                     {
-                        //string contentGuid = content.ScraperGuid.ToString();
-                        //string contentText = System.Text.Encoding.UTF8.GetString(content.Content);
-                        //conn.Execute(@"IF NOT EXISTS
-                        //(SELECT 1 FROM la.Corpus
-                        //    WHERE Id = @Id)BEGIN                            
-                        //    INSERT INTO la.Corpus
-                        //    (Id, Name, Description)
-                        //    VALUES (@Id, @Name, @Description)
-                        //    END ", new
-                        //{
-                        //    Id = 1,
-                        //    Name = "stuff",
-                        //    Text = "more stuff",
-                        //}, transaction: tran);
-                        conn.Execute(@"IF NOT EXISTS
-                        (SELECT 1 FROM la.CorpusContent
-                            WHERE Hash = @Hash)BEGIN 
+                        conn.Execute(@"
                         INSERT INTO la.CorpusContent
                             (CorpusId, Hash, Name, Type, ScraperGuid, ScraperType, DownloadDate,
                              DownloadURL, Long, Lat )
                             VALUES ( @CorpusId, @Hash, @Name, @Type, @ScraperGuid, @ScraperType, @DownloadDate,
-                                @DownloadURL, @Long, @Lat) END
+                                @DownloadURL, @Long, @Lat)
                             ", new
                         {
                             CorpusId = content.CorpusId,

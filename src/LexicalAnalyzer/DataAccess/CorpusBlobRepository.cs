@@ -292,9 +292,12 @@ namespace LexicalAnalyzer.DataAccess
              * corpus blob */
             foreach (var blob in content)
             {
-                conn.Execute(@"
+                conn.Execute(@"IF NOT EXISTS
+                        (SELECT 1 FROM la.MerkleEdge
+                            WHERE ParentHash = @ParentHash AND ChildHash = @ChildHash)
+                    BEGIN
                     INSERT INTO la.MerkleEdge( ParentHash, ChildHash )
-                    VALUES ( @ParentHash, @ChildHash )
+                    VALUES ( @ParentHash, @ChildHash ) END
                     ", new
                 {
                     ParentHash = hash,
