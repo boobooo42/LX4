@@ -1,22 +1,16 @@
-﻿<div class="container">
-    <div class="row row-margin">
-        <span><h3>Documentation</h3></span>
-        <div style="border: 1px solid rgba(0,0,0,.2); border-radius: 1em">
-            <div class="row row-margin">
-                <h4>Status</h4>
+﻿<script src="~/js/angular.min.js"></script>
+<script src="~/js/angular-route.min.js"></script>
+<script type="text/javascript" src="~/js/documentation.js"></script>
+<link rel="stylesheet" href="~/css/workflow.css" asp-append-version="true" />
+<div class="container">
+    <div ng-app="documentationApp" ng-controller="DocuController">
+        <div class="row row-margin ">
+            <div class="panel panel-default">
+                <h3 class="panel-heading">{{fields.title}}</h3>
+                <p class="panel-body" style="white-space: pre-wrap;">{{fields.body}}</p>
+                <br />
             </div>
-
-            <div class="row row-margin">
-                <h4>Workflow</h4>
-            </div>
-
-            <div class="row row-margin">
-                <h4>Neural Net</h4>
-            </div>
-
-            <div class="row row-margin">
-                <h4>Documentation</h4>
-            </div>
+            <br />
         </div>
     </div>
 </div>
