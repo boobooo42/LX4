@@ -23,13 +23,13 @@ merkleApp.controller('MerkleController', ['$scope', '$http', function ($scope, $
 
 var fakeTree = [
       {
-          "hash": "BHJC67E7623B2H2J3R398RG4BUYDBF",
+          "hash": "njkd347892htb43yu7ifb4u98",
           "type": "string",
           "name": "NAME",
           "isFlyweight": true,
           "children": [
             {
-                "hash": "BHBFBY42FI32808RY2HID23DBK2YB",
+                "hash": "bfh4ug7368f3t7u4fbrfhfruifr9",
                 "type": "string",
                 "isFlyweight": true,
                 "children": [
@@ -41,7 +41,6 @@ var fakeTree = [
 
 window.onload = function () {
     //BuildMerkleTree(fakeTree, false);
-    //BuildMerkleTree(merkleList, false);
 
    // $.getJSON("http://bn-i.net/dir.php", { format: "json" })
 	//	.done(function (data) { console.log("done"); })
@@ -115,7 +114,7 @@ function CreateTreeBranch(jso, level) {
     var title = jso.type;
 
     if (jso.name != undefined) {
-        string += jso.name + "</span> <a href='#' data-toggle='tooltip' data-placement='right'" + title + "'><span class='hash'>" + jso.hash.substring(jso.hash.length-10, jso.hash.length); + "</span></a>";
+        string += jso.name + "</span> <a href='#' data-toggle='tooltip' data-placement='right'" + title + "'><span class='hash'>" + jso.hash.substring(jso.hash.length- 20, jso.hash.length); + "</span></a>";
     }
     else {
         string += jso.type + "</span> <a href='#' data-toggle='tooltip' data-placement='right'" + title + "'><span class='hash'>" + jso.hash.substring(jso.hash.length - 20, jso.hash.length); + "</span></a>";
@@ -134,7 +133,7 @@ function CreateTreeBranch(jso, level) {
 
 function FilterMerkleTree(list, word) {
     for (var node = 0; node < list.length; node++) {
-        if (list[node].filename.indexOf(word) !== -1) {
+        if (list[node].hash.indexOf(word) !== -1) {
             filteredList.push(list[node]);
         }
     }
