@@ -8,9 +8,21 @@
             <div class="panel panel-default">
                 <h3 class="panel-heading">{{fields.title}}</h3>
                 <p class="panel-body" style="white-space: pre-wrap;">{{fields.body}}</p>
-                <br />
             </div>
-            <br />
+            <div class="panel panel-default">
+                <h3 class="panel-heading">{{fields.glossarytitle}}</h3>
+                <p class="panel-body" style="white-space: pre-wrap;">{{fields.glossary}}</p>
+            </div>
+            <hr />
+            <div class="panel panel-default" >
+                <h3 class="panel-heading" style="text-align:center;">Pages</h3>
+                
+            </div>
+            <hr />
+            <div class="panel panel-default" ng-repeat="field in doc">
+                <h3 class="panel-heading">{{field.title}}</h3>
+                <p class="panel-body" style="white-space: pre-wrap;">{{field.body}}</p>
+            </div>
         </div>
     </div>
 </div>
