@@ -21,6 +21,6 @@ namespace LexicalAnalyzer.Interfaces {
         IMerkleNodeRepository MerkleNodeRepository { get; }
         IContentBlobRepository ContentBlobRepository { get; }
         ICorpusBlobRepository CorpusBlobRepository { get; }
-        //INeuralNetBlobRepository NeuralNetBlobRepository { get; }
+        IResultBlobRepository ResultBlobRepository { get; }
     }
 }

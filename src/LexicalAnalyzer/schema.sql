@@ -72,10 +72,11 @@ CREATE TABLE la.NeuralNetParameterBlob(
     CONSTRAINT PK_NeuralNetParameterBlob PRIMARY KEY (Hash)
     );
 
-CREATE TABLE la.ResultsBlob(
+CREATE TABLE la.ResultBlob(
     Hash char(64) NOT NULL,
-    Contents text NULL,
-    CONSTRAINT PK_ResultsBlob PRIMARY KEY (Hash)
+    ResultType varchar (512) NOT NULL,
+    Data nvarchar(max) NOT NULL,
+    CONSTRAINT PK_ResultBlob PRIMARY KEY (Hash)
     );
 
 CREATE TABLE la.LearningModelBlob(

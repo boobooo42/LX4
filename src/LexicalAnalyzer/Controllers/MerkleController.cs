@@ -59,7 +59,7 @@ namespace LexicalAnalyzer.Controllers
 
         [HttpGet("api/merkle/tree/{hash}")]
         public string GetTree(string hash) {
-            /* TODO: Look for a Merkle node with the given hsah */
+            /* Look for a Merkle node with the given hsah */
             MerkleNode root = m_context.MerkleNodeRepository.GetByHash(hash);
             if (root == null) {
                 Response.StatusCode = 404;  /* Not Found */

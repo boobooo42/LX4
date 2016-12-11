@@ -14,6 +14,9 @@ namespace LexicalAnalyzer.Models {
         /* Implement the Merkle node flyweight behavior */
         public bool IsFlyweight { get; set; }
 
+        /* Used to determine which nodes are subject to garbage collection */
+        public bool Pinned { get; set; }
+
         public IEnumerable<MerkleNode> Children { get; set; }
 
         public bool Validate() {
