@@ -72,11 +72,11 @@ ALTER TABLE la.NeuralNetParameterBlob
 ALTER TABLE la.NeuralNetParameterBlob
     CHECK CONSTRAINT FK_NeuralNetParameterBlob_MerkleNode;
 
-ALTER TABLE la.ResultsBlob
-    WITH CHECK ADD CONSTRAINT FK_ResultsBlob_MerkleNode
+ALTER TABLE la.ResultBlob
+    WITH CHECK ADD CONSTRAINT FK_ResultBlob_MerkleNode
     FOREIGN KEY (Hash)
     REFERENCES la.MerkleNode (Hash)
 	ON UPDATE CASCADE
 	ON DELETE CASCADE;
-ALTER TABLE la.ResultsBlob
-    CHECK CONSTRAINT FK_ResultsBlob_MerkleNode;
+ALTER TABLE la.ResultBlob
+    CHECK CONSTRAINT FK_ResultBlob_MerkleNode;

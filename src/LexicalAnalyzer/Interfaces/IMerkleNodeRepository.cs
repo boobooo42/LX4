@@ -31,5 +31,6 @@ namespace LexicalAnalyzer.Interfaces
     public interface IMerkleNodeRepository
         : IMerkleNodeRepository<MerkleNode>
     {
+        IEnumerable<MerkleNode> ListPinned();
     }
 }

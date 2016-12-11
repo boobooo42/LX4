@@ -1,6 +1,7 @@
 ﻿using LexicalAnalyzer.Interfaces;
 using LexicalAnalyzer.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -49,16 +50,25 @@ namespace LexicalAnalyzer.Controllers
         }
 
         [HttpGet("api/merkle/tree")]
-        public IEnumerable<MerkleNode> GetTree() {
-            /* TODO: Get all of the corpus blobs (we assume those to be the
-             * roots of the Merkle trees) */
-            /* FIXME: This should instead get all pinned Merkle nodes */
-            return null;  /* TODO */
+        public string GetTree() {
+            /* Get a list of all pinned Merkle nodes (we wouldn't want to show
+             * trees for every Merkle node) */
+            var pinnedNodes = m_context.MerkleNodeRepository.ListPinned();
+            return JsonConvert.SerializeObject(pinnedNodes);
         }
 
         [HttpGet("api/merkle/tree/{hash}")]
-        public MerkleNode GetTree(string hash) {
-            return null;  /* TODO */
+        public string GetTree(string hash) {
+            /* Look for a Merkle node with the given hsah */
+            MerkleNode root = m_context.MerkleNodeRepository.GetByHash(hash);
+            if (root == null) {
+                Response.StatusCode = 404;  /* Not Found */
+                var error = new LexicalAnalyzer.Models.Error();
+                error.Message =
+                    "Could not find Merkle node with the given hash";
+                return JsonConvert.SerializeObject(error);
+            }
+            return JsonConvert.SerializeObject(root);
         }
     }
 }

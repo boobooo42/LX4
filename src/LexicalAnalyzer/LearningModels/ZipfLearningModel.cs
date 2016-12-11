@@ -202,6 +202,16 @@ namespace LexicalAnalyzer.LearningModels {
             /* TODO: Implement thread safety here */
             m_words = new List<RankFrequencyPair>(rankedWords);
             m_progress = 1.0f;
+
+            /* Store the result in the Merkle tree */
+            var resultBlob = new ResultBlob(this.Result);
+            resultBlob.Children = new List<MerkleNode> {
+                        corpusBlob
+                    };
+            resultBlob.Pinned = true;  /* Not subject to garbage collection */
+            m_context.ResultBlobRepository.Add(resultBlob);
+
+            this.Status = "done";
         }
 
         public IResult Result {
