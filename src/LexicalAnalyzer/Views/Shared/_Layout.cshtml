@@ -14,6 +14,8 @@
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" />
         <script type="text/javascript" src="~/js/jquery-2.2.0.js"></script>
+        <script type="text/javascript" src="~/js/documentation.js"></script>
+
     </environment>
     <environment names="Staging,Production">
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.6/css/bootstrap.min.css"
@@ -55,12 +57,43 @@
         </div>
     </nav>
 
+    <script>
+                    var page = window.location.pathname;
+                    console.log(page);
+                    page = page.split("/").join("");
+                    page = page.split("LexicalAnalyzer").join("");
+                    var focus;
+
+                    $(document).ready(function () {
+                        
+                        if (page.trim() == "") {
+
+                                    focus = sliderDocs[0];
+                                    $("docTitle").append("<h4  style='color:#00BFFF;'>" + focus.title + "</h4>");
+                                    $("docBody").append("<span>" + focus.body + "</span>");
+                                
+                            
+                        } else {
+                            for (var i = 0; i < sliderDocs.length; i++) {
+                                if (sliderDocs[i].page == page) {
+                                    focus = sliderDocs[i];
+                                    $("docTitle").append("<h4 style='color:#00BFFF;'>" + focus.title + "</h4>");
+                                    $("docBody").append("<span class=''>" + focus.body + "</span>");
+                                }
+                            }
+                        }
+                    });
+
+
+    </script>
     <div class="docs col-md-2">
         <span class="docs-title">Documentation</span>
+
         <hr />
-        <input type="text" name="doc-search" id="doc-search" size="100%" placeholder="Filter" />
-        <hr />
-        
+        <p>
+            <docTitle></docTitle>
+            <docBody></docBody>
+        </p>
     </div>
 
     <div class="container body-content">
