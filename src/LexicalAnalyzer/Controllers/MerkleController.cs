@@ -50,11 +50,11 @@ namespace LexicalAnalyzer.Controllers
         }
 
         [HttpGet("api/merkle/tree")]
-        public IEnumerable<MerkleNode> GetTree() {
-            /* TODO: Get all of the corpus blobs (we assume those to be the
-             * roots of the Merkle trees) */
-            /* FIXME: This should instead get all pinned Merkle nodes */
-            return null;  /* TODO */
+        public string GetTree() {
+            /* Get a list of all pinned Merkle nodes (we wouldn't want to show
+             * trees for every Merkle node) */
+            var pinnedNodes = m_context.MerkleNodeRepository.ListPinned();
+            return JsonConvert.SerializeObject(pinnedNodes);
         }
 
         [HttpGet("api/merkle/tree/{hash}")]

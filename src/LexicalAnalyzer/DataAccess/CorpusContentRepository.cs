@@ -84,8 +84,8 @@ namespace LexicalAnalyzer.DataAccess
                             END ", new
                         {
                             Hash = content.Hash,
-                            Type = content.Type,
-                            Pinned = 1,
+                            Type = "CorpusContent",
+                            Pinned = 0,
                         }, transaction: tran
                                      );
                         conn.Execute(@"IF NOT EXISTS

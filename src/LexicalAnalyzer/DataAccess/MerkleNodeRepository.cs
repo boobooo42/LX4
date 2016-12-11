@@ -89,7 +89,7 @@ namespace LexicalAnalyzer.DataAccess {
         {
             MerkleNode node = null;
             IEnumerable<MerkleNode> result = cn.Query<MerkleNode>(@"
-                    SELECT Hash, Type
+                    SELECT Hash, Type, Pinned
                     FROM la.MerkleNode
                     WHERE MerkleNode.Hash=@Hash
                     ", new { Hash = hash });
@@ -126,15 +126,24 @@ namespace LexicalAnalyzer.DataAccess {
             }
         }
 
+        private MerkleNode GetTreeByHash(
+                string hash,
+                IDbConnection cn)
+        {
+            MerkleNode root;
+            /* Query for the root Merkle node */
+            root = this.GetNodeByHash(hash, cn);
+            if (root == null)
+                return null;  /* Could not find node with this hash */
+            /* Recursively add children to the root node */
+            this.GetNodeChildren(root, cn);
+            return root;
+        }
+
         public override MerkleNode GetByHash(string hash) {
             MerkleNode root = null;
             using (IDbConnection cn = this.Connection()) {
-                /* Query for the root Merkle node */
-                root = this.GetNodeByHash(hash, cn);
-                if (root == null)
-                    return null;  /* Could not find node with this hash */
-                /* TODO: Recursively add children to the root node */
-                this.GetNodeChildren(root, cn);
+                root = this.GetTreeByHash(hash, cn);
             }
             return root;
         }
@@ -143,15 +152,34 @@ namespace LexicalAnalyzer.DataAccess {
             IEnumerable<MerkleNode> list = null;
             using (IDbConnection cn = this.Connection()) {
                 list = cn.Query<MerkleNode>(@"
-                        SELECT Hash, Type
+                        SELECT Hash, Type, Pinned
                         FROM la.MerkleNode
                         ");
                 foreach (MerkleNode node in list) {
                     node.IsFlyweight = true;  /* A generic merkle node will
                                                  certainly be missing all of
                                                  its content */
-                    /* TODO: Recursively get the children of this Merkle
-                     * node */
+                }
+            }
+            return list;
+        }
+
+        public IEnumerable<MerkleNode> ListPinned() {
+            var list = new List<MerkleNode>();
+            using (IDbConnection cn = this.Connection()) {
+                var result = cn.Query<MerkleNode>(@"
+                    SELECT Hash
+                    FROM la.MerkleNode
+                    WHERE Pinned = 1
+                    ");
+                foreach (var pinnedNode in result) {
+                    var node = this.GetTreeByHash(
+                            pinnedNode.Hash, 
+                            cn);
+                    node.IsFlyweight = true;  /* A generic merkle node will
+                                                 certainly be missing all of
+                                                 its content */
+                    list.Add(node);
                 }
             }
             return list;
