@@ -2,16 +2,10 @@
 using LexicalAnalyzer.Models;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Tweetinvi;
 using Tweetinvi.Models;
-using Tweetinvi.Models.Entities;
 
 namespace LexicalAnalyzer.Scrapers
 {
@@ -316,7 +310,7 @@ namespace LexicalAnalyzer.Scrapers
             stream.StallWarnings = true;
             stream.AddTweetLanguageFilter(LanguageFilter.English);
             stream.FilterLevel = Tweetinvi.Streaming.Parameters.StreamFilterLevel.None;
-
+            bool auth = Authorized;
             m_downloadCount = 0;
             m_timer.Reset();
             //bool downloadLimitReached = downloadStop();
@@ -335,7 +329,8 @@ namespace LexicalAnalyzer.Scrapers
 
                     Debug.WriteLine(tweet);
                     Console.WriteLine(tweet);
-                    ScraperUtilities.addCorpusContent("Twitter", "tweet", this.Guid,
+                    string title = getTweetName(tweet);
+                    ScraperUtilities.addCorpusContent(tweet.Text, "tweet", this.Guid,
                     this.GetType().FullName, tweet, this.m_context, m_corpusId);
                     m_downloadCount++;
                     m_progress = (float)m_downloadCount / m_downloadLimit;
@@ -430,10 +425,11 @@ namespace LexicalAnalyzer.Scrapers
             string consumerSecret = "QfuQ7YgmLTmvQguuw3siKrwzPCiQ9EW7NleCvhxdRrjSKhfZww";
             // Create a new set of credentials for the application.
             var appCredentials = new TwitterCredentials(consumerKey, consumerSecret);
-
+           
             // Init the authentication process and store the related `AuthenticationContext`.
             authenticationContext = AuthFlow.InitAuthentication(appCredentials);
             return authenticationContext.AuthorizationURL;
+            
         }
 
 
@@ -448,6 +444,27 @@ namespace LexicalAnalyzer.Scrapers
             //FullTwitterSample();
         }
 
+        /// <summary>
+        /// gives us a name for our tweet
+        /// </summary>
+        /// <param name="tweet"></param>
+        /// <returns></returns>
+        string getTweetName(ITweet tweet)
+        {
+
+            //here we are getting the link to the next page using  a regex split
+
+            string title = "Tweet";
+            if (tweet.Text.Length < 31)
+            {
+                title = tweet.Text;
+
+            }
+            else title = tweet.Text.Substring(0,31);
+
+            return title;
+        }
+
         public bool downloadStop()
         {
             if (DownloadCount >= DownloadLimit)
@@ -458,13 +475,7 @@ namespace LexicalAnalyzer.Scrapers
 
         public bool timeStop()
         {
-            if (m_timer.ElapsedMilliseconds >= TimeLimit * 1000)
-            {
-                //  m_timer.Reset();
-                return true;
-            }
-            else
-                return false;
+            return (m_timer.ElapsedMilliseconds >= TimeLimit * 1000);
         }
     }
 }

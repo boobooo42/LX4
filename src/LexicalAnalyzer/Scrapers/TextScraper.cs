@@ -9,6 +9,7 @@ using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System;
+using System.Text.RegularExpressions;
 
 namespace LexicalAnalyzer.Scrapers
 {
@@ -27,6 +28,7 @@ namespace LexicalAnalyzer.Scrapers
         private Stopwatch m_timer;
         private int m_timeLimit;
         private int m_corpusId;
+        private int m_offset;
         private string m_userGivenName;
         private List<KeyValueProperty> m_properties;
 
@@ -45,6 +47,7 @@ namespace LexicalAnalyzer.Scrapers
             m_downloadLimit = 0;
             m_timer = new Stopwatch();
             m_timeLimit = 0;
+            Offset = 0;
         }
 
         /// <summary>
@@ -229,6 +232,12 @@ namespace LexicalAnalyzer.Scrapers
                             "http://www.gutenberg.org/robot/harvest",  /* defaultValue */
                             "url"  /* type */
                             ));
+                properties.Add(
+                        new KeyValueProperty(
+                            "offset",  /* key */
+                            "0",  /* defaultValue */
+                            "> 40000"  /* type */
+                            ));
                 return properties;
             }
         }
@@ -252,6 +261,9 @@ namespace LexicalAnalyzer.Scrapers
                         UserGivenName = property.Value;
                     else if (property.Key == "corpus")
                         CorpusId = int.Parse(property.Value);
+                    else if (property.Key == "offset")
+                        Offset = int.Parse(property.Value);
+
 
                 }
                 m_properties = new List<KeyValueProperty>(value);
@@ -268,6 +280,19 @@ namespace LexicalAnalyzer.Scrapers
             set
             {
                 m_corpusId = value;
+            }
+        }
+
+        public int Offset
+        {
+            get
+            {
+                return m_offset;
+            }
+
+            set
+            {
+                m_offset = value;
             }
         }
 
@@ -383,26 +408,28 @@ namespace LexicalAnalyzer.Scrapers
         {
             Stream unzippedEntryStream;  //Unzipped data from a file in the archive
             ZipArchive archive = new ZipArchive(zipStream);
-
+            bool lookingForFirstBook = true;
             //adds txt files to list of streams
             foreach (ZipArchiveEntry entry in archive.Entries)
             {
                 try
                 {
-                    if (entry.FullName.EndsWith(fileType, StringComparison.OrdinalIgnoreCase))
+                    if (entry.FullName.EndsWith(fileType, StringComparison.OrdinalIgnoreCase) && lookingForFirstBook)
                     {
 
                         unzippedEntryStream = entry.Open(); // .Open will return a stream                                                      
                         byte[] byteArray = ReadFully(unzippedEntryStream); //converts stream to byte array
 
+                        string bookName = getTitle(byteArray);
 
                         DateTime sqlDate = DateTime.Now;
-                        ScraperUtilities.addCorpusContent("Project Gutenberg File", "text",
+                        ScraperUtilities.addCorpusContent(bookName, "text",
                             this.m_guid, this.GetType().FullName, sqlDate, downloadURL,
                             byteArray, m_context, m_corpusId);
 
 
                         unzippedEntryStream.Dispose();
+                        lookingForFirstBook = false;
                     }
 
                 }
@@ -410,6 +437,45 @@ namespace LexicalAnalyzer.Scrapers
             }
         }
 
+        /// <summary>
+        /// gets book title
+        /// </summary>
+        /// <param name="byteArray"></param>
+        /// <returns></returns>
+        string getTitle(byte[] byteArray)
+        {
+            string text = System.Text.Encoding.UTF8.GetString(byteArray);
+            string header = text.Substring(0, 500);
+            //here we are getting the link to the next page using  a regex split
+            string eBookHeader = "The Project Gutenberg eBook,";
+            string eTextHeader = "The Project Gutenberg";
+            string title = "Project Gutenberg File";
+            if (header.Contains(eBookHeader) || header.Contains(eTextHeader))
+            {
+                var lines = header.Split('\r');
+                string firstLine = lines[0];
+                int firstOf;
+                int beginTitle;
+
+                if (header.Contains(eBookHeader))
+                {
+                    string book = "eBook, ";
+                    firstOf = firstLine.IndexOf(book);
+                    beginTitle = firstOf + book.Length - 1;
+                }
+                else
+                {
+                    string start = "of ";
+                    firstOf = firstLine.IndexOf(start);
+                    beginTitle = firstOf + start.Length - 1;
+                }
+
+                title = firstLine.Substring(beginTitle);
+
+            }
+
+            return title;
+        }
 
         /// <summary>
         /// converts a Stream to a byte array
@@ -479,6 +545,11 @@ namespace LexicalAnalyzer.Scrapers
             foreach (KeyValueProperty i in DefaultProperties)
                 if (i.Key.Equals("website"))
                     rootURL = i.Value;
+            if(m_offset != 0)
+            {
+
+                rootURL += "?offset=" + m_offset;
+            }
             scrapePG(rootURL);
         }
 
